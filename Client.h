@@ -1,5 +1,12 @@
+//
+// Created by shadyf on 10/20/16.
+//
+
 #ifndef CLIENT_H
 #define CLIENT_H
+
+#include "Message.h"
+#include "UDPClientSocket.h"
 
 class Client {
 private:
