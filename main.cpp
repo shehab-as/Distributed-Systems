@@ -5,17 +5,17 @@
 
 using namespace std;
 
-char message_received[2];
+char message_received[50];
 auto server = UDPSocket();
 auto client = UDPSocket();
 bool flag;
 
 void server_test() {
-    server.readFromSocketWithBlock(message_received, 8);
+    server.readFromSocketWithBlock(message_received, 50, 8);
 }
 
 void client_test() {
-    client.writeToSocket((char *) "hi", 8);
+    client.writeToSocket((char *) "Hey zizo", 8);
 }
 
 int main() {

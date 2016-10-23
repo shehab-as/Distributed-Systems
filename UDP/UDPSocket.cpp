@@ -3,6 +3,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <cstring>
+#include <errno.h>
 
 UDPSocket::UDPSocket() {
 
@@ -60,6 +61,7 @@ bool UDPSocket::initializeServer(char *_myAddr, uint16_t _myPort) {
         std::cout << "Error occured when creating socket\n";
         return false;
     }
+    myPort = _myPort;
     myAddr.sin_family = AF_INET;
     myAddr.sin_port = htons((uint16_t) myPort);
     myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -73,12 +75,12 @@ bool UDPSocket::initializeServer(char *_myAddr, uint16_t _myPort) {
     return true;
 }
 
-ssize_t UDPSocket::readFromSocketWithBlock(char *message, int maxBytes) {
-    size_t message_size = sizeof(message);
-    int len= sizeof(peerAddr);
-    ssize_t n = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr,  (socklen_t* )len);
-    if (n < 0)
+ssize_t UDPSocket::readFromSocketWithBlock(char *message, size_t message_size, int maxBytes) {
+    ssize_t n = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr, (socklen_t *) sizeof(peerAddr));
+    if (n < 0) {
+        std::cout << strerror(errno) << std::endl;
         std::cout << "Error occured when receiving\n";
+    }
 
     std::cout << "Stopped receiving\n";
     return n;
