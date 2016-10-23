@@ -15,11 +15,12 @@ void server_test() {
 }
 
 void client_test() {
-    client.writeToSocket((char *) "Hey zizo", 8);
+    client.writeToSocket((char *) "Hey shady ya wes5", 8);
 }
 
 int main() {
     flag = server.initializeServer((char *) "localhost", 1234);
+    //flag = client.initializeClient((char *) "10.40.34.69", 1234);
     flag = client.initializeClient((char *) "localhost", 1234);
 
     std::thread t1(server_test);
