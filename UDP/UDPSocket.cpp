@@ -75,7 +75,8 @@ bool UDPSocket::initializeServer(char *_myAddr, uint16_t _myPort) {
 
 ssize_t UDPSocket::readFromSocketWithBlock(char *message, int maxBytes) {
     size_t message_size = sizeof(message);
-    ssize_t n = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr, (socklen_t *) sizeof(peerAddr));
+    int len= sizeof(peerAddr);
+    ssize_t n = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr,  (socklen_t* )len);
     if (n < 0)
         std::cout << "Error occured when receiving\n";
 
