@@ -10,7 +10,7 @@ protected:
     sockaddr_in peerAddr;
     char *myAddress;
     char *peerAddress;
-    int myPort;
+    uint16_t myPort;
     int peerPort;
     bool enabled;
     pthread_mutex_t mutex;
@@ -21,11 +21,11 @@ public:
 
     char *getFilterAddress();
 
-    bool initializeServer(char *_myAddr, int _myPort);
+    bool initializeServer(char *_myAddr, uint16_t _myPort);
 
     bool initializeClient(char *_peerAddr, int _peerPort);
 
-    int writeToSocket(char *buffer, int maxBytes);
+    ssize_t writeToSocket(char *message, int maxBytes);
 
     int writeToSocketAndWait(char *buffer, int maxBytes, int microSec);
 
@@ -34,7 +34,7 @@ public:
     int readFromSocketWithTimeout(char *buffer, int maxBytes, int timeoutSec,
                                   int timeoutMilli);
 
-    int readFromSocketWithBlock(char *buffer, int maxBytes);
+    ssize_t readFromSocketWithBlock(char *message, int maxBytes);
 
     int getMyPort();
 
