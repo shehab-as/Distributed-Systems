@@ -21,7 +21,7 @@ public:
 
     Message(int operation, void *p_message, size_t p_message_size, int p_rpc_id);
 
-    Message(char *marshalled_base64);
+    explicit Message(char *marshalled_base64);
 
     char *marshal();
 

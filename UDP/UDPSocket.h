@@ -21,9 +21,6 @@ public:
 
     char *getFilterAddress();
 
-    bool initializeServer(char *_myAddr, uint16_t _myPort);
-
-    bool initializeClient(char *_peerAddr, int _peerPort);
 
     ssize_t writeToSocket(char *message, int maxBytes);
 
@@ -52,7 +49,7 @@ public:
 
     int getSocketHandler();
 
-    ~UDPSocket();
+    virtual ~UDPSocket();
 };
 
 #endif // UDPSOCKET_H

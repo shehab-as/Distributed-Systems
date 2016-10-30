@@ -3,5 +3,5 @@ project(Distributed-Systems)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 
-set(SOURCE_FILES main.cpp Client.h Message.h Server.h UDP/UDPClientSocket.h UDP/UDPServerSocket.h UDP/UDPSocket.h UDP/UDPSocket.cpp)
+set(SOURCE_FILES main.cpp Client.h Message/Message.h Server.h UDP/UDPClientSocket.h UDP/UDPServerSocket.h UDP/UDPSocket.h UDP/UDPSocket.cpp Message/Message.cpp UDP/UDPServerSocket.cpp UDP/UDPClientSocket.cpp)
 add_executable(untitled ${SOURCE_FILES})
