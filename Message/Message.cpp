@@ -44,5 +44,5 @@ void Message::setMessage(void *msg, size_t msg_size) {
 void Message::setMessageType(MessageType msg_type) { message_type = msg_type; }
 
 Message::~Message() {
-    delete message;
+
 }
