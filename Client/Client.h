@@ -2,7 +2,8 @@
 #define CLIENT_H
 
 #include "Message.h"
-#include "UDP/UDPClientSocket.h"
+#include "../UDP/UDPClientSocket.h"
+#include "../Message/Message.h"
 
 class Client {
 private:
