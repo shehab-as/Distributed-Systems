@@ -22,11 +22,6 @@ ssize_t UDPSocket::writeToSocket(char *message, int maxBytes) {
     return n;
 }
 
-void UDPSocket::disable() {
-    enabled = false;
-}
-
-
 ssize_t UDPSocket::readFromSocketWithBlock(char *message, size_t message_size, int maxBytes) {
     ssize_t n = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr, (socklen_t *) sizeof(peerAddr));
 
@@ -37,6 +32,18 @@ ssize_t UDPSocket::readFromSocketWithBlock(char *message, size_t message_size, i
 
     std::cout << "Stopped receiving\n";
     return n;
+}
+
+uint16_t UDPSocket::getMyPort() {
+    return myPort;
+}
+
+int UDPSocket::getPeerPort() {
+    return peerPort;
+}
+
+int UDPSocket::getSocketHandler() {
+    return sock;
 }
 
 

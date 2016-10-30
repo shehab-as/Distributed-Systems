@@ -12,8 +12,7 @@ protected:
     char *peerAddress;
     uint16_t myPort;
     int peerPort;
-    bool enabled;
-    pthread_mutex_t mutex;
+    //pthread_mutex_t mutex;
 public:
     UDPSocket();
 
@@ -33,19 +32,13 @@ public:
 
     ssize_t readFromSocketWithBlock(char *message, size_t message_size, int maxBytes);
 
-    int getMyPort();
+    uint16_t getMyPort();
 
     int getPeerPort();
 
-    void enable();
-
-    void disable();
-
-    bool isEnabled();
-
-    void lock();
-
-    void unlock();
+//    void lock();
+//
+//    void unlock();
 
     int getSocketHandler();
 
