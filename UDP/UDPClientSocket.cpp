@@ -30,3 +30,11 @@ bool UDPClientSocket::initializeClient(char *_peerAddr, int _peerPort) {
     peerAddr.sin_port = htons((uint16_t) _peerPort);
     return true;
 }
+
+UDPClientSocket::UDPClientSocket() {
+
+}
+
+UDPClientSocket::~UDPClientSocket() {
+
+}

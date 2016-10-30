@@ -23,7 +23,8 @@ ssize_t UDPSocket::writeToSocket(char *message, int maxBytes) {
 }
 
 ssize_t UDPSocket::readFromSocketWithBlock(char *message, size_t message_size, int maxBytes) {
-    ssize_t n = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr, (socklen_t *) sizeof(peerAddr));
+    socklen_t slen = sizeof(struct sockaddr_in);
+    ssize_t n = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr, &slen);
 
     if (n < 0) {
         std::cout << strerror(errno) << std::endl;

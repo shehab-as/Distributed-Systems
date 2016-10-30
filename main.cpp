@@ -2,12 +2,14 @@
 #include <netdb.h>
 #include <thread>
 #include "UDP/UDPSocket.h"
+#include "UDP/UDPClientSocket.h"
+#include "UDP/UDPServerSocket.h"
 
 using namespace std;
 
 char message_received[50];
-auto server = UDPSocket();
-auto client = UDPSocket();
+auto server = UDPServerSocket();
+auto client = UDPClientSocket();
 bool flag;
 
 void server_test() {
