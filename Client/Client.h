@@ -1,7 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include "Message.h"
+#include "../Message/Message.h"
 #include "../UDP/UDPClientSocket.h"
 #include "../Message/Message.h"
 

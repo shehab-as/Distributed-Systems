@@ -19,7 +19,7 @@ Message* Client::execute(Message *_message)
 //Destructor
 Client::~Client()
 {
-    udpSocket->disable();
+
 }
 
 
