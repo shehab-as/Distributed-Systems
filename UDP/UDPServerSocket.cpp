@@ -1,4 +1,6 @@
 #include <iostream>
+#include <netdb.h>
+#include <cstring>
 #include "UDPServerSocket.h"
 
 bool UDPServerSocket::initializeServer(char *_myAddr, uint16_t _myPort) {
@@ -23,6 +25,21 @@ bool UDPServerSocket::initializeServer(char *_myAddr, uint16_t _myPort) {
     peerAddr.sin_family = AF_INET;
 
     return true;
+}
+
+ssize_t UDPServerSocket::writeToSocket(char *message, int maxBytes, char *_peerAddr, int _peerPort) {
+    struct hostent *host;
+    peerAddr.sin_family = AF_INET;
+    if ((host = gethostbyname(_peerAddr)) == NULL) {
+        std::cout << "Error occured when fetching hostname\n";
+        return false;
+    }
+    peerAddr.sin_addr = *(struct in_addr *) (host->h_addr);
+    peerAddr.sin_port = htons((uint16_t) _peerPort);
+    ssize_t n = sendto(sock, message, strlen(message), 0, (const sockaddr *) &peerAddr, sizeof(struct sockaddr_in));
+    if (n < 0)
+        std::cout << "Error occured while sending\n";
+    return n;
 }
 
 UDPServerSocket::UDPServerSocket() {

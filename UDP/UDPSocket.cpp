@@ -16,6 +16,7 @@ UDPSocket::~UDPSocket() {
 ssize_t UDPSocket::writeToSocket(char *message, int maxBytes) {
     // n will contain number of bytes sent if successful
     // n == -1 on failure
+
     ssize_t n = sendto(sock, message, strlen(message), 0, (const sockaddr *) &peerAddr, sizeof(struct sockaddr_in));
     if (n < 0)
         std::cout << "Error occured while sending\n";
