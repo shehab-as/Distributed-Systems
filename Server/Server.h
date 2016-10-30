@@ -1,8 +1,8 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "Message.h"
-#include "UDP/UDPServerSocket.h"
+#include "../UDP/UDPServerSocket.h"
+#include "../Message/Message.h"
 
 class Server {
 private:
