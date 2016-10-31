@@ -42,6 +42,8 @@ public:
 
     int getSocketHandler();
 
+    char* getPeerAddress();
+
     virtual ~UDPSocket();
 };
 

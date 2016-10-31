@@ -17,12 +17,12 @@ private:
 
     Message *doOperation();
 
-    void sendReply(Message *_message);
+    void sendReply(Message *_message,char *_peerAddr, int _peerPort);
 
 public:
     Server(char *_listen_hostname, uint16_t _listen_port, int num_of_workers);
 
-    void serveRequest(int index);
+    void serveRequest(int index, Message* replyFromServer);
 
     ~server();
 };

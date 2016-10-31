@@ -48,5 +48,10 @@ int UDPSocket::getSocketHandler() {
     return sock;
 }
 
+char* UDPSocket::getPeerAddress() {
+
+
+    return peerAddress;
+}
 
 
