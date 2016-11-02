@@ -21,7 +21,7 @@ Message Client::execute(Message *_message, char *_peerAddr, uint16_t _peerPort) 
     ssize_t bytes_sent = udpSocket.writeToSocket(message, 8, peerAddr);
 
     // Wait for reply
-    udpSocket.readFromSocketWithBlock(buffer, BUFFER_SIZE, 8, &peerAddr);
+    udpSocket.readFromSocketWithBlock(buffer, BUFFER_SIZE, 8, peerAddr);
 
     Message reply(MessageType::Reply, buffer, strlen(buffer), 0);
 

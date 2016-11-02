@@ -21,10 +21,10 @@ void Server::serveRequest() {
     char buffer[BUFFER_SIZE];
 
     while (true) {
-        ssize_t bytes_read = udpServerSocket.readFromSocketWithBlock(buffer, BUFFER_SIZE, 8, &peerAddr);
+        ssize_t bytes_read = udpServerSocket.readFromSocketWithBlock(buffer, BUFFER_SIZE, 8, peerAddr);
         std::cout << buffer << std::endl;
         Message *replyFromServer;   // msg from server
-        udpServerSocket.writeToSocket(buffer + 'zizobizo', 8, peerAddr);
+        udpServerSocket.writeToSocket(buffer, 8, peerAddr);
     }
 }
 

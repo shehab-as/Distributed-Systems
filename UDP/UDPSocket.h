@@ -26,7 +26,7 @@ public:
     int readFromSocketWithTimeout(char *buffer, int maxBytes, int timeoutSec,
                                   int timeoutMilli);
 
-    ssize_t readFromSocketWithBlock(char *message, size_t message_size, int maxBytes, sockaddr_in *peerAddr);
+    ssize_t readFromSocketWithBlock(char *message, size_t message_size, int maxBytes, sockaddr_in &peerAddr);
 
     uint16_t getMyPort();
 
