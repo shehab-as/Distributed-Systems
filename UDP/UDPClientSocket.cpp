@@ -3,7 +3,15 @@
 #include <unistd.h>
 #include "UDPClientSocket.h"
 
-bool UDPClientSocket::initializeClient(char *_peerAddr, int _peerPort) {
+UDPClientSocket::UDPClientSocket() {
+
+}
+
+UDPClientSocket::~UDPClientSocket() {
+
+}
+
+bool UDPClientSocket::initializeClient() {
     // initialize socket
     sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
@@ -20,21 +28,5 @@ bool UDPClientSocket::initializeClient(char *_peerAddr, int _peerPort) {
         close(sock);
         return false;
     }
-    struct hostent *host;
-    peerAddr.sin_family = AF_INET;
-    if ((host = gethostbyname(_peerAddr)) == NULL) {
-        std::cout << "Error occured when fetching hostname\n";
-        return false;
-    }
-    peerAddr.sin_addr = *(struct in_addr *) (host->h_addr);
-    peerAddr.sin_port = htons((uint16_t) _peerPort);
     return true;
-}
-
-UDPClientSocket::UDPClientSocket() {
-
-}
-
-UDPClientSocket::~UDPClientSocket() {
-
 }

@@ -22,7 +22,7 @@ private:
 public:
     Server(char *_listen_hostname, uint16_t _listen_port, int num_of_workers);
 
-    void serveRequest(int index, Message* replyFromServer);
+    void serveRequest(int index);
 
     ~server();
 };
