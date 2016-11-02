@@ -17,7 +17,7 @@ public:
     char *getFilterAddress();
 
 
-    ssize_t writeToSocket(char *message, int maxBytes, char *_peerAddr, uint16_t _peerPort);
+    ssize_t writeToSocket(char *message, int maxBytes, sockaddr_in peerAddr);
 
     int writeToSocketAndWait(char *buffer, int maxBytes, int microSec);
 

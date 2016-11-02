@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Server.h"
 
 Server::Server(char *_listen_hostname, uint16_t _listen_port, int num_of_workers) {
@@ -7,7 +8,7 @@ Server::Server(char *_listen_hostname, uint16_t _listen_port, int num_of_workers
     for (int i = 0; i < num_of_workers; i++)
         workers.push_back(std::thread(&Server::serveRequest, this));
 
-    for(int i = 0; i < num_of_workers; i++)
+    for (int i = 0; i < num_of_workers; i++)
         workers[i].join();
 }
 
@@ -21,8 +22,9 @@ void Server::serveRequest() {
 
     while (true) {
         ssize_t bytes_read = udpServerSocket.readFromSocketWithBlock(buffer, BUFFER_SIZE, 8, &peerAddr);
+        std::cout << buffer << std::endl;
         Message *replyFromServer;   // msg from server
-//        udpServerSocket.writeToSocket(buffer + 'zizobizo', 8, peerAddr.sin_addr, peerAddr.sin_port);
+        udpServerSocket.writeToSocket(buffer + 'zizobizo', 8, peerAddr);
     }
 }
 

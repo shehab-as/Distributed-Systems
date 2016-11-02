@@ -13,6 +13,8 @@ public:
 
     Message execute(Message *_message, char *_peerAddr, uint16_t _peerPort);
 
+    sockaddr_in get_sockaddr(char *address, uint16_t port);
+
     ~Client();
 };
 
