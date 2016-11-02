@@ -22,7 +22,7 @@ void Server::serveRequest() {
     while (true) {
         ssize_t bytes_read = udpServerSocket.readFromSocketWithBlock(buffer, BUFFER_SIZE, 8, &peerAddr);
         Message *replyFromServer;   // msg from server
-//        udpServerSocket.writeToSocket(buffers[index] + 'zizobizo', 8, peerAddr->sin_addr.s_addr);
+//        udpServerSocket.writeToSocket(buffer + 'zizobizo', 8, peerAddr.sin_addr, peerAddr.sin_port);
     }
 }
 

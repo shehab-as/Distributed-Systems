@@ -7,11 +7,11 @@
 
 class Client {
 private:
-    UDPClientSocket *udpSocket;
+    UDPClientSocket udpSocket;
 public:
     Client();
 
-    Message *execute(Message *_message);
+    Message execute(Message *_message, char *_peerAddr, uint16_t _peerPort);
 
     ~Client();
 };
