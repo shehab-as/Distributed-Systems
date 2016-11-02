@@ -17,6 +17,10 @@ ssize_t UDPSocket::writeToSocket(char *message, int maxBytes, sockaddr_in peerAd
 
     // n will contain number of bytes sent if successful
     // n == -1 on failure
+
+    // strlen(message) + 1 to take into account the NULL character at the end
+    // will send/receive garbage otherwise
+    
     ssize_t n = sendto(sock, message, strlen(message) + 1, 0, (const sockaddr *) &peerAddr, sizeof(peerAddr));
 
     if (n < 0) {

@@ -12,9 +12,6 @@ Client::Client() {
 
 //Execute a msg in client
 Message Client::execute(Message *_message, char *_peerAddr, uint16_t _peerPort) {
-    const size_t BUFFER_SIZE = 50;
-    char buffer[BUFFER_SIZE];
-
     char *message = (char *) _message->getMessage();
     sockaddr_in peerAddr = get_sockaddr(_peerAddr, _peerPort);
 
