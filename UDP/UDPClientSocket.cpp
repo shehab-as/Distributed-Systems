@@ -3,14 +3,6 @@
 #include <unistd.h>
 #include "UDPClientSocket.h"
 
-UDPClientSocket::UDPClientSocket() {
-
-}
-
-UDPClientSocket::~UDPClientSocket() {
-
-}
-
 bool UDPClientSocket::initializeClient() {
     // initialize socket
     sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -29,4 +21,12 @@ bool UDPClientSocket::initializeClient() {
         return false;
     }
     return true;
+}
+
+UDPClientSocket::UDPClientSocket() {
+
+}
+
+UDPClientSocket::~UDPClientSocket() {
+
 }

@@ -9,7 +9,7 @@ class Client {
 private:
     UDPClientSocket *udpSocket;
 public:
-    Client(char *_hostname, int _port);
+    Client();
 
     Message *execute(Message *_message);
 

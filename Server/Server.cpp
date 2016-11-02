@@ -1,34 +1,32 @@
 #include "Server.h"
 
-Server::Server(char *_listen_hostname, uint16_t _listen_port) {
+Server::Server(char *_listen_hostname, uint16_t _listen_port, int num_of_workers) {
     udpServerSocket.initializeServer(_listen_hostname, _listen_port);
-}
+    std::vector<std::thread> workers;
 
-Server::~server() {
+    for (int i = 0; i < num_of_workers; i++)
+        workers.push_back(std::thread(&Server::serveRequest, this));
 
+    for(int i = 0; i < num_of_workers; i++)
+        workers[i].join();
 }
 
 Message *Server::getRequest() {
     //udpServerSocket.readFromSocketWithBlock();
 }
 
-Server::Server(char *_listen_hostname, uint16_t _listen_port, int num_of_workers) {
-    udpServerSocket.initializeServer(_listen_hostname, _listen_port);
+void Server::serveRequest() {
+    sockaddr_in peerAddr;
+    char buffer[BUFFER_SIZE];
 
-    buffers.resize((unsigned long) num_of_workers);   //buffers of threads
-    for (int i = 0; i < num_of_workers; i++)
-        workers.push_back(std::thread(serveRequest(i)));
-}
-
-void Server::serveRequest(int index) {
     while (true) {
-        udpServerSocket.readFromSocketWithBlock(buffers[index], BUFFER_SIZE, 8);
-//        doOperation();
-        Message* replyFromServer;   // msg from server
-        udpServerSocket.writeToSocket((char *)replyFromServer, replyFromServer->getMessageSize()
-                ,udpServerSocket.getPeerAddress(),udpServerSocket.getPeerPort());
-
+        ssize_t bytes_read = udpServerSocket.readFromSocketWithBlock(buffer, BUFFER_SIZE, 8, &peerAddr);
+        Message *replyFromServer;   // msg from server
+//        udpServerSocket.writeToSocket(buffers[index] + 'zizobizo', 8, peerAddr->sin_addr.s_addr);
     }
 }
 
+Server::~Server() {
+
+}
 
