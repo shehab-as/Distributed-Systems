@@ -10,13 +10,12 @@ private:
     UDPClientSocket udpSocket;
     static const size_t BUFFER_SIZE = 50;
     char buffer[BUFFER_SIZE];
+    sockaddr_in peerAddr;
 
 public:
-    Client();
+    Client(char * _peerAddr, uint16_t _peerPort);
 
-    Message execute(Message *_message, char *_peerAddr, uint16_t _peerPort);
-
-    sockaddr_in get_sockaddr(char *address, uint16_t port);
+    Message execute(Message *_message);
 
     ~Client();
 };

@@ -10,34 +10,30 @@ using namespace std;
 
 
 // For client
-int client() {
-    int x=5;
-    auto client = Client();
-    char *message = (char *) "~Server not ~server()";
-    Message request(MessageType::Request, message, strlen(message), 0);
-    auto reply = client.execute(&request, (char *) "localhost", 1234);
-    cout << (char*) reply.getMessage();
-
-    return 0;
-}
-
-//for server
-int server()
-{
-     auto server = Server((char *) "localhost", 1234, 10);
-    return 0;
+void client(int thread_num) {
+    auto client = Client((char *) "192.168.1.100", 1234);
+    for (int i = 0; i < 900; i++) {
+        string message = "thread #" + to_string(thread_num) + " packet # " + to_string(i);
+        Message request(MessageType::Request, (char *) message.c_str(), message.size(), 0);
+        auto reply = client.execute(&request);
+//        cout << (char *) reply.getMessage();
+    }
 
 }
+
+
 //Testing
 int main() {
+    vector<thread> workers;
+    for (int i = 0; i < 80; i++)
+        workers.push_back(thread(client, i));
 
-    std::thread c(client);
-    std::thread s(server);
+    for (int i = 0; i < 80; i++) {
+        cout << "Waiting for thread #" << i << " to join()\n";
+        workers[i].join();
+    }
 
-    c.join();
-    s.join();
-
-return 0;
+    cout << "All threads returned\n";
 
 }
 
