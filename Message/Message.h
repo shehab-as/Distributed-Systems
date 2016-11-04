@@ -1,4 +1,7 @@
-#ifndef MESSAGE_H #define MESSAGE_H
+#ifndef MESSAGE_H
+#define MESSAGE_H
+
+#include <cstddef>
 
 enum MessageType {
     Request, Reply
@@ -18,13 +21,13 @@ public:
 
     Message(int operation, void *p_message, size_t p_message_size, int p_rpc_id);
 
-    Message(char *marshalled_base64);
+    explicit Message(char *marshalled_base64);
 
     char *marshal();
 
     int getOperation();
 
-    ing getRPCId();
+    int getRPCId();
 
     void *getMessage();
 
