@@ -12,6 +12,7 @@ protected:
 public:
     UDPSocket();
     ssize_t readFromSocketWithBlock(char *message, size_t message_size, int maxBytes, sockaddr_in &peerAddr);
+    ssize_t readFromSocketWithTimeout(char *message, size_t message_size, int maxBytes, sockaddr_in &peerAddr, int timeoutInMS);
     ssize_t writeToSocket(char *message, int maxBytes, sockaddr_in peerAddr);
     bool initializeSocket(char *_myAddr, uint16_t _myPort);
     uint16_t getMyPort();

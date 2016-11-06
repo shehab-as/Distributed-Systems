@@ -25,10 +25,10 @@ void client(int thread_num) {
 //Testing
 int main() {
     vector<thread> workers;
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < 1; i++)
         workers.push_back(thread(client, i));
 
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 1; i++) {
         cout << "Waiting for thread #" << i << " to join()\n";
         workers[i].join();
     }
