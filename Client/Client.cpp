@@ -12,7 +12,7 @@ Client::Client(char *_myAddr, uint16_t _myPort, char *_peerAddr, uint16_t _peerP
     peerAddr.sin_family = AF_INET;
 
     if ((host = gethostbyname(_peerAddr)) == NULL) {
-        std::cout << "Error occured when fetching hostname\n";
+        std::cerr << "Error occured when fetching hostname\n";
     }
 
     peerAddr.sin_addr = *(struct in_addr *) (host->h_addr);
@@ -31,11 +31,12 @@ Message Client::execute(Message *_message) {
     ssize_t bytes_sent = udpSocket.writeToSocket(message, 8, peerAddr);
 
     // Wait for reply
-    auto n = udpSocket.readFromSocketWithTimeout(buffer, BUFFER_SIZE, 8, peerAddr, 200);
+    auto n = udpSocket.readFromSocketWithTimeout(buffer, BUFFER_SIZE, 8, peerAddr, 1000);
 
+    // Check if n == -1 and errno == 11 (EAGAIN) here
     if (n == -1) {
-        std::cout << message << "<--- This packet was drooped" << std::endl;
-        Message reply(MessageType::Reply, message, strlen(message), 0);
+        std::cerr << message << " - This packet was dropped/not received\n";
+        Message reply(MessageType::Reply, NULL, 0, 0);
         return reply;
     }
     else {

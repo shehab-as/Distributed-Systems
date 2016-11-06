@@ -3,6 +3,6 @@
 #include "Server.h"
 
 //Testing
-int main(){
-    auto server = Server((char *) "localhost", 1234, 10);
+int main() {
+    auto server = Server((char *) "localhost", 1234, 1);
 }

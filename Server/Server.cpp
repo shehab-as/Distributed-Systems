@@ -23,12 +23,18 @@ void Server::serveRequest() {
     while (true) {
         ssize_t bytes_read = udpSocket.readFromSocketWithBlock(buffer, BUFFER_SIZE, 8, peerAddr);
         std::cout << buffer << std::endl;
-        Message *replyFromServer;   // msg from server
-        udpSocket.writeToSocket(buffer, 8, peerAddr);
+        doOperation();
+//        Message *replyFromServer;   // msg from server
+        udpSocket.writeToSocket(buffer, 0, peerAddr);
     }
 }
 
 Server::~Server() {
 
+}
+
+Message *Server::doOperation() {
+    // Emualte a job being executed
+    std::this_thread::sleep_for(std::chrono::microseconds(100));
 }
 

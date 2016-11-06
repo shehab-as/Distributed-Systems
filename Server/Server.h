@@ -8,7 +8,7 @@
 
 class Server {
 private:
-    const size_t BUFFER_SIZE = 50;
+    const size_t BUFFER_SIZE = 65000;
     UDPSocket udpSocket;
 
     Message *getRequest();
