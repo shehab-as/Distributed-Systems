@@ -34,7 +34,7 @@ Server::~Server() {
 }
 
 Message *Server::doOperation() {
-    // Emualte a job being executed
-    std::this_thread::sleep_for(std::chrono::microseconds(100));
+    // Emulate a job being executed
+    std::this_thread::sleep_for(std::chrono::microseconds(300));
 }
 
