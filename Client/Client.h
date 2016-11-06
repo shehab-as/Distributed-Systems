@@ -1,9 +1,9 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include "../Message/Message.h"
-#include "../Message/Message.h"
-#include "../UDP/UDPSocket.h"
+#include "../common/Message/Message.h"
+#include "../common/Message/Message.h"
+#include "../common/UDP/UDPSocket.h"
 
 class Client {
 private:

@@ -4,7 +4,7 @@
 #include <cstring>
 #include "Client/Client.h"
 #include "Server/Server.h"
-#include "Message/Message.h"
+#include "common/Message/Message.h"
 
 using namespace std;
 

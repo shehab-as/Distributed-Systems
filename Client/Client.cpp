@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cstring>
 #include "Client.h"
-#include "../Message/Message.h"
+#include "../common/Message/Message.h"
 
 //Constructor
 Client::Client(char *_peerAddr, uint16_t _peerPort) {
