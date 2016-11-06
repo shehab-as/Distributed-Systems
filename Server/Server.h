@@ -3,15 +3,13 @@
 
 #include <thread>
 #include <vector>
-
-//#include "../UDP/UDPServerSocket.h"
 #include "../Message/Message.h"
 #include "../UDP/UDPSocket.h"
 
 class Server {
 private:
     const size_t BUFFER_SIZE = 50;
-    UDPSocket udpServerSocket;
+    UDPSocket udpSocket;
 
     Message *getRequest();
 

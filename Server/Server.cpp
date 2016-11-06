@@ -2,7 +2,7 @@
 #include "Server.h"
 
 Server::Server(char *_listen_hostname, uint16_t _listen_port, int num_of_workers) {
-    udpServerSocket.initializeSocket(_listen_hostname, _listen_port);
+    udpSocket.initializeSocket(_listen_hostname, _listen_port);
     std::vector<std::thread> workers;
 
     for (int i = 0; i < num_of_workers; i++)
@@ -13,7 +13,7 @@ Server::Server(char *_listen_hostname, uint16_t _listen_port, int num_of_workers
 }
 
 Message *Server::getRequest() {
-    //udpServerSocket.readFromSocketWithBlock();
+    //udpSocket.readFromSocketWithBlock();
 }
 
 void Server::serveRequest() {
@@ -21,10 +21,10 @@ void Server::serveRequest() {
     char buffer[BUFFER_SIZE];
 
     while (true) {
-        ssize_t bytes_read = udpServerSocket.readFromSocketWithBlock(buffer, BUFFER_SIZE, 8, peerAddr);
+        ssize_t bytes_read = udpSocket.readFromSocketWithBlock(buffer, BUFFER_SIZE, 8, peerAddr);
         std::cout << buffer << std::endl;
         Message *replyFromServer;   // msg from server
-        udpServerSocket.writeToSocket(buffer, 8, peerAddr);
+        udpSocket.writeToSocket(buffer, 8, peerAddr);
     }
 }
 

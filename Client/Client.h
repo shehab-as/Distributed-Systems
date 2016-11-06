@@ -7,7 +7,7 @@
 
 class Client {
 private:
-    UDPSocket UdpClientSocket;
+    UDPSocket udpSocket;
     static const size_t BUFFER_SIZE = 50;
     char buffer[BUFFER_SIZE];
     sockaddr_in peerAddr;
