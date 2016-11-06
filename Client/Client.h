@@ -2,12 +2,12 @@
 #define CLIENT_H
 
 #include "../Message/Message.h"
-#include "../UDP/UDPClientSocket.h"
 #include "../Message/Message.h"
+#include "../UDP/UDPSocket.h"
 
 class Client {
 private:
-    UDPClientSocket udpSocket;
+    UDPSocket UdpClientSocket;
     static const size_t BUFFER_SIZE = 50;
     char buffer[BUFFER_SIZE];
     sockaddr_in peerAddr;

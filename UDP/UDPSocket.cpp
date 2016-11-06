@@ -45,6 +45,48 @@ ssize_t UDPSocket::readFromSocketWithBlock(char *message, size_t message_size, i
     return n;
 }
 
+bool UDPSocket::initializeSocket(char *_myAddr, uint16_t _myPort) {
+    sock = socket(AF_INET, SOCK_DGRAM, 0);
+
+    if (sock < 0) {
+        std::cout << "Error occured when creating socket\n";
+        return false;
+    }
+
+    myPort = _myPort;
+    myAddr.sin_family = AF_INET;
+    myAddr.sin_port = htons((uint16_t) myPort);
+    myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    if (bind(sock, (const sockaddr *) &myAddr, sizeof(struct sockaddr_in)) != 0) {
+        std::cout << "Binding error\n";
+        return false;
+    }
+
+    return true;
+}
+/*
+bool UDPSocket::initializeClient() {
+    // initialize socket
+    sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+        return false;
+
+    // Make local socket addr
+    myAddr.sin_family = AF_INET;
+    myAddr.sin_port = htons(0);
+    myAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    // bind socket
+    if (bind(sock, (const sockaddr *) &myAddr, sizeof(struct sockaddr_in)) != 0) {
+        std::cout << "Binding failed\n";
+        close(sock);
+        return false;
+    }
+    return true;
+}
+*/
+
 uint16_t UDPSocket::getMyPort() {
     return myPort;
 }

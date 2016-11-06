@@ -2,7 +2,7 @@
 #include "Server.h"
 
 Server::Server(char *_listen_hostname, uint16_t _listen_port, int num_of_workers) {
-    udpServerSocket.initializeServer(_listen_hostname, _listen_port);
+    udpServerSocket.initializeSocket(_listen_hostname, _listen_port);
     std::vector<std::thread> workers;
 
     for (int i = 0; i < num_of_workers; i++)
