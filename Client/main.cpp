@@ -1,10 +1,7 @@
 #include <iostream>
-#include <netdb.h>
+#include <vector>
 #include <thread>
-#include <cstring>
-#include "Client/Client.h"
-#include "Server/Server.h"
-#include "common/Message/Message.h"
+#include "Client.h"
 
 using namespace std;
 
@@ -35,5 +32,3 @@ int main() {
     cout << "All threads returned\n";
 
 }
-
-
