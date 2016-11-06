@@ -13,7 +13,7 @@ private:
     sockaddr_in peerAddr;
 
 public:
-    Client(char * _peerAddr, uint16_t _peerPort);
+    Client(char *_myAddr, uint16_t _myPort, char *_peerAddr, uint16_t _peerPort);
 
     Message execute(Message *_message);
 

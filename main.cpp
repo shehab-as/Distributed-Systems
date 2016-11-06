@@ -11,12 +11,12 @@ using namespace std;
 
 // For client
 void client(int thread_num) {
-    auto client = Client((char *) "192.168.1.100", 1234);
+    auto client = Client((char *) "localhost", 0, (char *) "10.40.62.55", 1235);
     for (int i = 0; i < 900; i++) {
         string message = "thread #" + to_string(thread_num) + " packet # " + to_string(i);
         Message request(MessageType::Request, (char *) message.c_str(), message.size(), 0);
         auto reply = client.execute(&request);
-//        cout << (char *) reply.getMessage();
+        //cout << (char *) reply.getMessage() << endl;
     }
 
 }
@@ -25,10 +25,10 @@ void client(int thread_num) {
 //Testing
 int main() {
     vector<thread> workers;
-    for (int i = 0; i < 80; i++)
+    for (int i = 0; i < 50; i++)
         workers.push_back(thread(client, i));
 
-    for (int i = 0; i < 80; i++) {
+    for (int i = 0; i < 50; i++) {
         cout << "Waiting for thread #" << i << " to join()\n";
         workers[i].join();
     }

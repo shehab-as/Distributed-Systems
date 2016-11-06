@@ -45,7 +45,7 @@ ssize_t UDPSocket::readFromSocketWithBlock(char *message, size_t message_size, i
     return n;
 }
 
-bool UDPSocket::initializeSocket(char *_myAddr, uint16_t _myPort) {
+bool UDPSocket::initializeSocket(char *_myAddr, uint16_t _myPort=0) {
     sock = socket(AF_INET, SOCK_DGRAM, 0);
 
     if (sock < 0) {

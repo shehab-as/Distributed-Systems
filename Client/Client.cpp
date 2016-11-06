@@ -5,8 +5,8 @@
 #include "../common/Message/Message.h"
 
 //Constructor
-Client::Client(char *_peerAddr, uint16_t _peerPort) {
-    udpSocket.initializeSocket(_peerAddr,_peerPort);
+Client::Client(char *_myAddr, uint16_t _myPort, char *_peerAddr, uint16_t _peerPort) {
+    udpSocket.initializeSocket(_myAddr,_myPort);
 
     struct hostent *host;
     peerAddr.sin_family = AF_INET;
