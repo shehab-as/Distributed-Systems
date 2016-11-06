@@ -6,7 +6,7 @@
 
 //Constructor
 Client::Client(char *_peerAddr, uint16_t _peerPort) {
-    udpSocket.initializeClient();
+    UdpClientSocket.initializeSocket(_peerAddr,_peerPort);
 
     struct hostent *host;
     peerAddr.sin_family = AF_INET;
@@ -28,10 +28,10 @@ Client::Client(char *_peerAddr, uint16_t _peerPort) {
 Message Client::execute(Message *_message) {
     char *message = (char *) _message->getMessage();
 
-    ssize_t bytes_sent = udpSocket.writeToSocket(message, 8, peerAddr);
+    ssize_t bytes_sent = UdpClientSocket.writeToSocket(message, 8, peerAddr);
 
     // Wait for reply
-    udpSocket.readFromSocketWithBlock(buffer, BUFFER_SIZE, 8, peerAddr);
+    UdpClientSocket.readFromSocketWithBlock(buffer, BUFFER_SIZE, 8, peerAddr);
 
     Message reply(MessageType::Reply, buffer, strlen(buffer), 0);
 
