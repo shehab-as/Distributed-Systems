@@ -83,10 +83,10 @@ ssize_t UDPSocket::readFromSocketWithTimeout(char *message, size_t message_size,
     socklen_t slen = sizeof(struct sockaddr_in);
     ssize_t n = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr, &slen);
 
-    if (n < 0) {
-        std::cout << "Error occured when receiving\n";
-        std::cout << strerror(errno) << std::endl;
-    }
+//    if (n < 0) {
+//        std::cout << "Error occured when receiving\n";
+//        std::cout << strerror(errno) << std::endl;
+//    }
 
     return n;
 }

@@ -6,7 +6,7 @@
 
 //Constructor
 Client::Client(char *_myAddr, uint16_t _myPort, char *_peerAddr, uint16_t _peerPort) {
-    udpSocket.initializeSocket(_myAddr,_myPort);
+    udpSocket.initializeSocket(_myAddr, _myPort);
 
     struct hostent *host;
     peerAddr.sin_family = AF_INET;
@@ -31,11 +31,18 @@ Message Client::execute(Message *_message) {
     ssize_t bytes_sent = udpSocket.writeToSocket(message, 8, peerAddr);
 
     // Wait for reply
-    udpSocket.readFromSocketWithTimeout(buffer, BUFFER_SIZE, 8, peerAddr, 100);
+    auto n = udpSocket.readFromSocketWithTimeout(buffer, BUFFER_SIZE, 8, peerAddr, 200);
 
-    Message reply(MessageType::Reply, buffer, strlen(buffer), 0);
+    if (n == -1) {
+        std::cout << message << "<--- This packet was drooped" << std::endl;
+        Message reply(MessageType::Reply, message, strlen(message), 0);
+        return reply;
+    }
+    else {
+        Message reply(MessageType::Reply, buffer, strlen(buffer), 0);
+        return reply;
+    }
 
-    return reply;
 }
 
 
