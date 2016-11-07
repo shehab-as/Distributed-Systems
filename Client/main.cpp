@@ -5,9 +5,17 @@
 
 using namespace std;
 
-int main()
-{
-    auto client = Client((char *) "localhost", 0, (char *) "192.168.1.116", 1234);
+int main(int argc, char *argv[]) {
+    if (argc != 4) {
+        std::cerr << "Arguments: SOURCE_PORT, DESTINATION_ADDR, DESTINATION_PORT" << endl;
+    }
+
+    long source_port = strtol(argv[1], NULL, 10);
+    char * destination_addr = argv[2];
+    long destination_port = strtol(argv[3], NULL, 10);
+
+    auto client = Client((char *) "localhost", (uint16_t) source_port, destination_addr, (uint16_t) destination_port);
+
     string message = "~Server() not ~server()";
     Message request(MessageType::Request, (char *) message.c_str(), message.size(), 0);
     auto reply = client.execute(&request);
