@@ -10,20 +10,19 @@ enum MessageType {
 class Message {
 
 private:
-
     MessageType message_type;
-    int operation;
-    void *message;
+    int operation;      // RPC Operation
+    void *message;      // parameters, vector<void *> one for each param
     size_t message_size;
     int rpc_id;
 
 public:
-
     Message(int operation, void *p_message, size_t p_message_size, int p_rpc_id);
 
+    // Unmarshalling occurs here
     explicit Message(char *marshalled_base64);
 
-    char *marshal();
+    std::string marshal();
 
     int getOperation();
 

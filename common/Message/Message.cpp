@@ -1,3 +1,5 @@
+#include <string>
+#include <iostream>
 #include "Message.h"
 //Message Type: Request OR Reply
 
@@ -16,12 +18,14 @@ Message::Message(int op, void *p_message, size_t p_message_size, int p_rpc_id)
 //Marshalled Constructor
 Message::Message(char *marshalled_base64) {}
 
-char *Message::marshal() {
-//	//To do.
-//	char *Marshy;
-//
-//
-//	return Marshy;
+// Marshalled Message should be of the following format:
+// "operation MessageType rpc_id num_of_params param1 param2 ... message_size"
+std::string Message::marshal() {
+    std::string marshalled_msg;
+    marshalled_msg.append(std::to_string(getOperation()) + " ");
+    marshalled_msg.append(std::to_string(getMessageType()) + " ");
+    marshalled_msg.append(std::to_string(getRPCId()) + " ");
+    return marshalled_msg;
 }
 
 int Message::getOperation() { return operation; }
