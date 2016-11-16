@@ -2,6 +2,8 @@
 #include <netdb.h>
 #include "CM.h"
 
+// TODO: Communication Manager should handle marshalling/unmarshalling of Message
+
 CM::CM(char *_myAddr, uint16_t _myPort) {
     udpSocket.initializeSocket(_myAddr, _myPort);
 }
