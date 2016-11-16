@@ -9,8 +9,8 @@
 //rpc_id
 
 //Constructor
-Message::Message(int op, std::vector<std::string> p_message, size_t p_message_size, int p_rpc_id)
-        : operation(op), parameters(p_message),
+Message::Message(MessageType msg_type, int op, int p_rpc_id, size_t p_message_size, std::vector<std::string> p_message)
+        : message_type(msg_type), operation(op), parameters(p_message),
           parameters_size(p_message_size),
           rpc_id(p_rpc_id) {
 
@@ -22,10 +22,10 @@ Message::Message(char *marshalled_base64) {
     std::string token;
 
     tokenizer >> token;
-    setOperation(std::stoi(token));
+    setMessageType((MessageType) std::stoi(token));
 
     tokenizer >> token;
-    setMessageType((MessageType) std::stoi(token));
+    setOperation(std::stoi(token));
 
     tokenizer >> token;
     setRPCId(std::stoi(token));
@@ -40,11 +40,11 @@ Message::Message(char *marshalled_base64) {
 }
 
 // Marshalled Message should be of the following format:
-// "operation MessageType rpc_id num_of_params param1 param2 ... message_size"
+// "MessageType opeation rpc_id num_of_params param1 param2 ..."
 std::string Message::marshal() {
     std::string marshalled_msg;
+    marshalled_msg.append(std::to_string(int(getMessageType())) + " ");
     marshalled_msg.append(std::to_string(getOperation()) + " ");
-    marshalled_msg.append(std::to_string(getMessageType()) + " ");
     marshalled_msg.append(std::to_string(getRPCId()) + " ");
     marshalled_msg.append(std::to_string(getParamsSize()) + " ");
 

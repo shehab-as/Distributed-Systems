@@ -5,7 +5,7 @@
 #include <vector>
 
 enum MessageType {
-    Request, Reply
+    Request=0, Reply=1
 };
 
 class Message {
@@ -18,7 +18,7 @@ private:
     int rpc_id;
 
 public:
-    Message(int operation, std::vector<std::string>_params, size_t _params_size, int p_rpc_id);
+    Message(MessageType msg_type,int op, int p_rpc_id, size_t p_message_size, std::vector<std::string> p_message);
 
     // Unmarshalling occurs here
     explicit Message(char *marshalled_base64);
