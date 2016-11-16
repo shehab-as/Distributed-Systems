@@ -24,14 +24,14 @@ Registry::Registry(char *_listen_hostname, uint16_t _listen_port, int num_of_wor
 
 void Registry::runRegistry() {
 
-    sockaddr_in peerAddr;
+    sockaddr_in sender_addr;
     char buffer[BUFFER_SIZE];
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
     while (true) {
-        ssize_t bytes_read = serverConnector.recv_with_block(buffer, BUFFER_SIZE, peerAddr);
-        handleRequest(buffer);
+        ssize_t bytes_read = serverConnector.recv_with_block(buffer, BUFFER_SIZE, sender_addr);
+        handleRequest(buffer, sender_addr);
 //        Message *replyFromServer;   // msg from server
 
 
@@ -44,7 +44,7 @@ void Registry::runRegistry() {
 //2: remove_entry_svc(std::string image_name);
 //3: get_client_addr_svc(std::string image_name, sockaddr_in &owner_addr);
 
-void Registry::handleRequest(char *request_buffer) {
+void Registry::handleRequest(char *request_buffer, sockaddr_in sender_addr) {
 
     Message request(request_buffer);
 
@@ -53,7 +53,10 @@ void Registry::handleRequest(char *request_buffer) {
             std::vector<std::string> v;
             auto n = view_imagelist_svc(v);
             Message reply(MessageType::Reply, 0, request.getRPCId(), v.size(), v);
-        case :
+            auto reply_marshaled = reply.marshal();
+            serverConnector.send_no_ack((char *) reply_marshaled.c_str(), sender_addr);
+        case 1:
+            // kamel yad :)
 
 
     }

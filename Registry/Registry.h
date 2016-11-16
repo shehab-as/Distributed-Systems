@@ -20,7 +20,7 @@ public:
     Registry (char *_listen_hostname, uint16_t _listen_port, int num_of_workers);
     void runRegistry();
     ~Registry();
-    void handleRequest(char * request_buffer);
+    void handleRequest(char * request_buffer, sockaddr_in);
 
 
 };
