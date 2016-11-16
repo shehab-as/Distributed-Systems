@@ -15,7 +15,7 @@ int CM::send_with_ack(char *message, char* reply_buffer, size_t reply_buffer_siz
     sockaddr_in receiver_sock_addr = create_sockaddr(receiver_addr, receiver_port);
     sockaddr_in reply_addr;
 
-    while (max_retries-- && n != 0) {
+    while (max_retries-- && n == -1) {
         udpSocket.writeToSocket(local_message, 8, receiver_sock_addr);
         n = udpSocket.readFromSocketWithTimeout(reply_buffer, reply_buffer_size, 0, reply_addr, timeout_in_ms);
     }
