@@ -26,23 +26,23 @@ Client::Client(char *_myAddr, uint16_t _myPort, char *_peerAddr, uint16_t _peerP
 
 //Execute a msg in client
 Message Client::execute(Message *_message) {
-    char *message = (char *) _message->getParams();
-
-    ssize_t bytes_sent = udpSocket.writeToSocket(message, 8, peerAddr);
-
-    // Wait for reply
-    auto n = udpSocket.readFromSocketWithTimeout(buffer, BUFFER_SIZE, 8, peerAddr, 1000);
-
-    // Check if n == -1 and errno == 11 (EAGAIN) here
-    if (n == -1) {
-        std::cerr << message << " - This packet was dropped/not received\n";
-        Message reply(MessageType::Reply, NULL, 0, 0);
-        return reply;
-    }
-    else {
-        Message reply(MessageType::Reply, buffer, strlen(buffer), 0);
-        return reply;
-    }
+//    char *message = (char *) _message->getParams();
+//
+//    ssize_t bytes_sent = udpSocket.writeToSocket(message, 8, peerAddr);
+//
+//    // Wait for reply
+//    auto n = udpSocket.readFromSocketWithTimeout(buffer, BUFFER_SIZE, 8, peerAddr, 1000);
+//
+//    // Check if n == -1 and errno == 11 (EAGAIN) here
+//    if (n == -1) {
+//        std::cerr << message << " - This packet was dropped/not received\n";
+//        Message reply(MessageType::Reply, NULL, 0, 0);
+//        return reply;
+//    }
+//    else {
+//        Message reply(MessageType::Reply, buffer, strlen(buffer), 0);
+//        return reply;
+//    }
 
 }
 
