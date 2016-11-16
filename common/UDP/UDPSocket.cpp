@@ -13,7 +13,7 @@ UDPSocket::~UDPSocket() {
     close(sock);
 }
 
-bool UDPSocket::initializeSocket(char *_myAddr, uint16_t _myPort = 0) {
+bool UDPSocket::initializeSocket(char *_myAddr=NULL, uint16_t _myPort = 0) {
     sock = socket(AF_INET, SOCK_DGRAM, 0);
 
     if (sock < 0) {
@@ -36,40 +36,39 @@ bool UDPSocket::initializeSocket(char *_myAddr, uint16_t _myPort = 0) {
     return true;
 }
 
-ssize_t UDPSocket::writeToSocket(char *message, int maxBytes, sockaddr_in peerAddr) {
-
+ssize_t UDPSocket::writeToSocket(char *message, sockaddr_in peerAddr) {
     // n will contain number of bytes sent if successful
     // n == -1 on failure
 
     // strlen(parameters) + 1 to take into account the NULL character at the end
     // will send/receive garbage otherwise
 
-    ssize_t n = sendto(sock, message, strlen(message) + 1, 0, (const sockaddr *) &peerAddr, sizeof(peerAddr));
+    ssize_t bytes_sent = sendto(sock, message, strlen(message) + 1, 0, (const sockaddr *) &peerAddr, sizeof(peerAddr));
 
-    if (n < 0) {
+    if (bytes_sent < 0) {
         std::cerr << "Error occured while sending\n";
         std::cerr << strerror(errno) << std::endl;
     }
-    return n;
+    return bytes_sent;
 }
 
-ssize_t UDPSocket::readFromSocketWithBlock(char *message, size_t message_size, int maxBytes, sockaddr_in &peerAddr) {
+ssize_t UDPSocket::readFromSocketWithBlock(char *message, size_t message_size, sockaddr_in &peerAddr) {
     // Very Important
     peerAddr.sin_family = AF_INET;
 
     socklen_t slen = sizeof(struct sockaddr_in);
-    ssize_t n = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr, &slen);
+    ssize_t bytes_read = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr, &slen);
 
-    if (n < 0) {
+    if (bytes_read < 0) {
         std::cerr << "Error occured when receiving\n";
         std::cerr << strerror(errno) << std::endl;
     }
 
-    return n;
+    return bytes_read;
 }
 
 
-ssize_t UDPSocket::readFromSocketWithTimeout(char *message, size_t message_size, int maxBytes, sockaddr_in &peerAddr,
+ssize_t UDPSocket::readFromSocketWithTimeout(char *message, size_t message_size,sockaddr_in &peerAddr,
                                              int timeoutInMS) {
     // Very Important
     peerAddr.sin_family = AF_INET;
@@ -83,7 +82,7 @@ ssize_t UDPSocket::readFromSocketWithTimeout(char *message, size_t message_size,
     }
 
     socklen_t slen = sizeof(struct sockaddr_in);
-    ssize_t n = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr, &slen);
+    ssize_t bytes_read = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr, &slen);
 
     // Setting socket back to blocking/no timeout
     tv.tv_sec = 0;
@@ -92,7 +91,7 @@ ssize_t UDPSocket::readFromSocketWithTimeout(char *message, size_t message_size,
         std::cerr << "Error when setting socket back to blocking.\n";
     }
 
-    return n;
+    return bytes_read;
 }
 
 uint16_t UDPSocket::getMyPort() {
