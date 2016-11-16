@@ -11,7 +11,10 @@ int main(int argc, char *argv[]) {
     vector<std::string> message = {"HI BYE"};
     Message request(MessageType::Request, message, message.size(), 25);
     auto request_mashalled = request.marshal();
-    client.send_with_ack(request_mashalled, )
+    size_t BUFFER_SIZE = 7500;
+    char BUFFER[BUFFER_SIZE];
+    client.send_with_ack((char *) request_mashalled.c_str(), BUFFER, BUFFER_SIZE, 1000, 3, (char *) "10.40.38.71", 1234);
+    cout << BUFFER << endl;
 //    if (argc != 4) {
 //        std::cerr << "Arguments: SOURCE_PORT, DESTINATION_ADDR, DESTINATION_PORT" << endl;
 //    }

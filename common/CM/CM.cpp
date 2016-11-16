@@ -33,6 +33,12 @@ int CM::send_no_ack(char *message, char *receiver_addr, uint16_t receiver_port) 
     return (int) n;
 }
 
+int CM::send_no_ack(char *message, sockaddr_in receiver_sock_addr) {
+    char *local_message = (char *) htonl((uint32_t) message);
+    ssize_t n = udpSocket.writeToSocket(local_message, 8, receiver_sock_addr);
+    return (int) n;
+}
+
 sockaddr_in CM::create_sockaddr(char *addr, uint16_t port) {
     struct hostent *host;
     sockaddr_in sock_addr;
