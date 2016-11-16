@@ -85,10 +85,12 @@ ssize_t UDPSocket::readFromSocketWithTimeout(char *message, size_t message_size,
     socklen_t slen = sizeof(struct sockaddr_in);
     ssize_t n = recvfrom(sock, message, message_size, 0, (sockaddr *) &peerAddr, &slen);
 
-//    if (n < 0) {
-//        std::cout << "Error occured when receiving\n";
-//        std::cout << errno << std::endl;
-//    }
+    // Setting socket back to blocking/no timeout
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
+    if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) < 0) {
+        std::cerr << "Error when setting socket back to blocking.\n";
+    }
 
     return n;
 }
