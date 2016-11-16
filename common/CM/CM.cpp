@@ -6,35 +6,48 @@ CM::CM(char *_myAddr, uint16_t _myPort) {
     udpSocket.initializeSocket(_myAddr, _myPort);
 }
 
-// Send and wait for reply
-int CM::send_with_ack(char *message, char* reply_buffer, size_t reply_buffer_size, int timeout_in_ms, int max_retries, char *receiver_addr,
-                      uint16_t receiver_port) {
-    ssize_t n = -1;
+CM::~CM() {
+
+}
+
+int CM::send_with_ack(char *message, char *reply_buffer, size_t reply_buffer_size, int timeout_in_ms, int max_retries,
+                      char *receiver_addr, uint16_t receiver_port) {
+    // Send and wait for an acknowledgment.
+    // A reply to the sent request is implicitly considered an acknowledgment
+
+    ssize_t bytes_read = -1;
     char *local_message = message;
 
+    // Create a sockaddr from the receiver's addr and port
     sockaddr_in receiver_sock_addr = create_sockaddr(receiver_addr, receiver_port);
     sockaddr_in reply_addr;
 
-    while (max_retries-- && n == -1) {
+    // Send message and wait for a reply
+    // If no reply is sent within timeout_in_ms, bytes_read will be -1
+    // If a reply is received, bytes_read will contain a value > 0 indicating the number of bytes read
+    // We repeat this send/wait for reply sequence until a reply is received or max_retries reaches 0
+    while (max_retries-- && bytes_read == -1) {
         udpSocket.writeToSocket(local_message, 8, receiver_sock_addr);
-        n = udpSocket.readFromSocketWithTimeout(reply_buffer, reply_buffer_size, 0, reply_addr, timeout_in_ms);
+        bytes_read = udpSocket.readFromSocketWithTimeout(reply_buffer, reply_buffer_size, 0, reply_addr, timeout_in_ms);
     }
-    return (int) n;
+    return (int) bytes_read;
 }
 
-// Send and don't wait for a reply
 int CM::send_no_ack(char *message, char *receiver_addr, uint16_t receiver_port) {
+    // Send and don't wait for a reply
+
+    // Create receiver_sock_addr from receiver's addr and port
     sockaddr_in receiver_sock_addr = create_sockaddr(receiver_addr, receiver_port);
 
     char *local_message = message;
-    ssize_t n = udpSocket.writeToSocket(local_message, 8, receiver_sock_addr);
-    return (int) n;
+    ssize_t bytes_sent = udpSocket.writeToSocket(local_message, 8, receiver_sock_addr);
+    return (int) bytes_sent;
 }
 
 int CM::send_no_ack(char *message, sockaddr_in receiver_sock_addr) {
     char *local_message = message;
-    ssize_t n = udpSocket.writeToSocket(local_message, 8, receiver_sock_addr);
-    return (int) n;
+    ssize_t bytes_sent = udpSocket.writeToSocket(local_message, 8, receiver_sock_addr);
+    return (int) bytes_sent;
 }
 
 sockaddr_in CM::create_sockaddr(char *addr, uint16_t port) {
@@ -57,6 +70,7 @@ sockaddr_in CM::create_sockaddr(char *addr, uint16_t port) {
 }
 
 int CM::recv_with_block(char *message, size_t message_size, sockaddr_in &receiver_addr) {
-    ssize_t n = udpSocket.readFromSocketWithBlock(message, message_size, 8, receiver_addr);
-    return (int) n;
+    // A blocking receive that fills char* message with the received contents
+    ssize_t bytes_read = udpSocket.readFromSocketWithBlock(message, message_size, 8, receiver_addr);
+    return (int) bytes_read;
 }
