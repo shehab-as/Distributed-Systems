@@ -2,28 +2,34 @@
 #include <vector>
 #include <thread>
 #include "Client.h"
+#include "../common/CM/CM.h"
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    if (argc != 4) {
-        std::cerr << "Arguments: SOURCE_PORT, DESTINATION_ADDR, DESTINATION_PORT" << endl;
-    }
-
-    long source_port = strtol(argv[1], NULL, 10);
-    char * destination_addr = argv[2];
-    long destination_port = strtol(argv[3], NULL, 10);
-
-    auto client = Client((char *) "localhost", (uint16_t) source_port, destination_addr, (uint16_t) destination_port);
-
-//    string message = "~Server() not ~server()";
-    vector<std::string> message = {to_string(1), "my_name_is"};
-    Message request(MessageType::Reply, message, message.size(), 25);
-    auto what = request.marshal();
-    Message who((char *) what.c_str());
-
-//    auto reply = client.execute(&request);
-//    cout << (char *) reply.getMessage() << endl;
+    CM client((char *) "192.168.2.21", 0);
+    vector<std::string> message = {"HI BYE"};
+    Message request(MessageType::Request, message, message.size(), 25);
+    auto request_mashalled = request.marshal();
+    client.send_with_ack(request_mashalled, )
+//    if (argc != 4) {
+//        std::cerr << "Arguments: SOURCE_PORT, DESTINATION_ADDR, DESTINATION_PORT" << endl;
+//    }
+//
+//    long source_port = strtol(argv[1], NULL, 10);
+//    char * destination_addr = argv[2];
+//    long destination_port = strtol(argv[3], NULL, 10);
+//
+//    auto client = Client((char *) "localhost", (uint16_t) source_port, destination_addr, (uint16_t) destination_port);
+//
+////    string message = "~Server() not ~server()";
+//    vector<std::string> message = {to_string(1), "my_name_is"};
+//    Message request(MessageType::Reply, message, message.size(), 25);
+//    auto what = request.marshal();
+//    Message who((char *) what.c_str());
+//
+////    auto reply = client.execute(&request);
+////    cout << (char *) reply.getMessage() << endl;
 }
 
 /*

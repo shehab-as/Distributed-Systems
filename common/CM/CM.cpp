@@ -6,7 +6,8 @@ CM::CM(char *_myAddr, uint16_t _myPort) {
     udpSocket.initializeSocket(_myAddr, _myPort);
 }
 
-int CM::send_with_ack(char *message, size_t max_message_size, int timeout_in_ms, int max_retries, char *receiver_addr,
+// Send and wait for reply
+int CM::send_with_ack(char *message, char* reply_buffer, size_t reply_buffer_size, int timeout_in_ms, int max_retries, char *receiver_addr,
                       uint16_t receiver_port) {
     ssize_t n = -1;
     char *local_message = (char *) htonl((uint32_t) message);
@@ -16,13 +17,14 @@ int CM::send_with_ack(char *message, size_t max_message_size, int timeout_in_ms,
 
     while (max_retries-- && n != 0) {
         udpSocket.writeToSocket(local_message, 8, receiver_sock_addr);
-        n = udpSocket.readFromSocketWithTimeout(message, max_message_size, 0, reply_addr, timeout_in_ms);
+        n = udpSocket.readFromSocketWithTimeout(reply_buffer, reply_buffer_size, 0, reply_addr, timeout_in_ms);
     }
     if (n == 0)
-        message = (char *) ntohl((uint32_t) message);
+        reply_buffer = (char *) ntohl((uint32_t) reply_buffer);
     return (int) n;
 }
 
+// Send and don't wait for a reply
 int CM::send_no_ack(char *message, char *receiver_addr, uint16_t receiver_port) {
     sockaddr_in receiver_sock_addr = create_sockaddr(receiver_addr, receiver_port);
 
