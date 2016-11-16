@@ -16,10 +16,14 @@ int main(int argc, char *argv[]) {
 
     auto client = Client((char *) "localhost", (uint16_t) source_port, destination_addr, (uint16_t) destination_port);
 
-    string message = "~Server() not ~server()";
-    Message request(MessageType::Request, (char *) message.c_str(), message.size(), 0);
-    auto reply = client.execute(&request);
-    cout << (char *) reply.getMessage() << endl;
+//    string message = "~Server() not ~server()";
+    vector<std::string> message = {to_string(1), "my_name_is"};
+    Message request(MessageType::Reply, message, message.size(), 25);
+    auto what = request.marshal();
+    Message who((char *) what.c_str());
+
+//    auto reply = client.execute(&request);
+//    cout << (char *) reply.getMessage() << endl;
 }
 
 /*
@@ -41,8 +45,8 @@ int main(int argc, char *argv[]) {
  *
  * To be able to truly assume that packets are being dropped on the server side, 80 clients are made that will bombard
  * the server with constant requests. Given a single thread on the server side, packets are easily dropped on the server
- * side and we can detect this by outputting all the message received on the server and the messages the client did not
- * receive replies for. If a message a client did not receive a reply for does not appear in the output log of the message
+ * side and we can detect this by outputting all the parameters received on the server and the messages the client did not
+ * receive replies for. If a parameters a client did not receive a reply for does not appear in the output log of the parameters
  * the server receives, then we can assume that the packets were dropped on arrival due to the server's messages buffer
  * being full.
  *
@@ -53,7 +57,7 @@ int main(int argc, char *argv[]) {
  *
  *      - Number of client threads
  *      - Number of messages sent per thread
- *      - Size of each message
+ *      - Size of each parameters
  *      - Timeout amount for client's readFromSocketWithTimeout() method
  *      - Number of threads on the server (should be 1 for excercise 1)
  *      - Amount of time server sleeps after each request to emulate a job being executed
@@ -66,9 +70,9 @@ int main(int argc, char *argv[]) {
 //void client(int thread_num) {
 //    auto client = Client((char *) "localhost", 0, (char *) "192.168.1.116", 1234);
 //    for (int i = 0; i < 100000; i++) {
-//        string message = "thread #" + to_string(thread_num) + " packet # " + to_string(i);
-//        message.resize(64980);
-//        Message request(MessageType::Request, (char *) message.c_str(), message.size(), 0);
+//        string parameters = "thread #" + to_string(thread_num) + " packet # " + to_string(i);
+//        parameters.resize(64980);
+//        Message request(MessageType::Request, (char *) parameters.c_str(), parameters.size(), 0);
 //        auto reply = client.execute(&request);
 //    }
 //
