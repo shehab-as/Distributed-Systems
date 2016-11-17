@@ -84,3 +84,7 @@ void Message::setRPCId(int _rpc_id) {
 void Message::setParamsSize(size_t _params_size) {
     parameters_size = _params_size;
 }
+
+Message::Message() {
+
+}

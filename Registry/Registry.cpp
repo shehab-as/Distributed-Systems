@@ -30,20 +30,17 @@ void Registry::runRegistry() {
     // The core of the registry
     // Each worker thread should run this method
     sockaddr_in sender_addr;
-    char receiving_buffer[BUFFER_SIZE];
 
     while (true) {
-        ssize_t bytes_read = serverConnector.recv_with_block(receiving_buffer, BUFFER_SIZE, sender_addr);
-        handleRequest(receiving_buffer, sender_addr);
+        Message recv_message = Message();
+        ssize_t bytes_read = serverConnector.recv_with_block(recv_message, sender_addr);
+        handleRequest(recv_message, sender_addr);
     }
 }
 
 #pragma clang diagnostic pop
 
-void Registry::handleRequest(char *request_buffer, sockaddr_in sender_addr) {
-    // Reconstruct Message from the marshalled request_buffer
-    Message request(request_buffer);
-
+void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
     // THE GREAT SWITCH
     // Check which RPC method/operation was called and send reply accordingly
     // 0: view_imagelist_svc(std::vector<std::string> &image_container);
@@ -55,8 +52,7 @@ void Registry::handleRequest(char *request_buffer, sockaddr_in sender_addr) {
             std::vector<std::string> v;
             auto n = view_imagelist_svc(v);
             Message reply(MessageType::Reply, 0, request.getRPCId(), v.size(), v);
-            auto reply_marshaled = reply.marshal();
-            serverConnector.send_no_ack((char *) reply_marshaled.c_str(), sender_addr);
+            serverConnector.send_no_ack(reply, sender_addr);
             break;
         }
         case 1: {

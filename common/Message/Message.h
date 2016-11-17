@@ -18,6 +18,7 @@ private:
     int rpc_id;
 
 public:
+    Message();
     Message(MessageType msg_type,int op, int p_rpc_id, size_t p_message_size, std::vector<std::string> p_message);
 
     // Unmarshalling occurs here

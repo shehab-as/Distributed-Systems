@@ -8,13 +8,12 @@
 class Registry {
 private:
     CM serverConnector;
-    const size_t BUFFER_SIZE = 7500;
     //file (Database)
 
 public:
     Registry (char *_listen_hostname, uint16_t _listen_port, int num_of_workers);
     void runRegistry();
-    void handleRequest(char * request_buffer, sockaddr_in);
+    void handleRequest(Message request, sockaddr_in);
     ~Registry();
 };
 
