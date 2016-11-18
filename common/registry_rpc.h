@@ -17,5 +17,4 @@ extern int remove_entry_svc(std::string image_name);
 extern int get_client_addr(std::string image_name, sockaddr_in &owner_addr);
 extern int get_client_addr_svc(std::string image_name, sockaddr_in &owner_addr);
 
-
 #endif //DISTRIBUTED_SYSTEMS_REGISTRY_RPC_H
