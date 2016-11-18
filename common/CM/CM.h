@@ -26,6 +26,10 @@ public:
 
     int recv_with_block(Message &received_message, sockaddr_in &sender_addr);
 
+    char* get_myAddr();
+
+    uint16_t get_myPort();
+
     ~CM();
 };
 
