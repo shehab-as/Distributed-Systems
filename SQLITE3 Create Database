@@ -1,0 +1,33 @@
+============================================================
+Execute the following commands from Terminal To Create
+Database: Dist-Project
+============================================================
+> sqlite3 Dist-Project
+
+sqlite> CREATE TABLE Image (
+   ...> Image_Name VARCHAR2(30) NOT NULL Primary Key,
+   ...> Owner_Address VARCHAR2(15) NOT NULL,
+   ...> Owner_Port VARCHAR2(5) NOT NULL
+   ...> )
+   ...> ;
+
+sqlite> CREATE TABLE Client (
+   ...> Username VARCHAR2(25) NOT NULL Primary Key,
+   ...> Password VARCHAR2(25) NOT NULL,
+   ...> Token INT(20) NOT NULL
+   ...> )
+   ...> ;
+
+sqlite> CREATE TABLE Views (
+   ...> Token INT(20) NOT NULL,
+   ...> Image_Name VARCHAR2(30) NOT NULL,
+   ...> Foreign Key (Token) references Client(Token),
+   ...> Foreign Key (Image_Name) references Image(Image_Name),
+   ...> UNIQUE (Token,Image_Name)
+   ...> )
+   ...> ;
+
+sqlite> .tables
+Client  Image   Views 
+
+sqlite> 
