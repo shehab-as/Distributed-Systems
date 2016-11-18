@@ -6,7 +6,7 @@
 #include <netinet/in.h>
 
 extern int view_imagelist(std::vector<std::string> &image_container, int token);
-extern int view_imagelist_svc(std::vector<std::string> &image_container);
+extern int view_imagelist_svc(std::vector<std::string> &image_container, int token);
 
 extern int add_entry(std::string image_name, int token);
 extern int add_entry_svc(std::string image_name, int token);

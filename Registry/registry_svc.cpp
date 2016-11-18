@@ -3,6 +3,12 @@
 #include <netinet/in.h>
 
 int view_imagelist_svc(std::vector<std::string> &image_container, int token) {
+
+    //loop on viewableby vector
+    //if (vector-token == token){
+    //    image_container.push_back(image_name);
+    //return image_container (reference)
+    // return n??
     return 0;
 }
 
