@@ -3,17 +3,25 @@
 #include <thread>
 #include "Client.h"
 #include "../common/CM/CM.h"
+#include "../DataBase/Db.h"
+#include <sqlite3.h>
+
+
+
+
 
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    CM client((char *) "192.168.2.21", 0);
-    vector<std::string> message = {"HI_BYE", "HOW_ARE_YOU?", "HEY_YOU"};
-    Message request(MessageType::Reply, 0, 1, message.size(), message);\
-    Message reply;
-    auto n = client.send_with_ack(request, reply, 1000, 5, (char *) "10.40.38.71", 1234);
-    sockaddr_in hi;
-    auto n2 = client.recv_with_block(reply, hi);
+
+    auto db=new Db();
+   // CM client((char *) "192.168.2.21", 0);
+    //vector<std::string> message = {"HI_BYE", "HOW_ARE_YOU?", "HEY_YOU"};
+    //Message request(MessageType::Reply, 0, 1, message.size(), message);\
+    //Message reply;
+    //auto n = client.send_with_ack(request, reply, 1000, 5, (char *) "10.40.38.71", 1234);
+    //sockaddr_in hi;
+    //auto n2 = client.recv_with_block(reply, hi);
 //    if (argc != 4) {
 //        std::cerr << "Arguments: SOURCE_PORT, DESTINATION_ADDR, DESTINATION_PORT" << endl;
 //    }
