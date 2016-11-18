@@ -22,7 +22,6 @@ private:
     long int token;
     #include "../common/peer_rpc.h"
 
-
 public:
     Peer(char *_listen_hostname, uint16_t _listen_port);
     void runServer();

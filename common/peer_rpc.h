@@ -6,9 +6,10 @@
 #define DISTRIBUTED_SYSTEMS_PEER_RPC_H
 
 #include <string>
+#include <vector>
 
-extern int download_image(std::string image_name, long int token);
-extern int download_image_svc(std::string image_name, long int token);
+extern int download_image(std::string image_name, long int token, std::vector<std::string>& reply_params);
+extern int download_image_svc(std::string image_name, long int token, std::vector<std::string>& reply_params);
 
 extern long int retrieve_token(std::string username, std::string password);
 extern long int retrieve_token_svc(std::string username, std::string password);
