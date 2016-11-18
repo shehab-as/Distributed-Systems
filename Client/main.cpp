@@ -9,16 +9,11 @@ using namespace std;
 int main(int argc, char *argv[]) {
     CM client((char *) "192.168.2.21", 0);
     vector<std::string> message = {"HI_BYE", "HOW_ARE_YOU?", "HEY_YOU"};
-    Message request(MessageType::Reply, 0, 1, message.size(), message);
-    auto request_mashalled = request.marshal();
-    size_t BUFFER_SIZE = 7500;
-    char BUFFER[BUFFER_SIZE];
-    auto n = client.send_with_ack((char *) request_mashalled.c_str(), BUFFER, BUFFER_SIZE, 1000, 5, (char *) "10.40.38.71", 1234);
-    cout << n << endl;
-    if (n >= 0) {
-        cout << BUFFER << endl;
-        Message reply(BUFFER);
-    }
+    Message request(MessageType::Reply, 0, 1, message.size(), message);\
+    Message reply;
+    auto n = client.send_with_ack(request, reply, 1000, 5, (char *) "10.40.38.71", 1234);
+    sockaddr_in hi;
+    auto n2 = client.recv_with_block(reply, hi);
 //    if (argc != 4) {
 //        std::cerr << "Arguments: SOURCE_PORT, DESTINATION_ADDR, DESTINATION_PORT" << endl;
 //    }

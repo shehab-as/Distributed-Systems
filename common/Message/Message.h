@@ -5,46 +5,61 @@
 #include <vector>
 
 enum MessageType {
-    Request=0, Reply=1
+    Request = 0, Reply = 1
 };
 
 class Message {
 
 private:
     MessageType message_type;
-    int operation;      // RPC Operation
-    std::vector<std::string>parameters;      // parameters, vector<void *> one for each param
+
+    unsigned long long operation;      // RPC Operation
+    unsigned long long rpc_id;         // RPC ID
+    unsigned long long sequence_id;    // Sequence/Packet ID
+
+//    // 0 indicates no fragmentation
+//    // 1 indicates packet is part of a fragmented message
+//    // -1 indicates packet is the last in a sequence of fragmented packets
+//    int fragmented;
+
+    std::vector<std::string> parameters;
     size_t parameters_size;
-    int rpc_id;
 
 public:
     Message();
-    Message(MessageType msg_type,int op, int p_rpc_id, size_t p_message_size, std::vector<std::string> p_message);
+
+    Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, size_t p_message_size,
+            std::vector<std::string> p_message);
 
     // Unmarshalling occurs here
     explicit Message(char *marshalled_base64);
 
     std::string marshal();
 
-    int getOperation();
+    unsigned long long getOperation();
 
-    int getRPCId();
+    unsigned long long getRPCId();
 
-    std::vector<std::string>getParams();
+    unsigned long long getSeqId();
+
+    std::vector<std::string> getParams();
 
     size_t getParamsSize();
 
     MessageType getMessageType();
 
-    void setOperation(int _operation);
+    void setOperation(unsigned long long _operation);
 
-    void setMessage(std::vector<std::string>params, size_t params_size);
+    void setMessage(std::vector<std::string> params, size_t params_size);
 
     void setMessageType(MessageType message_type);
 
     void setParamsSize(size_t _params_size);
 
-    void setRPCId(int _rpc_id);
+    void setRPCId(unsigned long long _rpc_id);
+
+    void setSeqId(unsigned long long _seq_id);
+
     ~Message();
 
 };
