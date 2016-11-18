@@ -33,25 +33,29 @@ void Peer::runServer()
 }
 #pragma clang diagnostic pop
 
-void Peer::handleRequest(Message request, sockaddr_in sender_addr)
-{
-    switch (request.getOperation())
-    {
+void Peer::handleRequest(Message request, sockaddr_in sender_addr) {
+    // Only One case added for now.
+    switch (request.getOperation()) {
+        //Operation 0: Download Image
         case 0: {
-            std::vector<std::string> v;
-            auto n = view_imagelist_svc(v);
-            Message reply(MessageType::Reply, 0, request.getRPCId(), v.size(), v);
-            CM_Server.send_no_ack(reply, sender_addr);
+            std::vector<std::string> params;  // params[0] = image_name, params[size-1] = token
+            params = request.getParams();
+            std::string image_name = params[0];
+            long int token = stoi(params[params.size() - 1]);
+            std::vector<std::string> reply_params;
+            Message image_msg;
+            auto n = download_image_svc(image_name, token, reply_params);
+            image_msg = Message(MessageType::Reply, 0, request.getRPCId(), std::to_string(n), reply_params.size(),
+                                reply_params);
+            CM_Server.send_no_ack(image_msg, sender_addr);
             break;
         }
-        case 1:
-        {
-            break;
-        }
+
         default:
             break;
+    }
 }
-Peer::~Peer()
-{
+
+Peer::~Peer() {
 
 }

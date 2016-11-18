@@ -1,31 +1,33 @@
 #include <vector>
 #include <string>
 #include <netinet/in.h>
+#include "Registry.h"
 
-int view_imagelist_svc(std::vector<std::string> &image_container, int token) {
-
-    //loop on viewableby vector
-    //if (vector-token == token){
-    //    image_container.push_back(image_name);
-    //return image_container (reference)
-    // return n??
+int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long int token){
     return 0;
 }
 
-int add_entry_svc(std::string image_name, int token){
+int Registry::add_entry_svc(std::string image_name, long int token)
+{
     return 0;
 }
 
-int remove_entry_svc(std::string image_name, int token) {
+int Registry::remove_entry_svc(std::string image_name, long int token)
+{
     return 0;
 }
 
-int get_client_addr_svc(std::string image_name, std::string &owner_addr, int &owner_port, int token) {
+int Registry::get_client_addr_svc(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token)
+{
     return 0;
 }
 
-int retrieve_token_svc(std::string username, std::string password, int &token){
+int Registry::retrieve_token_svc(std::string username, std::string password, long int &token)
+{
     return 0;
 }
 
-int check_viewImage_svc(std::string image_id, bool &can_view, int token);
+int Registry::check_viewImage_svc(std::string image_id, bool &can_view, long int token)
+{
+    return 0;
+}

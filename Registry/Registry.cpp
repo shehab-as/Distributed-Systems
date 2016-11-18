@@ -54,7 +54,10 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             // 0: view_imagelist_svc(std::vector<std::string> &image_container);
             std::vector<std::string> image_container;
             std::vector<std::string> params;
-            int token = stoi(params[params.size() - 1]);
+            params = request.getParams();
+            //Note here: taking only token from params vector to call view_imagelist function.
+            //~Shehab
+            long int token = stoi(params[params.size() - 1]);
             auto n = view_imagelist_svc(image_container, token);
             Message reply(MessageType::Reply, 0, request.getRPCId(), std::to_string(n), image_container.size(),
                           image_container);
@@ -66,7 +69,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             std::vector<std::string> params;  // params[0] = image_name, params[size-1] = token
             params = request.getParams();
             std::string image_name = params[0];
-            int token = stoi(params[params.size() - 1]);
+            long int token = stoi(params[params.size() - 1]);
             auto n = add_entry_svc(image_name, token);
             Message reply(MessageType::Reply, 1, request.getRPCId(), std::to_string(n), 0, NULL);
             serverConnector.send_no_ack(reply, sender_addr);
@@ -77,7 +80,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             std::vector<std::string> params;
             params = request.getParams();
             std::string image_name = params[0];     // params[0] = image_name, params[size-1] = token
-            int token = stoi(params[params.size() - 1]);
+            long int token = stoi(params[params.size() - 1]);
             auto n = remove_entry_svc(image_name, token);
             Message reply(MessageType::Reply, 2, request.getRPCId(), std::to_string(n), 0, NULL);
             serverConnector.send_no_ack(reply, sender_addr);
@@ -89,8 +92,8 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             params = request.getParams();
             std::string image_name = params[0];
             std::string owner_addr;
-            int owner_port;
-            int token = stoi(params[params.size() - 1]);
+            uint16_t owner_port;
+            long int token = stoi(params[params.size() - 1]);
             auto n = get_client_addr_svc(image_name, owner_addr, owner_port, token);
             std::vector<std::string> reply_params;
             reply_params.push_back(owner_addr);
@@ -107,7 +110,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             params = request.getParams();
             std::string username = params[0];
             std::string password = params[1];
-            int token;
+            long int token;
             auto n = retrieve_token_svc(username, password, token);
             std::vector<std::string> reply_params;
             reply_params.push_back(std::to_string(token));
@@ -122,7 +125,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             std::vector<std::string> params;
             params = request.getParams();
             std::string image_id = params[0];
-            int token = stoi(params[params.size() - 1]);
+            long int token = stoi(params[params.size() - 1]);
             bool can_view;
             auto n = check_viewImage_svc(image_id, can_view, token);
             std::vector<std::string> reply_params;

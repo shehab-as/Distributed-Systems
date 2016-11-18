@@ -8,6 +8,7 @@
 class Registry {
 private:
     CM serverConnector;
+    #include "../common/registry_rpc.h"
     //file (Database)
 
 public:
