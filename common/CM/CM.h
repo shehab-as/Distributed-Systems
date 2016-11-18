@@ -14,6 +14,10 @@ private:
 
     sockaddr_in create_sockaddr(char *addr, uint16_t port);
 
+    int check_if_fragmented(char *recv_buffer);
+
+    int rebuild_request(char *recv_buffer, std::string &rebuilt_request, sockaddr_in &sender_addr);
+
 public:
     CM(char *_myAddr, uint16_t _myPort);
 

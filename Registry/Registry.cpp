@@ -114,7 +114,8 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             auto n = retrieve_token_svc(username, password, token);
             std::vector<std::string> reply_params;
             reply_params.push_back(std::to_string(token));
-            Message reply(MessageType::Reply, 4, request.getRPCId(), std::to_string(n), reply_params.size(), reply_params);
+            Message reply(MessageType::Reply, 4, request.getRPCId(), std::to_string(n), reply_params.size(),
+                          reply_params);
             serverConnector.send_no_ack(reply, sender_addr);
             break;
         }
@@ -129,8 +130,9 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             auto n = check_viewImage_svc(image_id, can_view, token);
             std::vector<std::string> reply_params;
             reply_params.push_back(std::to_string(can_view));
-            Message reply(MessageType::Reply, 5, request.getRPCId(), std::to_string(n), reply_params.size(), reply_params);
-            serverConnector.send_no_ack(reply,sender_addr);
+            Message reply(MessageType::Reply, 5, request.getRPCId(), std::to_string(n), reply_params.size(),
+                          reply_params);
+            serverConnector.send_no_ack(reply, sender_addr);
             break;
         }
 
