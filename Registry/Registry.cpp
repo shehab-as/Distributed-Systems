@@ -47,24 +47,92 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
     // 1: add_entry_svc(std::string image_name);
     // 2: remove_entry_svc(std::string image_name);
     // 3: get_client_addr_svc(std::string image_name, sockaddr_in &owner_addr);
+    // 4: retrieve_token_svc(std::string username, std::string password, int &token);
+    // 5: check_viewImage_svc(std::string image_id, bool &can_view, int token);
     switch (request.getOperation()) {
         case 0: {
-            std::vector<std::string> v;
-            auto n = view_imagelist_svc(v);
-            Message reply(MessageType::Reply, 0, request.getRPCId(), v.size(), v);
+            // 0: view_imagelist_svc(std::vector<std::string> &image_container);
+            std::vector<std::string> image_container;
+            std::vector<std::string> params;
+            int token = stoi(params[params.size() - 1]);
+            auto n = view_imagelist_svc(image_container, token);
+            Message reply(MessageType::Reply, 0, request.getRPCId(), std::to_string(n), image_container.size(),
+                          image_container);
             serverConnector.send_no_ack(reply, sender_addr);
             break;
         }
         case 1: {
-            // kamel yad :)
+            // 1: add_entry_svc(std::string image_name, int token);
+            std::vector<std::string> params;  // params[0] = image_name, params[size-1] = token
+            params = request.getParams();
+            std::string image_name = params[0];
+            int token = stoi(params[params.size() - 1]);
+            auto n = add_entry_svc(image_name, token);
+            Message reply(MessageType::Reply, 1, request.getRPCId(), std::to_string(n), 0, NULL);
+            serverConnector.send_no_ack(reply, sender_addr);
             break;
         }
         case 2: {
+            // 2: remove_entry_svc(std::string image_name, int token);
+            std::vector<std::string> params;
+            params = request.getParams();
+            std::string image_name = params[0];     // params[0] = image_name, params[size-1] = token
+            int token = stoi(params[params.size() - 1]);
+            auto n = remove_entry_svc(image_name, token);
+            Message reply(MessageType::Reply, 2, request.getRPCId(), std::to_string(n), 0, NULL);
+            serverConnector.send_no_ack(reply, sender_addr);
             break;
         }
         case 3: {
+            // 3: int get_client_addr_svc(std::string image_name, std::string &owner_addr, int &owner_port, int token);
+            std::vector<std::string> params;
+            params = request.getParams();
+            std::string image_name = params[0];
+            std::string owner_addr;
+            int owner_port;
+            int token = stoi(params[params.size() - 1]);
+            auto n = get_client_addr_svc(image_name, owner_addr, owner_port, token);
+            std::vector<std::string> reply_params;
+            reply_params.push_back(owner_addr);
+            reply_params.push_back(std::to_string(owner_port));
+            Message reply(MessageType::Reply, 3, request.getRPCId(), std::to_string(n), reply_params.size(),
+                          reply_params);
+            serverConnector.send_no_ack(reply, sender_addr);
             break;
         }
+
+        case 4: {
+            // 4: int retrieve_token_svc(std::string username, std::string password, int &token);
+            std::vector<std::string> params;
+            params = request.getParams();
+            std::string username = params[0];
+            std::string password = params[1];
+            int token;
+            auto n = retrieve_token_svc(username, password, token);
+            std::vector<std::string> reply_params;
+            reply_params.push_back(std::to_string(token));
+            Message reply(MessageType::Reply, 4, request.getRPCId(), std::to_string(n), reply_params.size(),
+                          reply_params);
+            serverConnector.send_no_ack(reply, sender_addr);
+            break;
+        }
+
+        case 5: {
+            //int check_viewImage_svc(std::string image_id, bool &can_view, int token);
+            std::vector<std::string> params;
+            params = request.getParams();
+            std::string image_id = params[0];
+            int token = stoi(params[params.size() - 1]);
+            bool can_view;
+            auto n = check_viewImage_svc(image_id, can_view, token);
+            std::vector<std::string> reply_params;
+            reply_params.push_back(std::to_string(can_view));
+            Message reply(MessageType::Reply, 5, request.getRPCId(), std::to_string(n), reply_params.size(),
+                          reply_params);
+            serverConnector.send_no_ack(reply, sender_addr);
+            break;
+        }
+
         default: {
             break;
         }

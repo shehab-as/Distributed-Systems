@@ -16,6 +16,7 @@ private:
     unsigned long long operation;      // RPC Operation
     unsigned long long rpc_id;         // RPC ID
     unsigned long long sequence_id;    // Sequence/Packet ID
+    std::string return_val;
 
     // 0 indicates no fragmentation
     // 1 indicates packet is part of a fragmented message
@@ -28,7 +29,7 @@ private:
 public:
     Message();
 
-    Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, size_t p_message_size,
+    Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, std::string _return_val, size_t p_message_size,
             std::vector<std::string> p_message);
 
     // Unmarshalling occurs here
@@ -41,6 +42,8 @@ public:
     unsigned long long getRPCId();
 
     unsigned long long getSeqId();
+
+    std::string getReturnVal();
 
     std::vector<std::string> getParams();
 
@@ -59,6 +62,8 @@ public:
     void setRPCId(unsigned long long _rpc_id);
 
     void setSeqId(unsigned long long _seq_id);
+
+    void setReturnVal(std::string _return_val);
 
     ~Message();
 
