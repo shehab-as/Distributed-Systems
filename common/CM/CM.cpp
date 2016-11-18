@@ -90,3 +90,61 @@ sockaddr_in CM::create_sockaddr(char *addr, uint16_t port) {
     sock_addr.sin_port = htons(port);
     return sock_addr;
 }
+
+//int CM::recv_with_block(Message &received_message, sockaddr_in &sender_addr) {
+//    // A blocking receive that fills char* message with the received contents
+//    bool fragmented = true;
+//    char recv_buffer[RECV_BUFFER_SIZE];
+//    while(fragmented) {
+//        ssize_t bytes_read = udpSocket.readFromSocketWithBlock(recv_buffer, RECV_BUFFER_SIZE, sender_addr);
+//        int frag_check = check_if_fragmented(recv_buffer);
+//        if(frag_check == 0)
+//            fragmented = false;
+//
+//    }
+//    if (bytes_read >= 0)
+//        received_message = Message(recv_buffer);
+//
+//    return (int) bytes_read;
+//}
+//
+//sockaddr_in CM::create_sockaddr(char *addr, uint16_t port) {
+//    struct hostent *host;
+//    sockaddr_in sock_addr;
+//    sock_addr.sin_family = AF_INET;
+//
+//    if ((host = gethostbyname(addr)) == NULL) {
+//        std::cerr << "Error occured when fetching hostname\n";
+//    }
+//
+//    sock_addr.sin_addr = *(struct in_addr *) (host->h_addr);
+//
+//    // Sometimes a segmentation fault might occur here when multiple threads
+//    // call htons(_peerPort) at the same time
+//    // This is why we initialize peerAddr only once at the client's initialization
+//    // and not on every parameters we send
+//    sock_addr.sin_port = htons(port);
+//    return sock_addr;
+//}
+//
+//int CM::check_if_fragmented(char *recv_buffer) {
+//    std::stringstream tokenizer(recv_buffer);
+//    std::string token;
+//
+//    tokenizer >> token;
+//    auto message_type = std::stoi(token);
+//
+//    tokenizer >> token;
+//    auto op = std::stoull(token);
+//
+//    tokenizer >> token;
+//    auto rpc_id = std::stoull(token);
+//
+//    tokenizer >> token;
+//    auto seq_id = std::stoull(token);
+//
+//    tokenizer >> token;
+//    auto fragmented = std::stoi(token);
+//
+//    return fragmented;
+//}

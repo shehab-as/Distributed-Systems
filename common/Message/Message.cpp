@@ -38,7 +38,10 @@ Message::Message(char *marshalled_base64) {
     setRPCId(std::stoull(token));
 
     tokenizer >> token;
-    setRPCId(std::stoull(token));
+    setSeqId(std::stoull(token));
+
+    tokenizer >> token;
+    fragmented = std::stoi(token);
 
     tokenizer >> token;
     setParamsSize((size_t) std::stoi(token));
@@ -50,13 +53,14 @@ Message::Message(char *marshalled_base64) {
 }
 
 // Marshalled Message should be of the following format:
-// "MessageType opeation rpc_id sequence_id num_of_params param1 param2 ..."
+// "MessageType opeation rpc_id sequence_id fragmented num_of_params param1 param2 ..."
 std::string Message::marshal() {
     std::string marshalled_msg;
     marshalled_msg.append(std::to_string(int(getMessageType())) + " ");
     marshalled_msg.append(std::to_string(getOperation()) + " ");
     marshalled_msg.append(std::to_string(getRPCId()) + " ");
     marshalled_msg.append(std::to_string(getSeqId()) + " ");
+    marshalled_msg.append(std::to_string(fragmented) + " ");
     marshalled_msg.append(std::to_string(getParamsSize()) + " ");
 
     for (int i = 0; i < getParamsSize(); i++)

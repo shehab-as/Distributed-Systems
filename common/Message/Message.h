@@ -17,10 +17,10 @@ private:
     unsigned long long rpc_id;         // RPC ID
     unsigned long long sequence_id;    // Sequence/Packet ID
 
-//    // 0 indicates no fragmentation
-//    // 1 indicates packet is part of a fragmented message
-//    // -1 indicates packet is the last in a sequence of fragmented packets
-//    int fragmented;
+    // 0 indicates no fragmentation
+    // 1 indicates packet is part of a fragmented message
+    // -1 indicates packet is the last in a sequence of fragmented packets
+    int fragmented;
 
     std::vector<std::string> parameters;
     size_t parameters_size;
