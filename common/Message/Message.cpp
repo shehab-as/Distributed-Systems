@@ -14,10 +14,10 @@ Message::Message() {
 }
 
 // Constructor
-Message::Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, size_t p_message_size, std::vector<std::string> p_message)
+Message::Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, std::string _return_val, size_t p_message_size, std::vector<std::string> p_message)
         : message_type(msg_type), operation(op), parameters(p_message),
           parameters_size(p_message_size),
-          rpc_id(p_rpc_id), sequence_id(0)//, fragmented(0)
+          rpc_id(p_rpc_id), sequence_id(0), return_val(_return_val)//, fragmented(0)
 {
 
 }
@@ -44,6 +44,9 @@ Message::Message(char *marshalled_base64) {
     fragmented = std::stoi(token);
 
     tokenizer >> token;
+    setReturnVal(token);
+
+    tokenizer >> token;
     setParamsSize((size_t) std::stoi(token));
 
     for (int i = 0; i < getParamsSize(); i++) {
@@ -53,7 +56,7 @@ Message::Message(char *marshalled_base64) {
 }
 
 // Marshalled Message should be of the following format:
-// "MessageType opeation rpc_id sequence_id fragmented num_of_params param1 param2 ..."
+// "MessageType opeation rpc_id sequence_id fragmented return_val num_of_params param1 param2 ..."
 std::string Message::marshal() {
     std::string marshalled_msg;
     marshalled_msg.append(std::to_string(int(getMessageType())) + " ");
@@ -61,6 +64,7 @@ std::string Message::marshal() {
     marshalled_msg.append(std::to_string(getRPCId()) + " ");
     marshalled_msg.append(std::to_string(getSeqId()) + " ");
     marshalled_msg.append(std::to_string(fragmented) + " ");
+    marshalled_msg.append(getReturnVal() + " ");
     marshalled_msg.append(std::to_string(getParamsSize()) + " ");
 
     for (int i = 0; i < getParamsSize(); i++)
@@ -107,4 +111,12 @@ unsigned long long Message::getSeqId() {
 
 void Message::setSeqId(unsigned long long _seq_id) {
     sequence_id = _seq_id;
+}
+
+void Message::setReturnVal(std::string _return_val) {
+    return_val = _return_val;
+}
+
+std::string Message::getReturnVal() {
+    return return_val;
 }
