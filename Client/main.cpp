@@ -14,7 +14,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-    auto db=new Db();
+   // auto db=new Db();
    // CM client((char *) "192.168.2.21", 0);
     //vector<std::string> message = {"HI_BYE", "HOW_ARE_YOU?", "HEY_YOU"};
     //Message request(MessageType::Reply, 0, 1, message.size(), message);\
