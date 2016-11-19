@@ -131,12 +131,12 @@ int Peer::check_viewImage(std::string image_id, bool &can_view, long int token) 
 }
 
 
-//int main()
-//{
-//    CM server(NULL, 1234);
-//    Message request;
-//    sockaddr_in sender_addr;
-//    server.recv_with_block(request, sender_addr);
-//    std::string s(request.marshal());
-//    std::cout << s.size();
-//}
+int main()
+{
+    CM server(NULL, 1234);
+    Message request;
+    sockaddr_in sender_addr;
+    server.recv_with_block(request, sender_addr);
+    std::string s(request.marshal());
+    std::cout << s.size();
+}

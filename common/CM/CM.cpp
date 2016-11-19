@@ -150,11 +150,12 @@ std::string CM::remove_headers(char *recv_buffer) {
         tokenizer >> token;
         splits.push_back(token);
     }
-    for(int i = 5; i < splits.size() - 1; i++)
-    {
+
+    for(int i = 5; i < splits.size() - 2; i++)
         payload.append(splits[i] + " ");
-    }
+
     payload.append(splits[splits.size() - 1]);
+
     return payload;
 }
 
@@ -167,7 +168,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
     while (still_fragmented) {
         udpSocket.writeToSocket(ack, sender_addr);
         bytes_read = udpSocket.readFromSocketWithBlock(recv_buffer, RECV_BUFFER_SIZE, sender_addr);
-
+//        std::cout << bytes_read << std::endl;
         int frag = check_if_fragmented(recv_buffer);
 
         // An error occured, we should have received -1 not 0
@@ -179,12 +180,11 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
             still_fragmented = false;
         if (bytes_read != -1) {
             std::string payload = remove_headers(recv_buffer);
-            std::cout << "rebuilt req" << rebuilt_request.size() << std::endl;
             std::cout << payload << std::endl;
             rebuilt_request += payload;
         }
     }
-
+//    std::cout << rebuilt_request;
     return 0;
 }
 
