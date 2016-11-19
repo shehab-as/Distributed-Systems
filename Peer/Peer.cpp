@@ -134,7 +134,8 @@ int Peer::check_viewImage(std::string image_id, bool &can_view, long int token) 
 int main()
 {
     CM client(NULL, 0);
-    std::vector<std::string> v{"HI"};
+    std::vector<std::string> v{std::string(9000, 'H')};
     Message request(MessageType::Reply, 0, 5, "null", v.size(), v);
+    std::cout << request.marshal().size();
     client.send_no_ack(request, (char *) "192.168.1.116", 1234);
 }

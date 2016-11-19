@@ -49,8 +49,12 @@ int CM::send_no_ack(Message message_to_send, char *receiver_addr, uint16_t recei
     sockaddr_in receiver_sock_addr = create_sockaddr(receiver_addr, receiver_port);
 
     std::string marshalled_msg = message_to_send.marshal();
+    ssize_t bytes_sent;
+    if (marshalled_msg.size() > RECV_BUFFER_SIZE)
+        bytes_sent = send_fragments(message_to_send, receiver_sock_addr);
+    else
+        bytes_sent = udpSocket.writeToSocket((char *) marshalled_msg.c_str(), receiver_sock_addr);
 
-    ssize_t bytes_sent = udpSocket.writeToSocket((char *) marshalled_msg.c_str(), receiver_sock_addr);
     return (int) bytes_sent;
 }
 
@@ -96,10 +100,10 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
         payload = payload.substr(prev_index + RECV_BUFFER_SIZE - header.size(), std::string::npos);
 
         sockaddr_in reply_addr;
-
+        char ack[5];
         while (max_retries-- && bytes_read == -1) {
             bytes_sent = udpSocket.writeToSocket((char *) (header + slice).c_str(), receiver_sock_addr);
-            bytes_read = udpSocket.readFromSocketWithTimeout(NULL, RECV_BUFFER_SIZE, reply_addr, 500);
+            bytes_read = udpSocket.readFromSocketWithTimeout(ack, RECV_BUFFER_SIZE, reply_addr, 500);
         }
 
         if (bytes_read == -1)
