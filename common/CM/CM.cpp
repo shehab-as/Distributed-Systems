@@ -153,7 +153,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
 
         // Get the header of the received packet
         Header header(recv_buffer);
-//        std::cout << bytes_read << std::endl;
+        std::cout << bytes_read << std::endl;
         // An error occured, we should have received -1 not 0
         if (header.fragmented == 0)
             return -1;
@@ -164,12 +164,12 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
 
         if (bytes_read != -1 && header.sequence_id != last_sequence_id_recv) {
             last_sequence_id_recv++;
-            Payload payload(recv_buffer);
+            Payload payload(recv_buffer, false);
             std::cout << payload.str() << std::endl;
             rebuilt_request += payload.str();
         }
     }
-//    std::cout << rebuilt_request;
+    std::cout << rebuilt_request;
     return 0;
 }
 

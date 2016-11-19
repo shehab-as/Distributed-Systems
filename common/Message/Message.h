@@ -68,28 +68,37 @@ public:
     std::string return_val;     // Holds return value of called RPC method, Should be 0 in case Message is a request and not a reply
     size_t parameters_size;     // Contains the number of RPC parameters
     std::vector<std::string> parameters;        // Holds all the RPC paramters
+    bool fragmented;
 
     Payload() {}
 
-    Payload(std::string _return_val, size_t params_size, std::vector<std::string> params) :
-            return_val(_return_val), parameters_size(params_size), parameters(params) {}
+    Payload(std::string _return_val, size_t params_size, std::vector<std::string> params, bool _fragmented) :
+            return_val(_return_val), parameters_size(params_size), parameters(params), fragmented(_fragmented) {}
 
-    Payload(char *marshalled_payload) {
+    Payload(char *marshalled_payload, bool _fragmented) : fragmented(_fragmented) {
         std::stringstream tokenizer(marshalled_payload);
         std::string token;
 
-        for (int i = 0; i < 5; i++)
+        if (fragmented) {
+
+            for (int i = 0; i < 5; i++)
+                tokenizer >> token;
+
             tokenizer >> token;
+            return_val = token;
 
-        tokenizer >> token;
-        return_val = token;
-
-        tokenizer >> token;
-        parameters_size = (size_t) std::stoi(token);
-
-        for (int i = 0; i < parameters_size; i++) {
             tokenizer >> token;
-            parameters.push_back(token);
+            parameters_size = (size_t) std::stoi(token);
+
+            for (int i = 0; i < parameters_size; i++) {
+                tokenizer >> token;
+                parameters.push_back(token);
+            }
+        } else {
+            while (tokenizer.good()) {
+                tokenizer >> token;
+                parameters.push_back(token);
+            }
         }
     }
 
@@ -97,11 +106,16 @@ public:
 
     std::string str() {
         std::string payload_str;
-        payload_str.append(return_val + " ");
-        payload_str.append(std::to_string(parameters_size) + " ");
+        if (fragmented) {
+            payload_str.append(return_val + " ");
+            payload_str.append(std::to_string(parameters_size) + " ");
 
-        for (int i = 0; i < parameters_size; i++)
-            payload_str.append(parameters[i] + " ");
+            for (int i = 0; i < parameters_size; i++)
+                payload_str.append(parameters[i] + " ");
+        } else {
+            for (int i = 0; i < parameters_size; i++)
+                payload_str.append(parameters[i] + " ");
+        }
 
         return payload_str;
     }

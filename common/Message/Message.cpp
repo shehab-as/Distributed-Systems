@@ -16,11 +16,11 @@ Message::Message() : payload(), header() {
 // Constructor
 Message::Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, std::string _return_val,
                  size_t p_message_size, std::vector<std::string> p_message) :
-        header(msg_type, op, p_rpc_id, 0), payload(_return_val, p_message_size, p_message) {}
+        header(msg_type, op, p_rpc_id, 0), payload(_return_val, p_message_size, p_message, false) {}
 
 
 //Marshalled Constructor
-Message::Message(char *marshalled_base64) : header(marshalled_base64), payload(marshalled_base64){ }
+Message::Message(char *marshalled_base64) : header(marshalled_base64), payload(marshalled_base64, 0){ }
 
 // Marshalled Message should be of the following format:
 // "MessageType opeation rpc_id sequence_id fragmented return_val num_of_params param1 param2 ..."

@@ -10,7 +10,7 @@
 class CM {
 private:
     UDPSocket udpSocket;
-    const size_t RECV_BUFFER_SIZE = 7500;
+    const size_t RECV_BUFFER_SIZE = 50;
 
     sockaddr_in create_sockaddr(char *addr, uint16_t port);
 
