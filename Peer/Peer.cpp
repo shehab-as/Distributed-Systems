@@ -9,10 +9,9 @@
 
 // Peer Constructor initializes the CM-CLient and sets its port to default 0 while the Servers sets
 // its port to defined listen port.
-Peer::Peer(char *_listen_hostname, uint16_t _listen_port):
+Peer::Peer(char *_listen_hostname, uint16_t _listen_port) :
         CM_Client(_listen_hostname, 0),
-        CM_Server(_listen_hostname,  _listen_port)
-{
+        CM_Server(_listen_hostname, _listen_port) {
     //Each object should have two threads.
     // Server thread that keeps listening infinitely.
     // Client thread which provides an interface in Qt.
@@ -26,17 +25,17 @@ Peer::~Peer() {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
-void Peer::runServer()
-{
+
+void Peer::runServer() {
     sockaddr_in sender_addr;
-    while(true)
-    {
+    while (true) {
         Message recv_message = Message();
         ssize_t bytes_read = CM_Server.recv_with_block(recv_message, sender_addr);
         handleRequest(recv_message, sender_addr);
     }
 
 }
+
 #pragma clang diagnostic pop
 
 void Peer::handleRequest(Message request, sockaddr_in sender_addr) {
@@ -72,7 +71,7 @@ int Peer::download_image(std::string image_name, long int token, std::vector<std
 //////////////////////////////////////////////////
 //             Peer RPC Implementation          //
 /////////////////////////////////////////////////
-int Peer::download_image_svc(std::string image_name, long int token, std::vector<std::string> &reply_params){
+int Peer::download_image_svc(std::string image_name, long int token, std::vector<std::string> &reply_params) {
     int n_token;
     // n = check_token(username, token)
     // n = 0    Success
@@ -90,9 +89,8 @@ int Peer::download_image_svc(std::string image_name, long int token, std::vector
 
         reply_params.push_back(image_data);
     }
-    catch (const std::exception &e)
-    {
-        std::cout<<e.what()<<std::endl;
+    catch (const std::exception &e) {
+        std::cout << e.what() << std::endl;
     }
 
     return 0;
@@ -101,28 +99,23 @@ int Peer::download_image_svc(std::string image_name, long int token, std::vector
 //////////////////////////////////////////////////
 //             Registry RPC Stubs               //
 /////////////////////////////////////////////////
-int Peer::retrieve_token(std::string username, std::string password, long int &token)
-{
+int Peer::retrieve_token(std::string username, std::string password, long int &token) {
     return 0;
 }
 
-int Peer::view_imagelist(std::vector<std::string> &image_container, long int token)
-{
+int Peer::view_imagelist(std::vector<std::string> &image_container, long int token) {
     return 0;
 }
 
-int Peer::add_entry(std::string image_name, long int token)
-{
+int Peer::add_entry(std::string image_name, long int token) {
     return 0;
 }
 
-int Peer::remove_entry(std::string image_name, long int token)
-{
+int Peer::remove_entry(std::string image_name, long int token) {
     return 0;
 }
 
-int Peer::get_client_addr(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token)
-{
+int Peer::get_client_addr(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token) {
     return 0;
 }
 
@@ -130,13 +123,11 @@ int Peer::check_viewImage(std::string image_id, bool &can_view, long int token) 
     return 0;
 }
 
-
-int main()
-{
-    CM server(NULL, 1234);
-    Message request;
-    sockaddr_in sender_addr;
-    server.recv_with_block(request, sender_addr);
-    std::cout << request.marshal() << std::endl;
-    std::cout << "Request size: " <<request.marshal().size() << std::endl;
+int main() {
+    CM client(NULL, 0);
+    std::vector<std::string> v{std::string("HiThereMyNameisWhoIsThatAndIwouldLoveToHaveYouAroundHere")};
+    Message request(MessageType::Reply, 0, 5, "null", v.size(), v);
+    std::cout << request.marshal().size();
+    client.send_no_ack(request, (char *) "localhost", 1234);
+    return 0;
 }

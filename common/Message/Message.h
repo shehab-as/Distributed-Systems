@@ -26,7 +26,7 @@ public:
     Header() {}
 
     Header(MessageType _msg_type, unsigned long long _op, unsigned long long _rpc_id, int _fragmented) :
-            message_type(_msg_type), operation(_op), rpc_id(_rpc_id), fragmented(_fragmented) {}
+            message_type(_msg_type), operation(_op), rpc_id(_rpc_id), fragmented(_fragmented), sequence_id(0) {}
 
     Header(char *marshalled_header) {
         std::stringstream tokenizer(marshalled_header);
@@ -79,7 +79,7 @@ public:
         std::stringstream tokenizer(marshalled_payload);
         std::string token;
 
-        if (fragmented) {
+        if (!fragmented) {
 
             for (int i = 0; i < 5; i++)
                 tokenizer >> token;
@@ -95,8 +95,10 @@ public:
                 parameters.push_back(token);
             }
         } else {
+            parameters_size = 0;
             while (tokenizer.good()) {
                 tokenizer >> token;
+                parameters_size++;
                 parameters.push_back(token);
             }
         }
@@ -106,7 +108,7 @@ public:
 
     std::string str() {
         std::string payload_str;
-        if (fragmented) {
+        if (!fragmented) {
             payload_str.append(return_val + " ");
             payload_str.append(std::to_string(parameters_size) + " ");
 

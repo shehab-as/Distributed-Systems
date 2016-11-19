@@ -164,12 +164,12 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
 
         if (bytes_read != -1 && header.sequence_id != last_sequence_id_recv) {
             last_sequence_id_recv++;
-            Payload payload(recv_buffer, false);
+            Payload payload(recv_buffer, true);
             std::cout << payload.str() << std::endl;
             rebuilt_request += payload.str();
         }
     }
-    std::cout << rebuilt_request;
+    std::cout << "Rebuilt request: " << rebuilt_request;
     return 0;
 }
 
