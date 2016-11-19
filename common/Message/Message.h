@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <string>
 
 enum MessageType {
     Request = 0, Reply = 1

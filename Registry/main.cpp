@@ -6,6 +6,7 @@
 
 using namespace std;
 
+// Registry main
 int main()
 {
     auto db=new Db();

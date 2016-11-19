@@ -3,7 +3,6 @@
 #include <vector>
 #include "Registry.h"
 #include "../common/Message/Message.h"
-#include "../common/registry_rpc.h"
 
 Registry::Registry(char *_listen_hostname, uint16_t _listen_port, int num_of_workers) : serverConnector(
         _listen_hostname, _listen_port) {
@@ -141,5 +140,37 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
         }
     }
 
+}
+
+//////////////////////////////////////////////////
+//           Registry RPC Implementation        //
+/////////////////////////////////////////////////
+int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long int token){
+    return 0;
+}
+
+int Registry::add_entry_svc(std::string image_name, long int token)
+{
+    return 0;
+}
+
+int Registry::remove_entry_svc(std::string image_name, long int token)
+{
+    return 0;
+}
+
+int Registry::get_client_addr_svc(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token)
+{
+    return 0;
+}
+
+int Registry::retrieve_token_svc(std::string username, std::string password, long int &token)
+{
+    return 0;
+}
+
+int Registry::check_viewImage_svc(std::string image_id, bool &can_view, long int token)
+{
+    return 0;
 }
 
