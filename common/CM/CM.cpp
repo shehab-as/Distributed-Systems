@@ -134,7 +134,6 @@ int CM::recv_with_block(Message &received_message, sockaddr_in &sender_addr) {
 
         if (frag_check == 1) {
             bytes_read = rebuild_request(recv_buffer, recv_request, sender_addr);
-            recv_request = recv_buffer + recv_request;
         } else
             recv_request = recv_buffer;
     }
@@ -148,22 +147,19 @@ int CM::recv_with_block(Message &received_message, sockaddr_in &sender_addr) {
 std::string CM::remove_headers(char *recv_buffer) {
     std::stringstream tokenizer(recv_buffer);
     std::string token;
-
-    tokenizer >> token;
-//    setMessageType((MessageType) std::stoi(token));
-
-    tokenizer >> token;
-//    setOperation(std::stoull(token));
-
-    tokenizer >> token;
-//    setRPCId(std::stoull(token));
-
-    tokenizer >> token;
-//    setSeqId(std::stoull(token));
-
-    tokenizer >> token;
-//    fragmented = std::stoi(token);
-    return tokenizer.str();
+    std::vector<std::string> splits;
+    std::string payload;
+    while(tokenizer.good())
+    {
+        tokenizer >> token;
+        splits.push_back(token);
+    }
+    for(int i = 5; i < splits.size() - 1; i++)
+    {
+        payload.append(splits[i] + " ");
+    }
+    payload.append(splits[splits.size() - 1]);
+    return payload;
 }
 
 int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, sockaddr_in &sender_addr) {
@@ -171,9 +167,9 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
     bool still_fragmented = true;
     ssize_t bytes_read = -1;
     char recv_buffer[RECV_BUFFER_SIZE];
-
+    char ack[] = "ack";
     while (still_fragmented) {
-        udpSocket.writeToSocket(NULL, sender_addr);
+        udpSocket.writeToSocket(ack, sender_addr);
         bytes_read = udpSocket.readFromSocketWithBlock(recv_buffer, RECV_BUFFER_SIZE, sender_addr);
 
         int frag = check_if_fragmented(recv_buffer);
@@ -185,8 +181,12 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
         // Last packet in the fragmented packets
         if (frag == -1)
             still_fragmented = false;
-        std::string payload = remove_headers(recv_buffer);
-        rebuilt_request += payload;
+        if (bytes_read != -1) {
+            std::string payload = remove_headers(recv_buffer);
+            std::cout << "rebuilt req" << rebuilt_request.size() << std::endl;
+            std::cout << payload << std::endl;
+            rebuilt_request += payload;
+        }
     }
 
     return 0;
