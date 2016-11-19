@@ -36,6 +36,7 @@ int CM::send_with_ack(Message message_to_send, Message &received_message, int ti
         bytes_read = udpSocket.readFromSocketWithTimeout(reply_buffer, RECV_BUFFER_SIZE, reply_addr, timeout_in_ms);
     }
 
+    // If no errors
     if (bytes_read >= 0)
         received_message = Message(reply_buffer);
 
@@ -50,6 +51,8 @@ int CM::send_no_ack(Message message_to_send, char *receiver_addr, uint16_t recei
 
     std::string marshalled_msg = message_to_send.marshal();
     ssize_t bytes_sent;
+
+    // If message size if bigger than the receiver's buffer size, fragment the message
     if (marshalled_msg.size() > RECV_BUFFER_SIZE)
         bytes_sent = send_fragments(message_to_send, receiver_sock_addr);
     else
@@ -61,48 +64,38 @@ int CM::send_no_ack(Message message_to_send, char *receiver_addr, uint16_t recei
 int CM::send_no_ack(Message message_to_send, sockaddr_in receiver_sock_addr) {
     std::string marshalled_msg = message_to_send.marshal();
     ssize_t bytes_sent;
+
+    // If message size if bigger than the receiver's buffer size, fragment the message
     if (marshalled_msg.size() > RECV_BUFFER_SIZE)
         bytes_sent = send_fragments(message_to_send, receiver_sock_addr);
     else
         bytes_sent = udpSocket.writeToSocket((char *) marshalled_msg.c_str(), receiver_sock_addr);
+
     return (int) bytes_sent;
 }
 
 ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_sock_addr) {
     message_to_fragment.setFrag(1);
 
-    auto message_type = message_to_fragment.getMessageType();
-    auto op = message_to_fragment.getOperation();
-    auto rpc_id = message_to_fragment.getRPCId();
-    auto seq_id = message_to_fragment.getSeqId();
-    auto fragmented = message_to_fragment.getFrag();
-
-    std::string payload;
-    payload.append(message_to_fragment.getReturnVal() + " ");
-    payload.append(std::to_string(message_to_fragment.getParamsSize()) + " ");
-
-    auto params = message_to_fragment.getParams();
-
-    for (int i = 0; i < message_to_fragment.getParamsSize(); i++)
-        payload.append(params[i] + " ");
+    Header header = message_to_fragment.getHeader();
+    std::string payload_str = message_to_fragment.getPayload().str();
 
     ssize_t bytes_sent = 0;
     ssize_t total_bytes_sent = 0;
     unsigned long prev_index = 0;
-    std::string header = create_marshalled_header(message_type, op, rpc_id, seq_id, fragmented);
 
-    while (payload.size() > RECV_BUFFER_SIZE - header.size()) {
+    while (payload_str.size() > RECV_BUFFER_SIZE - header.str().size()) {
         int max_retries = 5;
         ssize_t bytes_read = -1;
 
-
-        std::string slice = payload.substr(prev_index, prev_index + RECV_BUFFER_SIZE - header.size());
-        payload = payload.substr(prev_index + RECV_BUFFER_SIZE - header.size(), std::string::npos);
+        std::string slice = payload_str.substr(prev_index, prev_index + RECV_BUFFER_SIZE - header.str().size());
+        payload_str = payload_str.substr(prev_index + RECV_BUFFER_SIZE - header.str().size(), std::string::npos);
 
         sockaddr_in reply_addr;
         char ack[5];
+
         while (max_retries-- && bytes_read == -1) {
-            bytes_sent = udpSocket.writeToSocket((char *) (header + slice).c_str(), receiver_sock_addr);
+            bytes_sent = udpSocket.writeToSocket((char *) (header.str() + slice).c_str(), receiver_sock_addr);
             bytes_read = udpSocket.readFromSocketWithTimeout(ack, RECV_BUFFER_SIZE, reply_addr, 500);
         }
 
@@ -110,13 +103,14 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
             return -1;
 
         total_bytes_sent += bytes_sent;
-        header = create_marshalled_header(message_type, op, rpc_id, ++seq_id, fragmented);
+        header.sequence_id++;
     }
     // change fragmented flag in header to -1
-    header = create_marshalled_header(message_type, op, rpc_id, seq_id, -1);
+    header.fragmented = -1;
 
-    bytes_sent = udpSocket.writeToSocket((char *) (header + payload).c_str(), receiver_sock_addr);
+    bytes_sent = udpSocket.writeToSocket((char *) (header.str() + payload_str).c_str(), receiver_sock_addr);
     total_bytes_sent += bytes_sent;
+
     return total_bytes_sent;
 }
 
@@ -130,9 +124,9 @@ int CM::recv_with_block(Message &received_message, sockaddr_in &sender_addr) {
     while (fragmented) {
         fragmented = false;
         bytes_read = udpSocket.readFromSocketWithBlock(recv_buffer, RECV_BUFFER_SIZE, sender_addr);
-        int frag_check = check_if_fragmented(recv_buffer);
+        Header header(recv_buffer);
 
-        if (frag_check == 1) {
+        if (header.fragmented == 1) {
             bytes_read = rebuild_request(recv_buffer, recv_request, sender_addr);
         } else
             recv_request = recv_buffer;
@@ -144,65 +138,39 @@ int CM::recv_with_block(Message &received_message, sockaddr_in &sender_addr) {
     return (int) bytes_read;
 }
 
-std::string CM::remove_headers(char *recv_buffer) {
-    std::stringstream tokenizer(recv_buffer);
-    std::string token;
-    std::vector<std::string> splits;
-    std::string payload;
-    while(tokenizer.good())
-    {
-        tokenizer >> token;
-        splits.push_back(token);
-    }
-
-    for(int i = 5; i < splits.size() - 2; i++)
-        payload.append(splits[i] + " ");
-
-    payload.append(splits[splits.size() - 1]);
-
-    return payload;
-}
-
 int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, sockaddr_in &sender_addr) {
     rebuilt_request = initial_fragment;
     bool still_fragmented = true;
     ssize_t bytes_read = -1;
     char recv_buffer[RECV_BUFFER_SIZE];
     char ack[] = "ack";
+    int last_sequence_id_recv = 0;
+
     while (still_fragmented) {
+        // Send ack for previous packet
         udpSocket.writeToSocket(ack, sender_addr);
         bytes_read = udpSocket.readFromSocketWithBlock(recv_buffer, RECV_BUFFER_SIZE, sender_addr);
-//        std::cout << bytes_read << std::endl;
-        int frag = check_if_fragmented(recv_buffer);
 
+        // Get the header of the received packet
+        Header header(recv_buffer);
+//        std::cout << bytes_read << std::endl;
         // An error occured, we should have received -1 not 0
-        if (frag == 0)
+        if (header.fragmented == 0)
             return -1;
 
         // Last packet in the fragmented packets
-        if (frag == -1)
+        if (header.fragmented == -1)
             still_fragmented = false;
-        if (bytes_read != -1) {
-            std::string payload = remove_headers(recv_buffer);
-            std::cout << payload << std::endl;
-            rebuilt_request += payload;
+
+        if (bytes_read != -1 && header.sequence_id != last_sequence_id_recv) {
+            last_sequence_id_recv++;
+            Payload payload(recv_buffer);
+            std::cout << payload.str() << std::endl;
+            rebuilt_request += payload.str();
         }
     }
 //    std::cout << rebuilt_request;
     return 0;
-}
-
-std::string CM::create_marshalled_header(int message_type, unsigned long long op, unsigned long long rpc_id,
-                                         unsigned long long seq_id, int fragmented) {
-    std::string headers;
-
-    headers.append(std::to_string(message_type) + " ");
-    headers.append(std::to_string(op) + " ");
-    headers.append(std::to_string(rpc_id) + " ");
-    headers.append(std::to_string(seq_id) + " ");
-    headers.append(std::to_string(fragmented) + " ");
-
-    return headers;
 }
 
 sockaddr_in CM::create_sockaddr(char *addr, uint16_t port) {
@@ -222,27 +190,4 @@ sockaddr_in CM::create_sockaddr(char *addr, uint16_t port) {
     // and not on every parameters we send
     sock_addr.sin_port = htons(port);
     return sock_addr;
-}
-
-int CM::check_if_fragmented(char *recv_buffer) {
-    std::stringstream tokenizer(recv_buffer);
-    std::string token;
-
-    tokenizer >> token;
-    auto message_type = std::stoi(token);
-
-    tokenizer >> token;
-    auto op = std::stoull(token);
-
-    tokenizer >> token;
-    auto rpc_id = std::stoull(token);
-
-    tokenizer >> token;
-    auto seq_id = std::stoull(token);
-
-    tokenizer >> token;
-    auto fragmented = std::stoi(token);
-
-    return fragmented;
-
 }

@@ -14,15 +14,10 @@ private:
 
     sockaddr_in create_sockaddr(char *addr, uint16_t port);
 
-    int check_if_fragmented(char *recv_buffer);
-
     int rebuild_request(char *recv_buffer, std::string &rebuilt_request, sockaddr_in &sender_addr);
 
     ssize_t send_fragments(Message message_to_fragment, sockaddr_in sender_addr);
 
-    std::string create_marshalled_header(int message_type, unsigned long long op, unsigned long long rpc_id, unsigned long long seq_id, int fragmented);
-
-    std::string remove_headers(char *recv_buffer);
 public:
     CM(char *_myAddr, uint16_t _myPort);
 

@@ -4,41 +4,128 @@
 #include <cstddef>
 #include <vector>
 #include <string>
+#include <sstream>
 
 enum MessageType {
     Request = 0, Reply = 1
 };
 
-class Message {
-
-private:
+class Header {
+public:
     MessageType message_type;
 
     unsigned long long operation;      // RPC Operation
     unsigned long long rpc_id;         // RPC ID
     unsigned long long sequence_id;    // Sequence/Packet ID
-    std::string return_val;
 
     // 0 indicates no fragmentation
     // 1 indicates packet is part of a fragmented message
     // -1 indicates packet is the last in a sequence of fragmented packets
     int fragmented;
 
-    std::vector<std::string> parameters;
-    size_t parameters_size;
+    Header() {}
+
+    Header(MessageType _msg_type, unsigned long long _op, unsigned long long _rpc_id, int _fragmented) :
+            message_type(_msg_type), operation(_op), rpc_id(_rpc_id), fragmented(_fragmented) {}
+
+    Header(char *marshalled_header) {
+        std::stringstream tokenizer(marshalled_header);
+        std::string token;
+
+        tokenizer >> token;
+        message_type = (MessageType) std::stoi(token);
+
+        tokenizer >> token;
+        operation = std::stoull(token);
+
+        tokenizer >> token;
+        rpc_id = std::stoull(token);
+
+        tokenizer >> token;
+        sequence_id = std::stoull(token);
+
+        tokenizer >> token;
+        fragmented = std::stoi(token);
+    }
+
+    ~Header() {}
+
+    std::string str() {
+        std::string headers;
+
+        headers.append(std::to_string(int(message_type)) + " ");
+        headers.append(std::to_string(operation) + " ");
+        headers.append(std::to_string(rpc_id) + " ");
+        headers.append(std::to_string(sequence_id) + " ");
+        headers.append(std::to_string(fragmented) + " ");
+
+        return headers;
+    }
+};
+
+class Payload {
+public:
+    std::string return_val;     // Holds return value of called RPC method, Should be 0 in case Message is a request and not a reply
+    size_t parameters_size;     // Contains the number of RPC parameters
+    std::vector<std::string> parameters;        // Holds all the RPC paramters
+
+    Payload() {}
+
+    Payload(std::string _return_val, size_t params_size, std::vector<std::string> params) :
+            return_val(_return_val), parameters_size(params_size), parameters(params) {}
+
+    Payload(char *marshalled_payload) {
+        std::stringstream tokenizer(marshalled_payload);
+        std::string token;
+
+        for (int i = 0; i < 5; i++)
+            tokenizer >> token;
+
+        tokenizer >> token;
+        return_val = token;
+
+        tokenizer >> token;
+        parameters_size = (size_t) std::stoi(token);
+
+        for (int i = 0; i < parameters_size; i++) {
+            tokenizer >> token;
+            parameters.push_back(token);
+        }
+    }
+
+    ~Payload() {}
+
+    std::string str() {
+        std::string payload_str;
+        payload_str.append(return_val + " ");
+        payload_str.append(std::to_string(parameters_size) + " ");
+
+        for (int i = 0; i < parameters_size; i++)
+            payload_str.append(parameters[i] + " ");
+
+        return payload_str;
+    }
+};
+
+// TODO: Remove p_message_size from constructor, calculate it based on input vector p_message
+class Message {
+protected:
+    Header header;
+    Payload payload;
 
 public:
     Message();
 
     Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, std::string _return_val,
-            size_t p_message_size,
-            std::vector<std::string> p_message);
+            size_t p_message_size, std::vector<std::string> p_message);
 
-    // Unmarshalling occurs here
-    explicit Message(char *marshalled_base64);
+    explicit Message(char *marshalled_base64);      // Unmarshalling Constructor
+
+    ~Message();
 
     std::string marshal();
 
+    // Getters
     unsigned long long getOperation();
 
     unsigned long long getRPCId();
@@ -55,6 +142,11 @@ public:
 
     MessageType getMessageType();
 
+    Header getHeader() { return header; }
+
+    Payload getPayload() { return payload; }
+
+    // Setters
     void setOperation(unsigned long long _operation);
 
     void setMessage(std::vector<std::string> params, size_t params_size);
@@ -70,10 +162,6 @@ public:
     void setReturnVal(std::string _return_val);
 
     void setFrag(int _frag);
-
-    std::string getHeaders();
-
-    ~Message();
 
 };
 
