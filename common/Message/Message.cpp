@@ -14,7 +14,8 @@ Message::Message() {
 }
 
 // Constructor
-Message::Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, std::string _return_val, size_t p_message_size, std::vector<std::string> p_message)
+Message::Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, std::string _return_val,
+                 size_t p_message_size, std::vector<std::string> p_message)
         : message_type(msg_type), operation(op), parameters(p_message),
           parameters_size(p_message_size),
           rpc_id(p_rpc_id), sequence_id(0), return_val(_return_val)//, fragmented(0)
@@ -59,11 +60,7 @@ Message::Message(char *marshalled_base64) {
 // "MessageType opeation rpc_id sequence_id fragmented return_val num_of_params param1 param2 ..."
 std::string Message::marshal() {
     std::string marshalled_msg;
-    marshalled_msg.append(std::to_string(int(getMessageType())) + " ");
-    marshalled_msg.append(std::to_string(getOperation()) + " ");
-    marshalled_msg.append(std::to_string(getRPCId()) + " ");
-    marshalled_msg.append(std::to_string(getSeqId()) + " ");
-    marshalled_msg.append(std::to_string(fragmented) + " ");
+    marshalled_msg.append(getHeaders());
     marshalled_msg.append(getReturnVal() + " ");
     marshalled_msg.append(std::to_string(getParamsSize()) + " ");
 
@@ -119,4 +116,24 @@ void Message::setReturnVal(std::string _return_val) {
 
 std::string Message::getReturnVal() {
     return return_val;
+}
+
+int Message::getFrag() {
+    return fragmented;
+}
+
+void Message::setFrag(int _frag) {
+    fragmented = _frag;
+}
+
+std::string Message::getHeaders() {
+    std::string headers;
+
+    headers.append(std::to_string(int(getMessageType())) + " ");
+    headers.append(std::to_string(getOperation()) + " ");
+    headers.append(std::to_string(getRPCId()) + " ");
+    headers.append(std::to_string(getSeqId()) + " ");
+    headers.append(std::to_string(fragmented) + " ");
+
+    return headers;
 }

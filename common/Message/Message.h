@@ -29,7 +29,8 @@ private:
 public:
     Message();
 
-    Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, std::string _return_val, size_t p_message_size,
+    Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, std::string _return_val,
+            size_t p_message_size,
             std::vector<std::string> p_message);
 
     // Unmarshalling occurs here
@@ -42,6 +43,8 @@ public:
     unsigned long long getRPCId();
 
     unsigned long long getSeqId();
+
+    int getFrag();
 
     std::string getReturnVal();
 
@@ -64,6 +67,10 @@ public:
     void setSeqId(unsigned long long _seq_id);
 
     void setReturnVal(std::string _return_val);
+
+    void setFrag(int _frag);
+
+    std::string getHeaders();
 
     ~Message();
 

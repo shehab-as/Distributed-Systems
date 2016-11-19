@@ -18,6 +18,11 @@ private:
 
     int rebuild_request(char *recv_buffer, std::string &rebuilt_request, sockaddr_in &sender_addr);
 
+    ssize_t send_fragments(Message message_to_fragment, sockaddr_in sender_addr);
+
+    std::string create_marshalled_header(int message_type, unsigned long long op, unsigned long long rpc_id, unsigned long long seq_id, int fragmented);
+
+    std::string remove_headers(char *recv_buffer);
 public:
     CM(char *_myAddr, uint16_t _myPort);
 
@@ -29,10 +34,6 @@ public:
     int send_no_ack(Message message_to_send, sockaddr_in receiver_sock_addr);
 
     int recv_with_block(Message &received_message, sockaddr_in &sender_addr);
-
-    char* get_myAddr();
-
-    uint16_t get_myPort();
 
     ~CM();
 };
