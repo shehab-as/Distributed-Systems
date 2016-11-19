@@ -25,7 +25,7 @@ Db::Db()
  * If you want to create a new database
  * on the terminal type $sqlite3 your database name.db
  * */
-    if (sqlite3_open("ourSystem.db", &db) == SQLITE_OK)
+    if (sqlite3_open("newDb.db", &db) == SQLITE_OK)
         cout << "Opened db successfully\n";
     else
         cout << "Failed to open db\n";
@@ -68,7 +68,9 @@ Db::Db()
     sql = "CREATE TABLE viewBy("  \
          "viewId INT PRIMARY KEY     NOT NULL," \
          "ImageNameFK          char(100)    NOT NULL," \
-         "TokenFK         INT  NOT NULL );";
+         "TokenFK         INT  NOT NULL, "\
+         "ADD FOREIGN KEY (ImageNameFK) REFERENCES imageList(ImageName),"\
+         "ADD FOREIGN KEY (TokenFK) REFERENCES user(Token) );";
 
     rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
     if( rc != SQLITE_OK ){
@@ -79,6 +81,7 @@ Db::Db()
         cout<<"Table viewBy created successfully"<<endl;
         //fprintf(stdout, "Table created successfully\n");
     }
+
 
 
     //close database
