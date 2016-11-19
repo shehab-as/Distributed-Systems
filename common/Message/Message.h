@@ -79,10 +79,10 @@ public:
         std::stringstream tokenizer(marshalled_payload);
         std::string token;
 
-        if (!fragmented) {
+        for (int i = 0; i < 5; i++)
+            tokenizer >> token;
 
-            for (int i = 0; i < 5; i++)
-                tokenizer >> token;
+        if (!fragmented) {
 
             tokenizer >> token;
             return_val = token;
@@ -111,74 +111,72 @@ public:
         if (!fragmented) {
             payload_str.append(return_val + " ");
             payload_str.append(std::to_string(parameters_size) + " ");
-
-            for (int i = 0; i < parameters_size; i++)
-                payload_str.append(parameters[i] + " ");
-        } else {
-            for (int i = 0; i < parameters_size; i++)
-                payload_str.append(parameters[i] + " ");
         }
+
+        for (int i = 0; i < parameters_size - 1; i++)
+            payload_str.append(parameters[i] + " ");
+        payload_str.append(parameters[parameters_size - 1]);
 
         return payload_str;
     }
 };
 
 // TODO: Remove p_message_size from constructor, calculate it based on input vector p_message
-class Message {
-protected:
-    Header header;
-    Payload payload;
+    class Message {
+    protected:
+        Header header;
+        Payload payload;
 
-public:
-    Message();
+    public:
+        Message();
 
-    Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, std::string _return_val,
-            size_t p_message_size, std::vector<std::string> p_message);
+        Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, std::string _return_val,
+                size_t p_message_size, std::vector<std::string> p_message);
 
-    explicit Message(char *marshalled_base64);      // Unmarshalling Constructor
+        explicit Message(char *marshalled_base64);      // Unmarshalling Constructor
 
-    ~Message();
+        ~Message();
 
-    std::string marshal();
+        std::string marshal();
 
-    // Getters
-    unsigned long long getOperation();
+        // Getters
+        unsigned long long getOperation();
 
-    unsigned long long getRPCId();
+        unsigned long long getRPCId();
 
-    unsigned long long getSeqId();
+        unsigned long long getSeqId();
 
-    int getFrag();
+        int getFrag();
 
-    std::string getReturnVal();
+        std::string getReturnVal();
 
-    std::vector<std::string> getParams();
+        std::vector<std::string> getParams();
 
-    size_t getParamsSize();
+        size_t getParamsSize();
 
-    MessageType getMessageType();
+        MessageType getMessageType();
 
-    Header getHeader() { return header; }
+        Header getHeader() { return header; }
 
-    Payload getPayload() { return payload; }
+        Payload getPayload() { return payload; }
 
-    // Setters
-    void setOperation(unsigned long long _operation);
+        // Setters
+        void setOperation(unsigned long long _operation);
 
-    void setMessage(std::vector<std::string> params, size_t params_size);
+        void setMessage(std::vector<std::string> params, size_t params_size);
 
-    void setMessageType(MessageType message_type);
+        void setMessageType(MessageType message_type);
 
-    void setParamsSize(size_t _params_size);
+        void setParamsSize(size_t _params_size);
 
-    void setRPCId(unsigned long long _rpc_id);
+        void setRPCId(unsigned long long _rpc_id);
 
-    void setSeqId(unsigned long long _seq_id);
+        void setSeqId(unsigned long long _seq_id);
 
-    void setReturnVal(std::string _return_val);
+        void setReturnVal(std::string _return_val);
 
-    void setFrag(int _frag);
+        void setFrag(int _frag);
 
-};
+    };
 
 #endif // MESSAGE_H

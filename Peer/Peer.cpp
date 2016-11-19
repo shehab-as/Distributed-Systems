@@ -124,10 +124,10 @@ int Peer::check_viewImage(std::string image_id, bool &can_view, long int token) 
 }
 
 int main() {
-    CM client(NULL, 0);
-    std::vector<std::string> v{std::string("HiThereMyNameisWhoIsThatAndIwouldLoveToHaveYouAroundHere")};
-    Message request(MessageType::Reply, 0, 5, "null", v.size(), v);
-    std::cout << request.marshal().size();
-    client.send_no_ack(request, (char *) "localhost", 1234);
-    return 0;
+    CM server(NULL, 1234);
+    Message reply;
+    sockaddr_in sender_addr;
+    server.recv_with_block(reply, sender_addr);
+    std::cout << "Message reply size: " << reply.marshal().size() << std::endl;
+    std::cout << "Message Marshalled: " << reply.marshal() << std::endl;
 }
