@@ -18,14 +18,10 @@ int CM::send_with_ack(Message message_to_send, Message &received_message, int ti
     // Send and wait for an acknowledgment.
     // A reply to the sent request is implicitly considered an acknowledgment
     ssize_t bytes_read = -1;
-    char reply_buffer[RECV_BUFFER_SIZE];
-
-    // Marshall the message to be sent
-    std::string marshalled_msg = message_to_send.marshal();
 
     // Create a sockaddr from the receiver's addr and port
     sockaddr_in receiver_sock_addr = create_sockaddr(receiver_addr, receiver_port);
-    sockaddr_in reply_addr;
+    sockaddr_in sender_addr;
 
     // Send message and wait for a reply
     // If no reply is sent within timeout_in_ms, bytes_read will be -1
@@ -33,12 +29,8 @@ int CM::send_with_ack(Message message_to_send, Message &received_message, int ti
     // We repeat this send/wait for reply sequence until a reply is received or max_retries reaches 0
     while (max_retries-- && bytes_read == -1) {
         send_no_ack(message_to_send, receiver_sock_addr);
-        bytes_read = udpSocket.readFromSocketWithTimeout(reply_buffer, RECV_BUFFER_SIZE, reply_addr, timeout_in_ms);
+        bytes_read = recv_with_timeout(received_message, sender_addr, 500);
     }
-
-    // If no errors
-    if (bytes_read >= 0)
-        received_message = Message(reply_buffer);
 
     return (int) bytes_read;
 }
@@ -75,7 +67,10 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
         char ack[5];
 
         while (max_retries-- && bytes_read == -1) {
-            bytes_sent = udpSocket.writeToSocket((char *) (header.str() + slice).c_str(), receiver_sock_addr);
+            auto sliced_payload = Payload((char *) (slice.c_str()), true);
+            bytes_sent = send_no_ack(Message(header, sliced_payload), receiver_sock_addr);
+
+            // Work from here
             bytes_read = udpSocket.readFromSocketWithTimeout(ack, RECV_BUFFER_SIZE, reply_addr, 500);
         }
 
@@ -192,6 +187,11 @@ ssize_t CM::recv_with_timeout(Message &received_message, sockaddr_in &sender_add
     char recv_buffer[RECV_BUFFER_SIZE];
 
     bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, timeout_in_ms);
+
+    // Check for headers here, same as recv_with_block
+
+    if (bytes_read >= 0)
+        received_message = Message(recv_buffer);
 
     return bytes_read;
 }
