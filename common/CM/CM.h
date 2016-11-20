@@ -10,7 +10,7 @@
 class CM {
 private:
     UDPSocket udpSocket;
-    const size_t RECV_BUFFER_SIZE = 50;
+    const size_t RECV_BUFFER_SIZE = 7500;
 
     sockaddr_in create_sockaddr(char *addr, uint16_t port);
 
@@ -18,6 +18,7 @@ private:
 
     ssize_t send_fragments(Message message_to_fragment, sockaddr_in sender_addr);
 
+    ssize_t send_message(Message message_to_send, sockaddr_in receiver_sock_addr);
 public:
     CM(char *_myAddr, uint16_t _myPort);
 
@@ -29,6 +30,8 @@ public:
     int send_no_ack(Message message_to_send, sockaddr_in receiver_sock_addr);
 
     int recv_with_block(Message &received_message, sockaddr_in &sender_addr);
+
+    ssize_t recv_with_timeout(Message &received_message, sockaddr_in &sender_addr, int timeout_in_ms);
 
     ~CM();
 };

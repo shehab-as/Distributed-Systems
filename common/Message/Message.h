@@ -133,6 +133,8 @@ public:
         Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, std::string _return_val,
                 size_t p_message_size, std::vector<std::string> p_message);
 
+        Message(Header _header, Payload _payload) : header(_header), payload(_payload) {}
+
         explicit Message(char *marshalled_base64);      // Unmarshalling Constructor
 
         ~Message();
@@ -141,40 +143,24 @@ public:
 
         // Getters
         unsigned long long getOperation();
-
         unsigned long long getRPCId();
-
         unsigned long long getSeqId();
-
         int getFrag();
-
         std::string getReturnVal();
-
         std::vector<std::string> getParams();
-
         size_t getParamsSize();
-
         MessageType getMessageType();
-
         Header getHeader() { return header; }
-
         Payload getPayload() { return payload; }
 
         // Setters
         void setOperation(unsigned long long _operation);
-
         void setMessage(std::vector<std::string> params, size_t params_size);
-
         void setMessageType(MessageType message_type);
-
         void setParamsSize(size_t _params_size);
-
         void setRPCId(unsigned long long _rpc_id);
-
         void setSeqId(unsigned long long _seq_id);
-
         void setReturnVal(std::string _return_val);
-
         void setFrag(int _frag);
 
     };
