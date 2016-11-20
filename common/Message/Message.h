@@ -141,40 +141,24 @@ public:
 
         // Getters
         unsigned long long getOperation();
-
         unsigned long long getRPCId();
-
         unsigned long long getSeqId();
-
         int getFrag();
-
         std::string getReturnVal();
-
         std::vector<std::string> getParams();
-
         size_t getParamsSize();
-
         MessageType getMessageType();
-
         Header getHeader() { return header; }
-
         Payload getPayload() { return payload; }
 
         // Setters
         void setOperation(unsigned long long _operation);
-
         void setMessage(std::vector<std::string> params, size_t params_size);
-
         void setMessageType(MessageType message_type);
-
         void setParamsSize(size_t _params_size);
-
         void setRPCId(unsigned long long _rpc_id);
-
         void setSeqId(unsigned long long _seq_id);
-
         void setReturnVal(std::string _return_val);
-
         void setFrag(int _frag);
 
     };
