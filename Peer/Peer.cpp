@@ -5,6 +5,7 @@
 #include <ios>
 #include <fstream>
 #include <iostream>
+#include <SQLiteCpp/Database.h>
 #include "Peer.h"
 
 // Peer Constructor initializes the CM-CLient and sets its port to default 0 while the Servers sets
@@ -124,6 +125,7 @@ int Peer::check_viewImage(std::string image_id, bool &can_view, long int token) 
 }
 
 int main() {
+//    SQLite::Database    db("/home/farida/Dist-DB.db");
     CM server(NULL, 1234);
     Message reply;
     sockaddr_in sender_addr;
