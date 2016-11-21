@@ -131,10 +131,8 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
         // Send ack for previous packet
         int max_retries = 5;
 
-        while(max_retries-- && bytes_read == -1) {
-            udpSocket.writeToSocket(ack, sender_addr);
-            bytes_read = udpSocket.readFromSocketWithBlock(recv_buffer, RECV_BUFFER_SIZE, sender_addr);
-        }
+        udpSocket.writeToSocket(ack, sender_addr);
+        bytes_read = udpSocket.readFromSocketWithBlock(recv_buffer, RECV_BUFFER_SIZE, sender_addr);
 
         if (bytes_read == -1)
             return -1;
@@ -150,12 +148,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
         // Last packet in the fragmented packets
         if (header.fragmented == -1) {
             still_fragmented = false;
-            max_retries = 5;
-            bytes_read = 0;
-            while(max_retries-- && bytes_read >= 0) {
-                udpSocket.writeToSocket(ack, sender_addr);
-                bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, 500);
-            }
+            udpSocket.writeToSocket(ack, sender_addr);
         }
 
         if (header.sequence_id != last_sequence_id_recv) {
@@ -207,6 +200,9 @@ ssize_t CM::recv_with_timeout(Message &received_message, sockaddr_in &sender_add
     std::string recv_request;
 
     bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, timeout_in_ms);
+
+    if (bytes_read == -1)
+        return -1;
 
     // Extract the packet's header
     Header header(recv_buffer);
