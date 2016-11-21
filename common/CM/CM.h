@@ -14,10 +14,11 @@ private:
 
     sockaddr_in create_sockaddr(char *addr, uint16_t port);
 
-    int check_if_fragmented(char *recv_buffer);
-
     int rebuild_request(char *recv_buffer, std::string &rebuilt_request, sockaddr_in &sender_addr);
 
+    ssize_t send_fragments(Message message_to_fragment, sockaddr_in sender_addr);
+
+    ssize_t send_message(Message message_to_send, sockaddr_in receiver_sock_addr);
 public:
     CM(char *_myAddr, uint16_t _myPort);
 
@@ -30,9 +31,7 @@ public:
 
     int recv_with_block(Message &received_message, sockaddr_in &sender_addr);
 
-    char* get_myAddr();
-
-    uint16_t get_myPort();
+    ssize_t recv_with_timeout(Message &received_message, sockaddr_in &sender_addr, int timeout_in_ms);
 
     ~CM();
 };
