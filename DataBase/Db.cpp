@@ -5,6 +5,7 @@
 #include "iostream"
 using namespace std;
 
+// callback will be used in select * instructions
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
     int i;
     for(i=0; i<argc; i++){
@@ -69,8 +70,8 @@ Db::Db()
          "viewId INT PRIMARY KEY     NOT NULL," \
          "ImageNameFK          char(100)    NOT NULL," \
          "TokenFK         INT  NOT NULL, "\
-         "ADD FOREIGN KEY (ImageNameFK) REFERENCES imageList(ImageName),"\
-         "ADD FOREIGN KEY (TokenFK) REFERENCES user(Token) );";
+         "FOREIGN KEY (ImageNameFK) REFERENCES imageList(ImageName),"\
+         "FOREIGN KEY (TokenFK) REFERENCES user(Token) );";
 
     rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
     if( rc != SQLITE_OK ){
