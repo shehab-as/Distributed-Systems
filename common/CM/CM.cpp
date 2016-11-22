@@ -131,7 +131,7 @@ ssize_t CM::send_message(Message message_to_send, sockaddr_in receiver_sock_addr
     ssize_t bytes_sent;
 
     // If message size if bigger than the receiver's buffer size, fragment the message
-    if (marshalled_msg.size() > RECV_BUFFER_SIZE)
+    if (marshalled_msg.size() > RECV_BUFFER_SIZE - 1)
         bytes_sent = send_fragments(message_to_send, receiver_sock_addr);
     else
         bytes_sent = udpSocket.writeToSocket((char *) marshalled_msg.c_str(), receiver_sock_addr);
@@ -154,13 +154,13 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
     ssize_t bytes_read;
     char ack[5];
     sockaddr_in reply_addr;
-
-    while (payload_str.size() > RECV_BUFFER_SIZE - header.str().size()) {
+    size_t max_payload_size = RECV_BUFFER_SIZE - header.str().size() - 1;
+    while (payload_str.size() > max_payload_size) {
         max_retries = 5;
         bytes_read = -1;
 
-        std::string slice = payload_str.substr(prev_index, prev_index + RECV_BUFFER_SIZE - header.str().size());
-        payload_str = payload_str.substr(prev_index + RECV_BUFFER_SIZE - header.str().size(), std::string::npos);
+        std::string slice = payload_str.substr(prev_index, prev_index + max_payload_size);
+        payload_str = payload_str.substr(prev_index + max_payload_size, std::string::npos);
 
         while (max_retries-- && bytes_read == -1) {
             udpSocket.writeToSocket((char *) (header.str() + slice).c_str(), receiver_sock_addr);
@@ -170,8 +170,10 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
         if (bytes_read == -1)
             return -1;
 
+        // TODO: Calculate new header size here and update max_payload_size ?
         total_bytes_sent += bytes_sent;
         header.sequence_id++;
+        max_payload_size = RECV_BUFFER_SIZE - header.str().size() - 1;
     }
     // change fragmented flag in header to -1
     header.fragmented = -1;

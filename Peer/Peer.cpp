@@ -132,7 +132,6 @@ int main() {
     while(true) {
         server.recv_with_block(request, sender_addr);
         std::cout << "Message request size: " << request.marshal().size() << std::endl;
-        std::cout << "Message Marshalled: " << request.marshal() << std::endl;
         server.send_no_ack(request, sender_addr);
     }
 }
