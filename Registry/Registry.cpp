@@ -159,7 +159,8 @@ int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long
 
     for (int i = 0; i < viewable_by_DB.size(); i++) {
         if (viewable_by_DB[i].token == token)
-            image_container.push_back(viewable_by_DB[i].img_name);
+            image_container.push_back(
+                    (std::basic_string<char, std::char_traits<char>, std::allocator<char>> &&) viewable_by_DB[i].img_name);
 
     }
 
@@ -243,4 +244,8 @@ void Registry::load_DBs() {
         std::cout << "exception: " << e.what() << std::endl;
     }
 
+}
+
+int Registry::check_token(long int token) {
+    return 0;
 }
