@@ -167,10 +167,24 @@ int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long
     return 0;
 }
 
-int Registry::add_entry_svc(std::string image_name, long int token) {
+
+//return 0 if a new image is inserted else -1
+// needs testing
+int Registry::add_entry_svc(std::string image_name, long int token, char *owner_addr, int owner_port) {
 
     auto n = check_token(token);
 
+    //if token is correct, insert imagename, owner_addr, owner_port
+    if(n==0)
+    {
+        SQLite::Statement img_query(db, "INSERT INTO image VALUES ('image_name', 'owner_addr', owner_port)");
+        int noRowsModified= img_query.exec();
+        return 0;
+    }
+    else
+    {
+        return -1;
+    }
 
 
 
