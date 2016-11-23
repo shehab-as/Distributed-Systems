@@ -127,9 +127,11 @@ int Peer::check_viewImage(std::string image_id, bool &can_view, long int token) 
 int main() {
 //    SQLite::Database    db("/home/farida/Dist-DB.db");
     CM server(NULL, 1234);
-    Message reply;
+    Message request;
     sockaddr_in sender_addr;
-    server.recv_with_block(reply, sender_addr);
-    std::cout << "Message reply size: " << reply.marshal().size() << std::endl;
-    std::cout << "Message Marshalled: " << reply.marshal() << std::endl;
+    while(true) {
+        server.recv_with_block(request, sender_addr);
+        std::cout << "Message request size: " << request.marshal().size() << std::endl;
+        server.send_no_ack(request, sender_addr);
+    }
 }

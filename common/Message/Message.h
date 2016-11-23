@@ -133,6 +133,8 @@ public:
         Message(MessageType msg_type, unsigned long long op, unsigned long long p_rpc_id, std::string _return_val,
                 size_t p_message_size, std::vector<std::string> p_message);
 
+        Message(Header _header, Payload _payload) : header(_header), payload(_payload) {}
+
         explicit Message(char *marshalled_base64);      // Unmarshalling Constructor
 
         ~Message();
