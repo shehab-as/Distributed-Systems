@@ -6,6 +6,7 @@ int main() {
 
 
     Registry Reg(NULL,1234,1);
+    std::cout<< Reg.add_entry_svc("image name",2,"2222", 1234)<<std::endl;
     std::cout << "done" << std::endl;
 
 //   std::string query =

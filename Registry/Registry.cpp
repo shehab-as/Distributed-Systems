@@ -40,7 +40,7 @@ void Registry::runRegistry() {
     }
 }
 
-#pragma clang diagnostic pop
+#pragma clang diagnostic pop/home/zeyad
 
 void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
     // THE GREAT SWITCH
@@ -177,8 +177,13 @@ int Registry::add_entry_svc(std::string image_name, long int token, char *owner_
     //if token is correct, insert imagename, owner_addr, owner_port
     if(n==0)
     {
-        SQLite::Statement img_query(db, "INSERT INTO image VALUES ('image_name', 'owner_addr', owner_port)");
+        // Open a database file
+        SQLite::Database db(
+                "/home/farida/Documents/Dist-DB.db");
+
+        SQLite::Statement img_query(db, "INSERT INTO image VALUES (' " + image_name + "', ' " + owner_addr + "', '"+ owner_port+"') ");
         int noRowsModified= img_query.exec();
+        std::cout<<"see this"+noRowsModified<<std::endl;
         return 0;
     }
     else
@@ -193,7 +198,24 @@ int Registry::add_entry_svc(std::string image_name, long int token, char *owner_
 }
 
 int Registry::remove_entry_svc(std::string image_name, long int token) {
-    return 0;
+
+    auto n = check_token(token);
+
+    if(n==0)
+    {
+        SQLite::Database db(
+                "/home/farida/Documents/Dist-DB.db");
+
+        SQLite::Statement img_query(db, "DELETE FROM image WHERE Image_Name =' " + image_name + "';");
+        int noRowsModified= img_query.exec();
+        return 0;
+    }
+    else
+    {
+        return -1;
+    }
+
+
 }
 
 int
