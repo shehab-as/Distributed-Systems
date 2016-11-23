@@ -246,6 +246,16 @@ void Registry::load_DBs() {
 
 }
 
+//check the token in the user daabase
+//if found return 0 else -1
 int Registry::check_token(long int token) {
-    return 0;
+
+    for(int i=0;i<usr_DB.size();i++)
+    {
+        if(usr_DB[i].token==token)
+        {
+            return 0;
+        }
+    }
+    return -1;
 }
