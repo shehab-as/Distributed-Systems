@@ -1,5 +1,6 @@
 #include <thread>
 #include <string>
+#include <functional>
 #include <vector>
 #include <SQLiteCpp/Database.h>
 #include <iostream>
@@ -155,7 +156,7 @@ int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long
     if (viewable_by_DB.empty())
         return -1;
 
-    auto n = check_token(token); //retuns what
+    auto n = check_token(token); //returns what
 
     for (int i = 0; i < viewable_by_DB.size(); i++) {
         if (viewable_by_DB[i].token == token)
@@ -175,23 +176,19 @@ int Registry::add_entry_svc(std::string image_name, long int token, char *owner_
     auto n = check_token(token);
 
     //if token is correct, insert imagename, owner_addr, owner_port
-    if(n==0)
-    {
+    if (n == 0) {
         // Open a database file
         SQLite::Database db(
                 "/home/farida/Documents/Dist-DB.db");
 
-        SQLite::Statement img_query(db, "INSERT INTO image VALUES (' " + image_name + "', ' " + owner_addr + "', '"+ owner_port+"') ");
-        int noRowsModified= img_query.exec();
-        std::cout<<"see this"+noRowsModified<<std::endl;
+//        SQLite::Statement img_query(db, "INSERT INTO image VALUES (' " + image_name + "', ' " + owner_addr + "', '" +
+//                                        owner_port + "') ");
+//        int noRowsModified = img_query.exec();
+//        std::cout << "see this" + noRowsModified << std::endl;
         return 0;
-    }
-    else
-    {
+    } else {
         return -1;
     }
-
-
 
 
     return 0;
@@ -201,17 +198,14 @@ int Registry::remove_entry_svc(std::string image_name, long int token) {
 
     auto n = check_token(token);
 
-    if(n==0)
-    {
+    if (n == 0) {
         SQLite::Database db(
                 "/home/farida/Documents/Dist-DB.db");
 
         SQLite::Statement img_query(db, "DELETE FROM image WHERE Image_Name =' " + image_name + "';");
-        int noRowsModified= img_query.exec();
+        int noRowsModified = img_query.exec();
         return 0;
-    }
-    else
-    {
+    } else {
         return -1;
     }
 
@@ -220,15 +214,48 @@ int Registry::remove_entry_svc(std::string image_name, long int token) {
 
 int
 Registry::get_client_addr_svc(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token) {
-    return 0;
+
+    auto n = check_token(token);
+
+    if (n == 0)
+        for (int i = 0; i < img_DB.size(); i++)
+            if (img_DB[i].img_name == image_name) {
+                owner_addr = img_DB[i].owner_addr;
+                owner_port = img_DB[i].owner_port;
+                return 0;
+            }
+
+    return -1;
 }
 
 int Registry::retrieve_token_svc(std::string username, std::string password, long int &token) {
-    return 0;
+
+    for (int i = 0; i < usr_DB.size(); i++)
+        if (usr_DB[i].username == username && usr_DB[i].password == password) {
+            token = usr_DB[i].token;
+            return 0;
+        }
+
+    std::string to_hash = username + password;
+    std::hash<std::string> str_hash;
+    size_t token_size_t = str_hash(to_hash);
+    token = (int) token_size_t;
+    // add entry to db & vector??
+    //return ...
 }
 
 int Registry::check_viewImage_svc(std::string image_id, bool &can_view, long int token) {
-    return 0;
+
+    can_view = false;
+    for (int i = 0; i < viewable_by_DB.size(); i++)
+        if (viewable_by_DB[i].img_name == image_id && viewable_by_DB[i].token == token) {
+
+            can_view = true;
+            return 0;
+        }
+
+
+    return -1;
 }
 
 //should return n?
@@ -282,14 +309,12 @@ void Registry::load_DBs() {
 
 }
 
-//check the token in the user daabase
+//check the token in the user database
 //if found return 0 else -1
 int Registry::check_token(long int token) {
 
-    for(int i=0;i<usr_DB.size();i++)
-    {
-        if(usr_DB[i].token==token)
-        {
+    for (int i = 0; i < usr_DB.size(); i++) {
+        if (usr_DB[i].token == token) {
             return 0;
         }
     }
