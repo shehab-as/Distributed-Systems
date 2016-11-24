@@ -38,6 +38,9 @@ private:
 
 
     void load_DBs();
+    void update_users();
+    void update_imageList();
+    void update_viewable_by();
 
 public:
     Registry (char *_listen_hostname, uint16_t _listen_port, int num_of_workers);
