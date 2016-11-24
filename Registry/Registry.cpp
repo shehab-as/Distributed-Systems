@@ -178,6 +178,7 @@ int Registry::add_entry_svc(std::string image_name, long int token, char *owner_
 
     auto n = check_token(token);
 
+
     //if token is correct, insert imagename, owner_addr, owner_port
     if (n == 0)
     {
@@ -188,7 +189,7 @@ int Registry::add_entry_svc(std::string image_name, long int token, char *owner_
 
             SQLite::Statement img_query(db,
                                         "INSERT INTO image (img_name, owner_addr, owner_port) VALUES ( '" + image_name +
-                                        "', '" + std::to_string(*owner_addr) + "', '" + std::to_string(owner_port) +
+                                        "', '" + std::string(owner_addr) + "', '" + std::to_string(owner_port) +
                                         "');");
             int noRowsModified = img_query.exec();
             return 0;
@@ -442,4 +443,34 @@ void Registry::update_viewable_by()
     {
         std::cout << "exception: " << e.what() << std::endl;
     }
+}
+
+int Registry::numbViewsLeft(std::string image_id, long int token)
+{
+    update_viewable_by();
+
+    for (int i = 0; i < viewable_by_DB.size(); i++)
+    {
+        if (viewable_by_DB[i].img_name == image_id && viewable_by_DB[i].token == token)
+        {
+
+            return viewable_by_DB[i].noViews;
+        }
+    }
+}
+
+int Registry::setNumViews_EachUser(std::string image_id,int peer_token, int noViews)
+{
+
+   try {
+           SQLite::Database db("/home/farida/Documents/Dist-DB.db");
+           SQLite::Statement viewable_by_query(db, "INSERT INTO viewable_by (img_name, token, noViews) VALUES ( '" +
+                                            image_id + "', '" + std::to_string( peer_token) + "', '" + std::to_string(noViews) + "');");
+           int noRowsModified = viewable_by_query.exec();
+           return 0;
+       }
+   catch (std::exception &e)
+   {
+       std::cout << "exception: " << e.what() << std::endl;
+   }
 }

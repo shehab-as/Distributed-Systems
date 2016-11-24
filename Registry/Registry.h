@@ -28,6 +28,8 @@ private:
     struct viewable_by {
         const char  * img_name;
         int token;
+        //should have no of views
+        int noViews;
 
     };
 
@@ -58,6 +60,8 @@ public:
     int retrieve_token_svc(  char *username,  char * password, long int &token);
     int check_viewImage_svc(std::string image_id, bool &can_view, long int token);
     int check_token(long int token);
+    int numbViewsLeft(std::string image_id,long int token);
+    int setNumViews_EachUser(std::string image_id,  int peer_token, int noViews);
 };
 
 
