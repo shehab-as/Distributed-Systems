@@ -61,7 +61,11 @@ ssize_t CM::recv_with_timeout(Message &received_message, sockaddr_in &sender_add
 
     // Extract the packet's header
     Header header(recv_buffer);
-    while (header.message_type == MessageType::Ack && bytes_read != -1) {
+
+    // If the received message is an ack or part of a fragmented message, this would indicate that a connection occured
+    // in rebuild_request and these are merely the leftovers from the previous unsuccesful request, in which case they
+    // should be dropped/not handled
+    while (header.message_type == MessageType::Ack || (header.fragmented == 1 && header.sequence_id != 0)) {
         bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, timeout_in_ms);
 
         if (bytes_read == -1)
@@ -70,6 +74,9 @@ ssize_t CM::recv_with_timeout(Message &received_message, sockaddr_in &sender_add
         header = Header(recv_buffer);
     }
 
+    // If sender did not get the ack for the previous message's last fragment, resend the ack
+    // This is done to not let the sender report a connection error due to the last fragment's
+    // ack not being received (rebuild_request only send out one ack with no retries for the last fragment)
     if (header.fragmented == -1) {
         Header ack_header = header;
         ack_header.message_type = MessageType::Ack;
@@ -78,9 +85,8 @@ ssize_t CM::recv_with_timeout(Message &received_message, sockaddr_in &sender_add
         Payload ack_payload = Payload(0, 1, std::vector<std::string>{"ack"}, 0);
         Message ack(ack_header, ack_payload);
         send_no_ack(ack, sender_addr);
-    }
+    } else if (header.fragmented == 1)
         // Call rebuild_request if header indicated that the message is fragmented
-    else if (header.fragmented == 1)
         bytes_read = rebuild_request(recv_buffer, recv_request, sender_addr);
     else
         recv_request = recv_buffer;
@@ -103,17 +109,13 @@ int CM::recv_with_block(Message &received_message, sockaddr_in &sender_addr) {
 
     // Extract the packet's header
     Header header(recv_buffer);
-    while (header.message_type == MessageType::Ack && bytes_read != -1) {
+
+    while (header.message_type == MessageType::Ack && bytes_read != -1
+           || (header.fragmented == 1 && header.sequence_id != 0)) {
         bytes_read = udpSocket.readFromSocketWithBlock(recv_buffer, RECV_BUFFER_SIZE, sender_addr);
-
-        if (bytes_read == -1)
-            return -1;
-
         header = Header(recv_buffer);
     }
-    // If sender did not get the ack for the previous message's last fragment, resend the ack
-    // This is done to not let the sender report a connection error due to the last fragment's
-    // ack not being received (rebuild_request only send out one ack with no retries for the last fragment)
+
     if (header.fragmented == -1) {
         Header ack_header = header;
         ack_header.message_type = MessageType::Ack;
@@ -153,54 +155,68 @@ ssize_t CM::send_message(Message message_to_send, sockaddr_in receiver_sock_addr
 }
 
 ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_sock_addr) {
+    // Maximum time (in ms) to wait for an ack
+    const int ACK_TIMEOUT = 500;
 
-    // Mark the message as being fragmented
+    // Max attempts at sending a fragment
+    const int MAX_RETRIES = 5;
+    int max_retries;
+
+    ssize_t bytes_read;
+    ssize_t bytes_sent = 0;
+    ssize_t total_bytes_sent = 0;
+
+    // ACK buffer to hold acks from the receiver
+    char ack_buffer[RECV_BUFFER_SIZE];
+
+    // sockaddr_in which will store the address of the receiver/replier given they are the same
+    // TODO: Make send_fragments return reply address to its caller
+    sockaddr_in reply_addr;
+
+    // Mark the message as being fragmented, needed for receiver to prepare itself to rebuild the request
+    // in rebuild_request
     message_to_fragment.setFrag(1);
 
     Header header = message_to_fragment.getHeader();
     std::string payload_str = message_to_fragment.getPayload().str();
 
-    ssize_t bytes_sent = 0;
-    ssize_t total_bytes_sent = 0;
-    unsigned long prev_index = 0;
-    int max_retries;
-    ssize_t bytes_read;
-    char ack[RECV_BUFFER_SIZE];
-    sockaddr_in reply_addr;
+    // Set the maximum payload size
+    // An extra 1 is subtracted to accomodate for the additional 1 that writeToSocket adds
+    // when calculating the length of the buffer (strlen(message) + 1 in writeToSocket)
     size_t max_payload_size = RECV_BUFFER_SIZE - header.str().size() - 1;
-    while (payload_str.size() > max_payload_size) {
-        max_retries = 5;
+
+    while (payload_str.size() > 0) {
+        max_retries = MAX_RETRIES;
         bytes_read = -1;
 
-        std::string slice = payload_str.substr(prev_index, prev_index + max_payload_size);
-        payload_str = payload_str.substr(prev_index + max_payload_size, std::string::npos);
+        // slice the payload to an acceptable size
+        std::string slice = payload_str.substr(0, max_payload_size);
 
+        if (max_payload_size >= payload_str.size()) {
+            header.fragmented = -1;
+            payload_str = "";
+        } else
+            // remove the slice from the original payload
+            payload_str = payload_str.substr(max_payload_size, std::string::npos);
+
+        // Send the slice over to the receiver and wait for an ack
         while (max_retries-- && bytes_read == -1) {
             udpSocket.writeToSocket((char *) (header.str() + slice).c_str(), receiver_sock_addr);
-            bytes_read = udpSocket.readFromSocketWithTimeout(ack, RECV_BUFFER_SIZE, reply_addr, 500);
+            bytes_read = udpSocket.readFromSocketWithTimeout(ack_buffer, RECV_BUFFER_SIZE, reply_addr, ACK_TIMEOUT);
         }
 
+        // If no ack was received, a connection error has likely occured hence we return -1
         if (bytes_read == -1)
             return -1;
 
-        // TODO: Calculate new header size here and update max_payload_size ?
-        total_bytes_sent += bytes_sent;
+        // If ack was received, increment the sequence id (to be used for the next fragment to be sent) and recalculate
+        // the max payload size again (needed for when for when the number of digits of the sequence id is increases)
         header.sequence_id++;
         max_payload_size = RECV_BUFFER_SIZE - header.str().size() - 1;
+
+        // Update the total amount of bytes sent
+        total_bytes_sent += bytes_sent;
     }
-    // change fragmented flag in header to -1
-    header.fragmented = -1;
-
-    // Make sure last fragment arrives
-    max_retries = 5;
-    bytes_read = -1;
-
-    while (max_retries-- && bytes_read == -1) {
-        bytes_sent = udpSocket.writeToSocket((char *) (header.str() + payload_str).c_str(), receiver_sock_addr);
-        bytes_read = udpSocket.readFromSocketWithTimeout(ack, RECV_BUFFER_SIZE, reply_addr, 500);
-    }
-
-    total_bytes_sent += bytes_sent;
     return total_bytes_sent;
 }
 
@@ -227,7 +243,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
 
         while (max_retries-- && bytes_read == -1) {
             udpSocket.writeToSocket((char *) ack_str.c_str(), sender_addr);
-            bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, 30);
+            bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, 500);
         }
 
         if (bytes_read == -1)
@@ -235,7 +251,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
 
         // Get the recv_header of the received packet
         Header recv_header = Header(recv_buffer);
-        std::cout << "Bytes read: " << bytes_read << std::endl;
+//        std::cout << "Bytes read: " << bytes_read << std::endl;
 
         // An error occured, we should have received -1 to indicate the last fragmented packet and not a 0
         if (recv_header.fragmented == 0)
@@ -257,11 +273,11 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
             total_bytes_read += bytes_read;
             Payload payload(recv_buffer, true);
             ack_header.sequence_id++;
-            std::cout << payload.str() << std::endl;
+//            std::cout << payload.str() << std::endl;
             rebuilt_request += payload.str();
         }
     }
-    std::cout << "Rebuilt request: " << rebuilt_request << std::endl;
+//    std::cout << "Rebuilt request: " << rebuilt_request << std::endl;
     return (int) total_bytes_read;
 }
 
