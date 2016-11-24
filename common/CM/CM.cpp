@@ -203,7 +203,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
     while (still_fragmented) {
         // Send ack for previous packet
         udpSocket.writeToSocket(ack, sender_addr);
-        bytes_read = udpSocket.readFromSocketWithBlock(recv_buffer, RECV_BUFFER_SIZE, sender_addr);
+        bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, 500);
 
         if (bytes_read == -1)
             return -1;
