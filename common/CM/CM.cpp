@@ -61,8 +61,14 @@ ssize_t CM::recv_with_timeout(Message &received_message, sockaddr_in &sender_add
 
     // Extract the packet's header
     Header header(recv_buffer);
-    if (header.message_type == MessageType::Ack)
-        return -1;
+    while (header.message_type == MessageType::Ack && bytes_read != -1) {
+        bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, timeout_in_ms);
+
+        if (bytes_read == -1)
+            return -1;
+
+        header = Header(recv_buffer);
+    }
 
     if (header.fragmented == -1) {
         Header ack_header = header;
@@ -97,7 +103,14 @@ int CM::recv_with_block(Message &received_message, sockaddr_in &sender_addr) {
 
     // Extract the packet's header
     Header header(recv_buffer);
+    while (header.message_type == MessageType::Ack && bytes_read != -1) {
+        bytes_read = udpSocket.readFromSocketWithBlock(recv_buffer, RECV_BUFFER_SIZE, sender_addr);
 
+        if (bytes_read == -1)
+            return -1;
+
+        header = Header(recv_buffer);
+    }
     // If sender did not get the ack for the previous message's last fragment, resend the ack
     // This is done to not let the sender report a connection error due to the last fragment's
     // ack not being received (rebuild_request only send out one ack with no retries for the last fragment)
