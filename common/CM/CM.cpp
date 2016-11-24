@@ -156,7 +156,7 @@ ssize_t CM::send_message(Message message_to_send, sockaddr_in receiver_sock_addr
 
 ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_sock_addr) {
     // Maximum time (in ms) to wait for an ack
-    const int ACK_TIMEOUT = 500;
+    const int ACK_TIMEOUT = 150;
 
     // Max attempts at sending a fragment
     const int MAX_RETRIES = 5;
@@ -243,7 +243,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
 
         while (max_retries-- && bytes_read == -1) {
             udpSocket.writeToSocket((char *) ack_str.c_str(), sender_addr);
-            bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, 500);
+            bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, 150);
         }
 
         if (bytes_read == -1)
