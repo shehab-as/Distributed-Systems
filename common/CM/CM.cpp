@@ -68,7 +68,7 @@ ssize_t CM::recv_with_timeout(Message &received_message, sockaddr_in &sender_add
         ack_header.message_type = MessageType::Reply;
         ack_header.fragmented = 0;
         ack_header.sequence_id = 0;
-        Payload ack_payload = Payload(0, 1, std::vector<std::string>{'ack'}, 0);
+        Payload ack_payload = Payload(0, 1, std::vector<std::string>{"ack"}, 0);
         Message ack(ack_header, ack_payload);
         send_no_ack(ack, sender_addr);
     }
@@ -106,7 +106,7 @@ int CM::recv_with_block(Message &received_message, sockaddr_in &sender_addr) {
         ack_header.message_type = MessageType::Reply;
         ack_header.fragmented = 0;
         ack_header.sequence_id = 0;
-        Payload ack_payload = Payload(0, 1, std::vector<std::string>{'ack'}, 0);
+        Payload ack_payload = Payload(0, 1, std::vector<std::string>{"ack"}, 0);
         Message ack(ack_header, ack_payload);
         send_no_ack(ack, sender_addr);
     }
@@ -152,7 +152,7 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
     unsigned long prev_index = 0;
     int max_retries;
     ssize_t bytes_read;
-    char ack[5];
+    char ack[RECV_BUFFER_SIZE];
     sockaddr_in reply_addr;
     size_t max_payload_size = RECV_BUFFER_SIZE - header.str().size() - 1;
     while (payload_str.size() > max_payload_size) {
@@ -197,40 +197,53 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
     ssize_t bytes_read;
     ssize_t total_bytes_read = 0;
     char recv_buffer[RECV_BUFFER_SIZE];
-    char ack[] = "ack";
     int last_sequence_id_recv = 0;
+
+    Header ack_header(initial_fragment);
+    Payload ack_payload("0", 1, std::vector<std::string> {"ack"}, false);
 
     while (still_fragmented) {
         // Send ack for previous packet
-        udpSocket.writeToSocket(ack, sender_addr);
-        bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, 500);
+        int max_retries = 5;
+        bytes_read = -1;
+
+        Message ack(ack_header, ack_payload);
+        char * ack_str = (char *) ack.marshal().c_str();
+
+        while(max_retries-- && bytes_read == -1) {
+            udpSocket.writeToSocket(ack_str, sender_addr);
+            bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, 30);
+            if(bytes_read == -1)
+                std::cout << "Timed out" <<std::endl;
+        }
 
         if (bytes_read == -1)
             return -1;
 
-        // Get the header of the received packet
-        Header header(recv_buffer);
+        // Get the recv_header of the received packet
+        Header recv_header = Header(recv_buffer);
         std::cout << "Bytes read: " << bytes_read << std::endl;
 
         // An error occured, we should have received -1 to indicate the last fragmented packet and not a 0
-        if (header.fragmented == 0)
+        if (recv_header.fragmented == 0)
             return -1;
 
         // Last packet in the fragmented packets
-        if (header.fragmented == -1) {
+        if (recv_header.fragmented == -1) {
             still_fragmented = false;
             total_bytes_read += bytes_read;
 
             // Only send ack once
             // If sender does not receive this ack, recv_with_block or recv_with_timeout
             // will handle resending the ack again
-            udpSocket.writeToSocket(ack, sender_addr);
+            udpSocket.writeToSocket(ack_str, sender_addr);
         }
 
-        if (header.sequence_id != last_sequence_id_recv) {
+        if (recv_header.sequence_id != last_sequence_id_recv) {
             last_sequence_id_recv++;
             total_bytes_read += bytes_read;
             Payload payload(recv_buffer, true);
+            ack_header.sequence_id++;
             std::cout << payload.str() << std::endl;
             rebuilt_request += payload.str();
         }
