@@ -472,5 +472,7 @@ int Registry::setNumViews_EachUser(std::string image_id,int peer_token, int noVi
    catch (std::exception &e)
    {
        std::cout << "exception: " << e.what() << std::endl;
+       std::cout << "exception: " << e.what() << std::endl;
+
    }
 }
