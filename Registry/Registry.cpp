@@ -181,17 +181,16 @@ int Registry::add_entry_svc(std::string image_name, long int token, char *owner_
         SQLite::Database db(
                 "/home/farida/Documents/Dist-DB.db");
 
-//        SQLite::Statement img_query(db, "INSERT INTO image VALUES (' " + image_name + "', ' " + owner_addr + "', '" +
-//                                        owner_port + "') ");
-//        int noRowsModified = img_query.exec();
-//        std::cout << "see this" + noRowsModified << std::endl;
+        SQLite::Statement img_query(db, "INSERT INTO image (img_name, owner_addr, owner_port) VALUES ( '"+image_name+"', '"+std::to_string(*owner_addr)+"', '"+std::to_string(owner_port)+"');");
+        int noRowsModified = img_query.exec();
+
         return 0;
     } else {
         return -1;
     }
 
 
-    return 0;
+
 }
 
 int Registry::remove_entry_svc(std::string image_name, long int token) {
