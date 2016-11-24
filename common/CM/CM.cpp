@@ -61,10 +61,12 @@ ssize_t CM::recv_with_timeout(Message &received_message, sockaddr_in &sender_add
 
     // Extract the packet's header
     Header header(recv_buffer);
+    if (header.message_type == MessageType::Ack)
+        return -1;
 
     if (header.fragmented == -1) {
         Header ack_header = header;
-        ack_header.message_type = MessageType::Reply;
+        ack_header.message_type = MessageType::Ack;
         ack_header.fragmented = 0;
         ack_header.sequence_id = 0;
         Payload ack_payload = Payload(0, 1, std::vector<std::string>{"ack"}, 0);
@@ -101,7 +103,7 @@ int CM::recv_with_block(Message &received_message, sockaddr_in &sender_addr) {
     // ack not being received (rebuild_request only send out one ack with no retries for the last fragment)
     if (header.fragmented == -1) {
         Header ack_header = header;
-        ack_header.message_type = MessageType::Reply;
+        ack_header.message_type = MessageType::Ack;
         ack_header.fragmented = 0;
         ack_header.sequence_id = 0;
         Payload ack_payload = Payload(0, 1, std::vector<std::string>{"ack"}, 0);
@@ -198,6 +200,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
     int last_sequence_id_recv = 0;
 
     Header ack_header = Header((char *) rebuilt_request.c_str());
+    ack_header.message_type = MessageType::Ack;
     auto v = std::vector<std::string> {"ack"};
     Payload ack_payload("0", v.size(), v, false);
 
