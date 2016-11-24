@@ -212,8 +212,8 @@ int Registry::remove_entry_svc(std::string image_name, long int token) {
 
 }
 
-int
-Registry::get_client_addr_svc(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token) {
+
+int Registry::get_client_addr_svc(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token) {
 
     auto n = check_token(token);
 
@@ -228,7 +228,9 @@ Registry::get_client_addr_svc(std::string image_name, std::string &owner_addr, u
     return -1;
 }
 
-int Registry::retrieve_token_svc(std::string username, std::string password, long int &token) {
+// return 0 if token is retrieved else return -1 if a new token is created
+//and a new username , password will be created in database
+int Registry::retrieve_token_svc(  char *username, char *password, long int &token) {
 
     for (int i = 0; i < usr_DB.size(); i++)
         if (usr_DB[i].username == username && usr_DB[i].password == password) {
@@ -236,12 +238,29 @@ int Registry::retrieve_token_svc(std::string username, std::string password, lon
             return 0;
         }
 
-    std::string to_hash = username + password;
+
+
+    std::string to_hash = std::string(username) + std::string(password);
     std::hash<std::string> str_hash;
     size_t token_size_t = str_hash(to_hash);
     token = (int) token_size_t;
-    // add entry to db & vector??
-    //return ...
+
+    SQLite::Database db(
+            "/home/farida/Documents/Dist-DB.db");
+
+    SQLite::Statement usr_query(db, "INSERT INTO user (token, username, password) VALUES ( '"+std::to_string(token)+"', '"+username+"', '"+password+"');");
+    int noRowsModified = usr_query.exec();
+
+    user newUser;
+    newUser.username=username;
+    newUser.password=password;
+    newUser.token=token;
+
+    usr_DB.push_back(newUser);
+
+    return -1;
+
+
 }
 
 int Registry::check_viewImage_svc(std::string image_id, bool &can_view, long int token) {

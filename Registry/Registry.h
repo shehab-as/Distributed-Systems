@@ -13,7 +13,7 @@ private:
     //structs create vectors from database
     struct user {
         int token;
-        const char  *username;
+        const char * username;
         const char  *password;
 
     };
@@ -52,7 +52,7 @@ public:
     int add_entry_svc(std::string image_name, long int token, char *owner_addr, int owner_port);
     int remove_entry_svc(std::string image_name, long int token);
     int get_client_addr_svc(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token);
-    int retrieve_token_svc(std::string username, std::string password, long int &token);
+    int retrieve_token_svc(  char *username,  char * password, long int &token);
     int check_viewImage_svc(std::string image_id, bool &can_view, long int token);
     int check_token(long int token);
 };
