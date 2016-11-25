@@ -22,8 +22,6 @@ Peer::Peer(char *_listen_hostname, uint16_t _listen_port) :
 
 Peer::~Peer() {
 
-    CM_Client.~CM();
-    CM_Server.~CM();
 }
 
 #pragma clang diagnostic push
@@ -141,20 +139,27 @@ int Peer::setNumViews_EachUser(std::string image_id, int peer_token, int noViews
 }
 
 int main() {
-//    SQLite::Database    db("/home/farida/Dist-DB.db");
     using namespace std;
-    CM server(NULL, 1234);
-    Message request;
-    sockaddr_in sender_addr;
-    ofstream outfile ("surprise.png", ios::binary);
-    while(true) {
-        auto n = server.recv_with_block(request, sender_addr);
-        if (n == -1) {
-            cout << "n is -1" <<endl;
-            continue;
-        }
-        std::cout << "Message request size: " << request.marshal().size() << std::endl;
-        outfile << request.getParams()[0];
-        server.send_no_ack(request, sender_addr);
+    CM client(NULL, 0);
+    std::ifstream t("/home/shadyf/Pictures/openflow.png", ios::binary);
+    std::string str;
+
+    t.seekg(0, std::ios::end);
+    str.reserve(t.tellg());
+    t.seekg(0, std::ios::beg);
+
+    str.assign((std::istreambuf_iterator<char>(t)),
+               std::istreambuf_iterator<char>());
+    std::ofstream ofile("./doubledelight.png", std::ios::binary);
+    ofile << str;
+//    cout << str.size();
+//    std::vector<std::string> v{str};
+//    Message request(MessageType::Request, 0, 0, "null", v.size(), v);
+//    std::cout << "Request Size: " << request.marshal().size() << std::endl;
+//    Message reply;
+//    cout << request.marshal() << endl;
+//    int bytes_read = client.send_with_ack(request, reply, 500, 5, (char *) "192.168.43.232", 1234);
+//    if(bytes_read >= 0) {
+//        std::cout << "Reply size: " << reply.marshal().size() << std::endl;
+//        std::cout << reply.marshal() << std::endl;
     }
-}
