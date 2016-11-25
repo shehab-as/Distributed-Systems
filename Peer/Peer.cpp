@@ -7,6 +7,7 @@
 #include <iostream>
 #include <SQLiteCpp/Database.h>
 #include "Peer.h"
+#include "QVector"
 
 // Peer Constructor initializes the CM-CLient and sets its port to default 0 while the Servers sets
 // its port to defined listen port.
@@ -36,7 +37,6 @@ void Peer::runServer() {
         ssize_t bytes_read = CM_Server.recv_with_block(recv_message, sender_addr);
         handleRequest(recv_message, sender_addr);
     }
-
 }
 
 #pragma clang diagnostic pop
@@ -68,7 +68,20 @@ void Peer::handleRequest(Message request, sockaddr_in sender_addr) {
 //                Peer RPC Stubs                //
 //////////////////////////////////////////////////
 int Peer::download_image(std::string image_name, long int token, std::vector<std::string> &reply_params) {
-    return 0;
+    std::vector<std::string> V{image_name, token};
+    Message request(MessageType::Request, 0, RPC_Count++, "NULL", V.size(), V);
+    Message reply;
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
+
+    if(n == -1)
+        return CONNECTION_ERROR;
+
+    std::vector<std::string> REPLY = reply.getParams();
+    for(int i=0; i<reply.getParamsSize(); i++)
+    {
+        reply_params.push_back(REPLY[i]);
+    }
+
 }
 
 //////////////////////////////////////////////////
@@ -105,40 +118,109 @@ int Peer::download_image_svc(std::string image_name, long int token, std::vector
 //             Registry RPC Stubs               //
 /////////////////////////////////////////////////
 int Peer::retrieve_token(std::string username, std::string password, long int &token) {
-    return 0;
+    std::vector<std::string> V{username, password};
+    Message request(MessageType::Request, 4, RPC_Count++, "NULL", V.size(), V);
+    Message reply;
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
+    if(n < 0)
+        return CONNECTION_ERROR;
+
+    int reply_return_val = std::stoi(reply.getReturnVal());
+    if(reply_return_val != 0)
+        return GENERAL_ERROR;
+
+    token = std::stol(reply.getParams()[0]);
+    return SUCCESS;
 }
 
 int Peer::view_imagelist(std::vector<std::string> &image_container, long int token) {
-    return 0;
+    std::vector<std::string> V {to_string(token)};
+    Message request(MessageType::Request, 0, RPC_Count++, "NULL", V.size(), V);
+    Message reply;
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
+    if(n<0)
+        return CONNECTION_ERROR;
+
+    int reply_return_val = std::stoi(reply.getReturnVal());
+    if(reply_return_val == -1)
+        return GENERAL_ERROR;
+
+    int size_vec = reply.getParamsSize();
+    std::vector<std::string> reply_vector = reply.getParams();
+
+    for(int i=0; i<size_vec; i++)
+    {
+        image_container.push_back(reply_vector[i]);
+    }
+
+    return SUCCESS;
 }
 
+//NOT DONE!
 int Peer::add_entry(std::string image_name, long int token) {
-    return 0;
+    std::vector<std::string> V{ image_name, token };
+    Message request(MessageType::Request, 1, RPC_Count++, "NULL", V.size(), V);
+    Message reply;
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
+
+
 }
 
+//NOT DONE!
 int Peer::remove_entry(std::string image_name, long int token) {
-    return 0;
+    std::vector<std::string> V{ image_name, token};
+    Message request(MessageType::Request, 2, RPC_Count++, "NULL", V.size(), V);
+    Message reply;
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
+
+    if(n == -1)
+        return CONNECTION_ERROR;
+
+    int reply_return_val = stoi(reply.getReturnVal());
+    if(reply_return_val == -1)
+        return GENERAL_ERROR;
+
+    return SUCCESS;
 }
 
 int Peer::get_client_addr(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token) {
-    return 0;
+    std::vector<std::string> V{ image_name, token};
+    Message request(MessageType::Request, 3, RPC_Count++, "NULL", V.size(), V);
+    Message reply;
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
+
+    if(n == -1)
+        return CONNECTION_ERROR;
+
+    int reply_return_val = stoi(reply.getReturnVal());
+    if(reply_return_val == -1)
+        return GENERAL_ERROR;
+
+    owner_addr = reply.getParams()[0];
+    owner_port = (uint16_t) stoi(reply.getParams()[1]);
+
+    return SUCCESS;
 }
 
-int Peer::check_viewImage(std::string image_id, bool &can_view, long int token) {
-    return 0;
+int Peer::check_viewImage(std::string image_name, bool &can_view, long int token)
+{
+    std::vector<std::string> V{ image_name, token};
+    Message request(MessageType::Request, 5, RPC_Count++, "NULL", V.size(), V);
+    Message reply;
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
+
+    if(n == -1)
+        return CONNECTION_ERROR;
+
+    int request_reply_val = stoi(reply.getReturnVal());
+
+    if(request_reply_val == -1)
+        return GENERAL_ERROR;
+
+    can_view = true;
+    return SUCCESS;
 }
 
-int Peer::check_token(long int token) {
-    return 0;
-}
-
-int Peer::numbViewsLeft(std::string image_id, long int token) {
-    return 0;
-}
-
-int Peer::setNumViews_EachUser(std::string image_id, int peer_token, int noViews) {
-    return 0;
-}
 
 int main() {
 //    SQLite::Database    db("/home/farida/Dist-DB.db");
