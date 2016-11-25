@@ -41,6 +41,8 @@ private:
     void update_imageList();
     void update_viewable_by();
 
+    int check_token_svc(long int token);
+
 public:
     Registry (char *_listen_hostname, uint16_t _listen_port, int num_of_workers, std::string);
     ~Registry();
@@ -56,8 +58,6 @@ public:
     int get_client_addr_svc(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token);
     int retrieve_token_svc(  std:: string username,  std::string password, long int &token);
     int check_viewImage_svc(std::string image_id, bool &can_view, long int token);
-    int check_token_svc(long int token);
-    //int numbViewsLeft_svc(std::string image_id,long int token);
     int set_image_viewable_by(std::string image_id,  long int peer_token);//, int noViews);
 };
 

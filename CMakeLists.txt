@@ -11,3 +11,12 @@ set(REGISTRY_SOURCE_FILES common/Message/Message.h common/UDP/UDPSocket.h common
 add_executable(registry ${REGISTRY_SOURCE_FILES})
 target_link_libraries(registry SQLiteCpp sqlite3 dl)
 target_link_libraries(peer SQLiteCpp sqlite3 dl)
+
+###########################################
+#              NOT WORKING                #
+###########################################
+find_package (Qt5Widgets)
+set(WHAT Image-Viewer/Image-Viewer.pro Image-Viewer/Image-Viewer.pro.user Image-Viewer/main.cpp Image-Viewer/mainwindow.cpp Image-Viewer/mainwindow.h)
+qt5_wrap_ui(WHATUI Image-Viewer/mainwindow.ui)
+add_executable(QTWHAT ${WHAT} ${WHATUI})
+target_link_libraries (QTWHAT Qt5::Widgets)

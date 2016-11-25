@@ -18,6 +18,7 @@ private:
     CM CM_Client;
     CM CM_Server;
     long int token;
+    sockaddr_in server_addr;
 
 public:
     Peer(char *_listen_hostname, uint16_t _listen_port);
