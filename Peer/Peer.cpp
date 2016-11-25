@@ -7,7 +7,7 @@
 #include <iostream>
 #include <SQLiteCpp/Database.h>
 #include "Peer.h"
-#include "QVector"
+//#include "QVector"
 
 // Peer Constructor initializes the CM-CLient and sets its port to default 0 while the Servers sets
 // its port to defined listen port.
@@ -67,18 +67,19 @@ void Peer::handleRequest(Message request, sockaddr_in sender_addr) {
 ///////////////////////////////////////////////////
 //                Peer RPC Stubs                //
 //////////////////////////////////////////////////
+
+// TODO: Finish this
 int Peer::download_image(std::string image_name, long int token, std::vector<std::string> &reply_params) {
-    std::vector<std::string> V{image_name, token};
+    std::vector<std::string> V{image_name, std::to_string(token)};
     Message request(MessageType::Request, 0, RPC_Count++, "NULL", V.size(), V);
     Message reply;
-    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
 
-    if(n == -1)
+    if (n == -1)
         return CONNECTION_ERROR;
 
     std::vector<std::string> REPLY = reply.getParams();
-    for(int i=0; i<reply.getParamsSize(); i++)
-    {
+    for (int i = 0; i < reply.getParamsSize(); i++) {
         reply_params.push_back(REPLY[i]);
     }
 
@@ -87,13 +88,14 @@ int Peer::download_image(std::string image_name, long int token, std::vector<std
 //////////////////////////////////////////////////
 //             Peer RPC Implementation          //
 /////////////////////////////////////////////////
-int Peer::download_image_svc(std::string image_name, long int token, std::vector<std::string> &reply_params) {
 
-    int n = check_token(token);
+// TODO: Finish this
+int Peer::download_image_svc(std::string image_name, long int token, std::vector<std::string> &reply_params) {
+//    int n = check_token(token);
     //if n = 0, success.
     //Else return -1
-
-    if(n == 0) {
+    int n = 0;
+    if (n == 0) {
         try {
             //Opening image file to stream then storing it into a string.
             std::ifstream fin(image_name, std::ios::binary);
@@ -121,12 +123,12 @@ int Peer::retrieve_token(std::string username, std::string password, long int &t
     std::vector<std::string> V{username, password};
     Message request(MessageType::Request, 4, RPC_Count++, "NULL", V.size(), V);
     Message reply;
-    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
-    if(n < 0)
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
+    if (n < 0)
         return CONNECTION_ERROR;
 
     int reply_return_val = std::stoi(reply.getReturnVal());
-    if(reply_return_val != 0)
+    if (reply_return_val != 0)
         return GENERAL_ERROR;
 
     token = std::stol(reply.getParams()[0]);
@@ -134,66 +136,65 @@ int Peer::retrieve_token(std::string username, std::string password, long int &t
 }
 
 int Peer::view_imagelist(std::vector<std::string> &image_container, long int token) {
-    std::vector<std::string> V {to_string(token)};
+    std::vector<std::string> V{std::to_string(token)};
     Message request(MessageType::Request, 0, RPC_Count++, "NULL", V.size(), V);
     Message reply;
-    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
-    if(n<0)
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
+    if (n < 0)
         return CONNECTION_ERROR;
 
     int reply_return_val = std::stoi(reply.getReturnVal());
-    if(reply_return_val == -1)
+    if (reply_return_val == -1)
         return GENERAL_ERROR;
 
-    int size_vec = reply.getParamsSize();
+    size_t size_vec = reply.getParamsSize();
     std::vector<std::string> reply_vector = reply.getParams();
 
-    for(int i=0; i<size_vec; i++)
-    {
+    for (int i = 0; i < size_vec; i++) {
         image_container.push_back(reply_vector[i]);
     }
 
     return SUCCESS;
 }
 
-//NOT DONE!
+// TODO: Finish this, it's NOT DONE!
 int Peer::add_entry(std::string image_name, long int token) {
-    std::vector<std::string> V{ image_name, token };
+    std::vector<std::string> V{image_name, std::to_string(token)};
     Message request(MessageType::Request, 1, RPC_Count++, "NULL", V.size(), V);
     Message reply;
-    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
 
 
 }
 
 //NOT DONE!
 int Peer::remove_entry(std::string image_name, long int token) {
-    std::vector<std::string> V{ image_name, token};
+    std::vector<std::string> V{image_name, std::to_string(token)};
     Message request(MessageType::Request, 2, RPC_Count++, "NULL", V.size(), V);
     Message reply;
-    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
 
-    if(n == -1)
+    if (n == -1)
         return CONNECTION_ERROR;
 
     int reply_return_val = stoi(reply.getReturnVal());
-    if(reply_return_val == -1)
+    if (reply_return_val == -1)
         return GENERAL_ERROR;
 
     return SUCCESS;
 }
 
 int Peer::get_client_addr(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token) {
-    std::vector<std::string> V{ image_name, token};
+    std::vector<std::string> V{image_name, std::to_string(token)};
     Message request(MessageType::Request, 3, RPC_Count++, "NULL", V.size(), V);
     Message reply;
-    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
 
-    if(n == -1)
+    if (n == -1)
         return CONNECTION_ERROR;
 
     int reply_return_val = stoi(reply.getReturnVal());
-    if(reply_return_val == -1)
+    if (reply_return_val == -1)
         return GENERAL_ERROR;
 
     owner_addr = reply.getParams()[0];
@@ -202,19 +203,18 @@ int Peer::get_client_addr(std::string image_name, std::string &owner_addr, uint1
     return SUCCESS;
 }
 
-int Peer::check_viewImage(std::string image_name, bool &can_view, long int token)
-{
-    std::vector<std::string> V{ image_name, token};
+int Peer::check_viewImage(std::string image_name, bool &can_view, long int token) {
+    std::vector<std::string> V{image_name, std::to_string(token)};
     Message request(MessageType::Request, 5, RPC_Count++, "NULL", V.size(), V);
     Message reply;
-    int n = CM_Client.send_with_ack(request, reply, 500, 5, Server_addr, Server_port);
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
 
-    if(n == -1)
+    if (n == -1)
         return CONNECTION_ERROR;
 
     int request_reply_val = stoi(reply.getReturnVal());
 
-    if(request_reply_val == -1)
+    if (request_reply_val == -1)
         return GENERAL_ERROR;
 
     can_view = true;
@@ -228,11 +228,11 @@ int main() {
     CM server(NULL, 1234);
     Message request;
     sockaddr_in sender_addr;
-    ofstream outfile ("surprise.png", ios::binary);
-    while(true) {
+    ofstream outfile("surprise.png", ios::binary);
+    while (true) {
         auto n = server.recv_with_block(request, sender_addr);
         if (n == -1) {
-            cout << "n is -1" <<endl;
+            cout << "n is -1" << endl;
             continue;
         }
         std::cout << "Message request size: " << request.marshal().size() << std::endl;

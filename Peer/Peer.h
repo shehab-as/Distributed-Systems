@@ -18,14 +18,13 @@
 #define SUCCESS 0
 
 class Peer {
-
 private:
     CM CM_Client;
     CM CM_Server;
     long int token;
     unsigned long long int RPC_Count = 0;
-    std::string Server_addr;
-    uint16_t Server_port;
+    std::string registry_addr;
+    uint16_t registry_port;
 
 public:
     Peer(char *_listen_hostname, uint16_t _listen_port);
@@ -47,7 +46,6 @@ public:
     int get_client_addr(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token);
     int retrieve_token(std::string username, std::string password, long int &token);
     int check_viewImage(std::string image_name, bool &can_view, long int token);
-
 };
 
 #endif //DISTRIBUTED_SYSTEMS_PEER_H
