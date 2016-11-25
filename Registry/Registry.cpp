@@ -7,17 +7,18 @@
 #include "Registry.h"
 #include "../common/Message/Message.h"
 
-Registry::Registry(char *_listen_hostname, uint16_t _listen_port, int num_of_workers) : serverConnector(
+Registry::Registry(char *_listen_hostname, uint16_t _listen_port, int num_of_workers, std::string DB_location) : serverConnector(
         _listen_hostname, _listen_port) {
 
+    DB_location = DB_location;
     std::vector<std::thread> workers;
     load_DBs();
 
-    for (int i = 0; i < num_of_workers; i++)
-        workers.push_back(std::thread(&Registry::runRegistry, this));
-
-    for (int i = 0; i < num_of_workers; i++)
-        workers[i].join();
+//    for (int i = 0; i < num_of_workers; i++)
+//        workers.push_back(std::thread(&Registry::runRegistry, this));
+//
+//    for (int i = 0; i < num_of_workers; i++)
+//        workers[i].join();
 
 }
 
@@ -62,9 +63,9 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             //~Shehab
             long int token = stoi(params[params.size() - 1]);
             auto n = view_imagelist_svc(image_container, token);
-            Message reply(MessageType::Reply, 0, request.getRPCId(), std::to_string(n), image_container.size(),
-                          image_container);
-            serverConnector.send_no_ack(reply, sender_addr);
+//            Message reply(MessageType::Reply, 0, request.getRPCId(), std::to_string(n), image_container.size(),
+//                          image_container);
+            //serverConnector.send_no_ack(reply, sender_addr);
             break;
         }
         case 1: {
@@ -73,7 +74,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             params = request.getParams();
             std::string image_name = params[0];
             long int token = stoi(params[params.size() - 1]);
-            auto n = add_entry_svc(image_name, token, sender_addr , sender_addr.sin_port);
+            auto n = add_entry_svc(image_name, token, std::to_string(sender_addr.sin_addr.s_addr) , sender_addr.sin_port);
             std::vector<std::string> reply_params;
             Message reply(MessageType::Reply, 1, request.getRPCId(), std::to_string(n), (size_t) 0, reply_params);
             serverConnector.send_no_ack(reply, sender_addr);
@@ -153,16 +154,21 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
 /////////////////////////////////////////////////
 int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long int token) {
 
+
+
     if (viewable_by_DB.empty())
         return -1;
 
     auto n = check_token_svc(token);
+    std::cout<<viewable_by_DB.size()<<std::endl;
 
      if(n==0) {
          for (int i = 0; i < viewable_by_DB.size(); i++) {
-             if (viewable_by_DB[i].token == token)
-                 image_container.push_back(
-                         (std::basic_string<char, std::char_traits<char>, std::allocator<char>> &&) viewable_by_DB[i].img_name);
+             std::string str;
+             if (viewable_by_DB[i].token == token) {
+                 str = viewable_by_DB[i].img_name;
+                 image_container.push_back(str);
+             }
 
          }
          return 0;
@@ -174,21 +180,22 @@ int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long
 
 //return 0 if a new image is inserted else -1
 // needs testing
-int Registry::add_entry_svc(std::string image_name, long int token, char *owner_addr, int owner_port) {
+int Registry::add_entry_svc(std::string image_name, long int token,  std::string owner_addr, int owner_port) {
+
 
     auto n = check_token_svc(token);
 
 
     //if token is correct, insert imagename, owner_addr, owner_port
+
     if (n == 0)
     {
         try {
             // Open a database file
-            SQLite::Database db(
-                    "/home/farida/Documents/Dist-DB.db");
+            SQLite::Database db("/home/farida/Documents/Dist-DB.db",SQLite::OPEN_READWRITE,0,NULL);
 
             SQLite::Statement img_query(db,
-                                        "INSERT INTO image (img_name, owner_addr, owner_port) VALUES ( '" + image_name +
+                                        "INSERT INTO image (Img_name, owner_addr, owner_port) VALUES ( '" + image_name +
                                         "', '" + std::string(owner_addr) + "', '" + std::to_string(owner_port) +
                                         "');");
             int noRowsModified = img_query.exec();
@@ -207,17 +214,22 @@ int Registry::add_entry_svc(std::string image_name, long int token, char *owner_
 
 }
 
+
 int Registry::remove_entry_svc(std::string image_name, long int token) {
 
     auto n = check_token_svc(token);
 
+//    const char const_char_image_name = image_name;
     if (n == 0)
     {
         try
         {
-            SQLite::Database db("/home/farida/Documents/Dist-DB.db");
-            SQLite::Statement img_query(db, "DELETE FROM image WHERE Image_Name =' " + image_name + "';");
+            SQLite::Database db("/home/farida/Documents/Dist-DB.db",SQLite::OPEN_READWRITE,0,NULL);
+            std::string query = "DELETE FROM image WHERE Img_name =' " + image_name + "';";
+            std::cout << query << std::endl;
+            SQLite::Statement img_query(db, "DELETE FROM image WHERE Img_name ='" + image_name + "';");
             int noRowsModified = img_query.exec();
+            std::cout << "noRowsModified " << noRowsModified << std::endl;
             return 0;
         }
         catch (std::exception &e)
@@ -241,7 +253,7 @@ int Registry::get_client_addr_svc(std::string image_name, std::string &owner_add
         for (int i = 0; i < img_DB.size(); i++)
             if (img_DB[i].img_name == image_name) {
                 owner_addr = img_DB[i].owner_addr;
-                owner_port = img_DB[i].owner_port;
+                owner_port = (uint16_t) img_DB[i].owner_port;
                 return 0;
             }
 
@@ -250,7 +262,7 @@ int Registry::get_client_addr_svc(std::string image_name, std::string &owner_add
 
 // return 0 if token is retrieved else return -1 if a new token is created
 //and a new username , password will be created in database
-int Registry::retrieve_token_svc(  char *username, char *password, long int &token) {
+int Registry::retrieve_token_svc(  std::string username, std::string password, long int &token) {
 
     update_users();
 
@@ -266,7 +278,7 @@ int Registry::retrieve_token_svc(  char *username, char *password, long int &tok
     size_t token_size_t = str_hash(to_hash);
     token = (int) token_size_t;
 
-    SQLite::Database db("/home/farida/Documents/Dist-DB.db");
+    SQLite::Database db("/home/farida/Documents/Dist-DB.db",SQLite::OPEN_READWRITE,0,NULL);
     SQLite::Statement usr_query(db, "INSERT INTO user (token, username, password) VALUES ( '"+std::to_string(token)+"', '"+username+"', '"+password+"');");
     int noRowsModified = usr_query.exec();
 
@@ -305,28 +317,28 @@ void Registry::load_DBs() {
     viewable_by view;
     try {
         // Open a database file
-        SQLite::Database db(
-                "/home/farida/Documents/Dist-DB.db"); //location of database should be in constructor of Registry and used as a string?
+        SQLite::Database db("/home/farida/Documents/Dist-DB.db"); //location of database should be in constructor of Registry and used as a string?
 
         // Compile a SQL query, containing one parameter (index 1)
         SQLite::Statement usr_query(db, "SELECT * FROM user");
         SQLite::Statement img_query(db, "SELECT * FROM image");
         SQLite::Statement viewable_by_query(db, "SELECT * FROM viewable_by");
 
-        // Loop to execute the query step by step, to get rows of result
+       //  Loop to execute the query step by step, to get rows of result
         while (usr_query.executeStep()) {
             // Demonstrate how to get some typed column value
             usr.token = usr_query.getColumn(0);
-            usr.username = usr_query.getColumn(1);
-            usr.password = usr_query.getColumn(2);
+            usr.username = usr_query.getColumn(1).getString();
+            usr.password = usr_query.getColumn(2).getString();
 
             usr_DB.push_back(usr);
         }
 
+
         while (img_query.executeStep()) {
             // Demonstrate how to get some typed column value
-            img.img_name = img_query.getColumn(0);
-            img.owner_addr = img_query.getColumn(1);
+            img.img_name = img_query.getColumn(0).getString();
+            img.owner_addr = img_query.getColumn(1).getString();
             img.owner_port = img_query.getColumn(2);
 
             img_DB.push_back(img);
@@ -334,7 +346,7 @@ void Registry::load_DBs() {
 
         while (viewable_by_query.executeStep()) {
 
-            view.img_name = viewable_by_query.getColumn(0);
+            view.img_name = viewable_by_query.getColumn(0).getString();
             view.token = viewable_by_query.getColumn(1);
 
             viewable_by_DB.push_back(view);
@@ -367,6 +379,7 @@ void Registry::update_users()
 {
 
     usr_DB.clear();
+    usr_DB.resize(0);
     user usr;
     try
     {
@@ -375,8 +388,8 @@ void Registry::update_users()
         while (usr_query.executeStep()) {
             // Demonstrate how to get some typed column value
             usr.token = usr_query.getColumn(0);
-            usr.username = usr_query.getColumn(1);
-            usr.password = usr_query.getColumn(2);
+            usr.username = usr_query.getColumn(1).getString();
+            usr.password = usr_query.getColumn(2).getString();
 
             usr_DB.push_back(usr);
         }
@@ -393,6 +406,7 @@ void Registry::update_users()
 void Registry::update_imageList()
 {
     img_DB.clear();
+    img_DB.resize(0);
     image img;
 
     try
@@ -401,8 +415,8 @@ void Registry::update_imageList()
         SQLite::Statement img_query(db, "SELECT * FROM image");
         while (img_query.executeStep()) {
             // Demonstrate how to get some typed column value
-            img.img_name = img_query.getColumn(0);
-            img.owner_addr = img_query.getColumn(1);
+            img.img_name = img_query.getColumn(0).getString();
+            img.owner_addr = img_query.getColumn(1).getString();
             img.owner_port = img_query.getColumn(2);
 
             img_DB.push_back(img);
@@ -418,15 +432,16 @@ void Registry::update_imageList()
 void Registry::update_viewable_by()
 {
     viewable_by_DB.clear();
+    viewable_by_DB.resize(0);
     viewable_by view;
 
     try
     {
-        SQLite::Database db( "/home/farida/Documents/Dist-DB.db");
+        SQLite::Database db("/home/farida/Documents/Dist-DB.db");
         SQLite::Statement viewable_by_query(db, "SELECT * FROM viewable_by");
         while (viewable_by_query.executeStep()) {
 
-            view.img_name = viewable_by_query.getColumn(0);
+            view.img_name = viewable_by_query.getColumn(0).getString();
             view.token = viewable_by_query.getColumn(1);
 
             viewable_by_DB.push_back(view);
@@ -438,27 +453,27 @@ void Registry::update_viewable_by()
     }
 }
 
-int Registry::numbViewsLeft_svc(std::string image_id, long int token)
-{
-    update_viewable_by();
+//int Registry::numbViewsLeft_svc(std::string image_id, long int token)
+//{
+//    update_viewable_by();
+//
+//    for (int i = 0; i < viewable_by_DB.size(); i++)
+//    {
+//        if (viewable_by_DB[i].img_name == image_id && viewable_by_DB[i].token == token)
+//        {
+//
+//            return viewable_by_DB[i].noViews;
+//        }
+//    }
+//}
 
-    for (int i = 0; i < viewable_by_DB.size(); i++)
-    {
-        if (viewable_by_DB[i].img_name == image_id && viewable_by_DB[i].token == token)
-        {
-
-            return viewable_by_DB[i].noViews;
-        }
-    }
-}
-
-int Registry::setNumViews_EachUser_svc(std::string image_id,int peer_token, int noViews)
+int Registry::setNumViews_EachUser_svc(std::string image_id, long int peer_token)//, int noViews)
 {
 
    try {
-           SQLite::Database db("/home/farida/Documents/Dist-DB.db");
-           SQLite::Statement viewable_by_query(db, "INSERT INTO viewable_by (img_name, token, noViews) VALUES ( '" +
-                                            image_id + "', '" + std::to_string( peer_token) + "', '" + std::to_string(noViews) + "');");
+           SQLite::Database db("/home/farida/Documents/Dist-DB.db",SQLite::OPEN_READWRITE,0,NULL);
+           SQLite::Statement viewable_by_query(db, "INSERT INTO viewable_by (img_name, token) VALUES ( '" +
+                                            image_id + "', '" + std::to_string(peer_token) + "');");
            int noRowsModified = viewable_by_query.exec();
            return 0;
        }
@@ -466,5 +481,8 @@ int Registry::setNumViews_EachUser_svc(std::string image_id,int peer_token, int 
    {
        std::cout << "exception: " << e.what() << std::endl;
        std::cout << "exception: " << e.what() << std::endl;
+
    }
+
+    return -1;
 }
