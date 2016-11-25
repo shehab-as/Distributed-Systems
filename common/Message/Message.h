@@ -104,14 +104,14 @@ public:
 
             for (int i = 0; i < parameters_size; i++) {
                 tokenizer >> token;
-                parameters.push_back(token);
+                parameters.push_back(base64_decode(token));
             }
         } else {
             parameters_size = 0;
             while (tokenizer.good()) {
                 tokenizer >> token;
                 parameters_size++;
-                parameters.push_back(token);
+                parameters.push_back(base64_decode(token));
             }
         }
     }
@@ -126,11 +126,12 @@ public:
         }
 
         for (int i = 0; i < parameters_size - 1; i++)
-            payload_str.append(parameters[i] + " ");
-        payload_str.append(parameters[parameters_size - 1]);
-
-        // Encode to base64
-//        payload_str = base64_encode((const unsigned char *) payload_str.c_str(), (unsigned int) payload_str.size());
+            payload_str.append(base64_encode((const unsigned char *) parameters[i].c_str(),
+                                             (unsigned int) parameters[i].size()) + " ");
+        payload_str.append(
+                base64_encode((const unsigned char *) parameters[parameters_size - 1].c_str(),
+                              (unsigned int) parameters[parameters_size - 1].size())
+        );
 
         return payload_str;
     }
