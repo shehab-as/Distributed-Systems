@@ -7,9 +7,9 @@ int main() {
 
     Registry Reg(NULL,1234,1,"/home/farida/Documents/Dist-DB.db");
 
-    int remove_entry_svc(std::string image_name, long int token);
-
-    Reg.remove_entry_svc("img100", -401554244);
+//    int remove_entry_svc(std::string image_name, long int token);
+//
+//    Reg.remove_entry_svc("img100", -401554244);
 
 //    long int token;
 //    Reg.retrieve_token_svc("Zeyad", "xyz", token);

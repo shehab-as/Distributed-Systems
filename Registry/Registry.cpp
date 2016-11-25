@@ -14,11 +14,11 @@ Registry::Registry(char *_listen_hostname, uint16_t _listen_port, int num_of_wor
     std::vector<std::thread> workers;
     load_DBs();
 
-//    for (int i = 0; i < num_of_workers; i++)
-//        workers.push_back(std::thread(&Registry::runRegistry, this));
-//
-//    for (int i = 0; i < num_of_workers; i++)
-//        workers[i].join();
+    for (int i = 0; i < num_of_workers; i++)
+        workers.push_back(std::thread(&Registry::runRegistry, this));
+
+    for (int i = 0; i < num_of_workers; i++)
+        workers[i].join();
 
 }
 
