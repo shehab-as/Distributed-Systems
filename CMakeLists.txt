@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 project(Distributed-Systems)
 
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 include_directories(SQLiteCpp/include)
 add_subdirectory(SQLiteCpp)
@@ -10,18 +9,14 @@ add_executable(peer ${CLIENT_SOURCE_FILES})
 
 set(REGISTRY_SOURCE_FILES common/Message/Message.h common/UDP/UDPSocket.h common/UDP/UDPSocket.cpp common/Message/Message.cpp common/CM/CM.cpp common/CM/CM.h Registry/Registry.cpp Registry/Registry.h Registry/main.cpp common/Base64/base64.cpp common/Base64/base64.h)
 add_executable(registry ${REGISTRY_SOURCE_FILES})
+target_link_libraries(registry SQLiteCpp sqlite3 dl)
+target_link_libraries(peer SQLiteCpp sqlite3 dl)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_AUTOMOC ON)
-
-target_link_libraries(registry SQLiteCpp sqlite3 dl Qt5::Widgets)
-target_link_libraries(peer SQLiteCpp sqlite3 dl Qt5::Widgets)
-
-
-find_package(Qt5Widgets REQUIRED)
-
-set(WHAT Image-Viewer/Image-Viewer.pro Image-Viewer/Image-Viewer.pro.user Image-Viewer/main.cpp Image-Viewer/mainwindow.cpp Image-Viewer/mainwindow.h Image-Viewer/mainwindow.h Image-Viewer/mainwindow.ui)
-qt5_wrap_ui(UI_HEADERS Image-Viewer/mainwindow.ui)
-add_executable(QTWHAT ${WHAT} ${UI_HEADERS})
-
-target_link_libraries(Image-Viewer Qt5::Widgets)
+###########################################
+#              NOT WORKING                #
+###########################################
+find_package (Qt5Widgets)
+set(WHAT Image-Viewer/Image-Viewer.pro Image-Viewer/Image-Viewer.pro.user Image-Viewer/main.cpp Image-Viewer/mainwindow.cpp Image-Viewer/mainwindow.h)
+qt5_wrap_ui(WHATUI Image-Viewer/mainwindow.ui)
+add_executable(QTWHAT ${WHAT} ${WHATUI})
+target_link_libraries (QTWHAT Qt5::Widgets)
