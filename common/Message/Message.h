@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include "../Base64/base64.h"
 
 enum MessageType {
     Request = 0, Reply = 1, Ack = 2
@@ -29,6 +30,10 @@ public:
             message_type(_msg_type), operation(_op), rpc_id(_rpc_id), fragmented(_fragmented), sequence_id(0) {}
 
     Header(char *marshalled_header) {
+        // Decode base64 header
+        std::string decoded_header = base64_decode(marshalled_header);
+
+        // Create stringstream from decoded payload
         std::stringstream tokenizer(marshalled_header);
         std::string token;
 
@@ -59,6 +64,9 @@ public:
         headers.append(std::to_string(sequence_id) + " ");
         headers.append(std::to_string(fragmented) + " ");
 
+        // Encode to base64
+        headers = base64_encode((const unsigned char *) headers.c_str(), (unsigned int) headers.size());
+
         return headers;
     }
 };
@@ -76,7 +84,11 @@ public:
             return_val(_return_val), parameters_size(params_size), parameters(params), fragmented(_fragmented) {}
 
     Payload(char *marshalled_payload, bool _fragmented) : fragmented(_fragmented) {
-        std::stringstream tokenizer(marshalled_payload);
+        // Decode base64 payload
+        std::string decoded_payload = base64_decode(marshalled_payload);
+
+        // Create stringstream from decoded payload
+        std::stringstream tokenizer(decoded_payload);
         std::string token;
 
         for (int i = 0; i < 5; i++)
@@ -116,6 +128,9 @@ public:
         for (int i = 0; i < parameters_size - 1; i++)
             payload_str.append(parameters[i] + " ");
         payload_str.append(parameters[parameters_size - 1]);
+
+        // Encode to base64
+        payload_str = base64_encode((const unsigned char *) payload_str.c_str(), (unsigned int) payload_str.size());
 
         return payload_str;
     }
