@@ -192,9 +192,10 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
         // slice the payload to an acceptable size
         std::string slice = payload_str.substr(0, max_payload_size);
 
+        // Check if this is the last payload
         if (max_payload_size >= payload_str.size()) {
-            header.fragmented = -1;
-            payload_str = "";
+            header.fragmented = -1;     // Mark this packet as the last in the sequence of fragmented packets
+            payload_str = "";           // Empty payload_str to be able to exit the while loop
         } else
             // remove the slice from the original payload
             payload_str = payload_str.substr(max_payload_size, std::string::npos);
@@ -217,35 +218,49 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
         // Update the total amount of bytes sent
         total_bytes_sent += bytes_sent;
     }
+
     return total_bytes_sent;
 }
 
 int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, sockaddr_in &sender_addr) {
-    rebuilt_request = initial_fragment;
-    bool still_fragmented = true;
+    const int MAX_RETRIES = 5;
+    int max_retries;
+
     ssize_t bytes_read;
     ssize_t total_bytes_read = 0;
-    char recv_buffer[RECV_BUFFER_SIZE];
+
+    // Store the sequence id of the last received message because we rebuild the request sequentially
     int last_sequence_id_recv = 0;
 
+    //
+    char recv_buffer[RECV_BUFFER_SIZE];
+
+    // Create Header and Payload of ack message
+    rebuilt_request = initial_fragment;
     Header ack_header = Header((char *) rebuilt_request.c_str());
     ack_header.message_type = MessageType::Ack;
     auto v = std::vector<std::string> {"ack"};
     Payload ack_payload("0", v.size(), v, false);
 
+
+    bool still_fragmented = true;
+
     while (still_fragmented) {
         // Send ack for previous packet
-        int max_retries = 5;
+        max_retries = MAX_RETRIES;
         bytes_read = -1;
 
+        // Create an ack message
         Message ack(ack_header, ack_payload);
         std::string ack_str = ack.marshal();
 
+        // Send an ack for the previously received message and wait for a new one
         while (max_retries-- && bytes_read == -1) {
             udpSocket.writeToSocket((char *) ack_str.c_str(), sender_addr);
             bytes_read = udpSocket.readFromSocketWithTimeout(recv_buffer, RECV_BUFFER_SIZE, sender_addr, 150);
         }
 
+        // If we exit the while loop without receiving anything, a connection error might have occured and we return -1
         if (bytes_read == -1)
             return -1;
 
@@ -271,10 +286,14 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
         if (recv_header.sequence_id != last_sequence_id_recv) {
             last_sequence_id_recv++;
             total_bytes_read += bytes_read;
+
+            // Retrieve this message's payload and append it to rebuilt_request
             Payload payload(recv_buffer, true);
-            ack_header.sequence_id++;
-//            std::cout << payload.str() << std::endl;
             rebuilt_request += payload.str();
+//            std::cout << payload.str() << std::endl;
+
+            // Increment sequence id of next ack header
+            ack_header.sequence_id++;
         }
     }
 //    std::cout << "Rebuilt request: " << rebuilt_request << std::endl;
@@ -297,5 +316,6 @@ sockaddr_in CM::create_sockaddr(char *addr, uint16_t port) {
     // This is why we initialize peerAddr only once at the client's initialization
     // and not on every parameters we send
     sock_addr.sin_port = htons(port);
+
     return sock_addr;
 }
