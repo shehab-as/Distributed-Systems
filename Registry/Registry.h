@@ -9,25 +9,26 @@ class Registry {
 private:
     CM serverConnector;
 
+    std::string DB_location;
     // const char * to be of the same type as columns
     //structs create vectors from database
     struct user {
         int token;
-        const char * username;
-        const char  *password;
+        std::string username;
+        std::string password;
     };
 
     struct image {
-        const char  * img_name;
-        const char  * owner_addr;
+        std::string img_name;
+        std::string owner_addr;
         int owner_port;
     };
 
     struct viewable_by {
-        const char  * img_name;
+        std::string img_name;
         int token;
         //should have no of views
-        int noViews;
+        //int noViews;
     };
 
     // vectors contain the tables of the database
@@ -41,7 +42,7 @@ private:
     void update_viewable_by();
 
 public:
-    Registry (char *_listen_hostname, uint16_t _listen_port, int num_of_workers);
+    Registry (char *_listen_hostname, uint16_t _listen_port, int num_of_workers, std::string);
     ~Registry();
 
     void runRegistry();
@@ -50,14 +51,14 @@ public:
     // Registry RPC implementations
 
     int view_imagelist_svc(std::vector<std::string> &image_container, long int token);
-    int add_entry_svc(std::string image_name, long int token, char *owner_addr, int owner_port);
+    int add_entry_svc(std::string image_name, long int token,  std::string owner_addr, int owner_port);
     int remove_entry_svc(std::string image_name, long int token);
     int get_client_addr_svc(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token);
-    int retrieve_token_svc(  char *username,  char * password, long int &token);
+    int retrieve_token_svc(  std:: string username,  std::string password, long int &token);
     int check_viewImage_svc(std::string image_id, bool &can_view, long int token);
     int check_token_svc(long int token);
-    int numbViewsLeft_svc(std::string image_id,long int token);
-    int setNumViews_EachUser_svc(std::string image_id,  int peer_token, int noViews);
+    //int numbViewsLeft_svc(std::string image_id,long int token);
+    int set_image_viewable_by(std::string image_id,  long int peer_token);//, int noViews);
 };
 
 

@@ -22,7 +22,7 @@ sqlite> CREATE TABLE Views (
    ...> Token INT(20) NOT NULL,
    ...> Image_Name VARCHAR2(30) NOT NULL,
    ...> Foreign Key (Token) references Client(Token),
-   ...> Foreign Key (Image_Name) references Image(Image_Name),
+   ...> Foreign Key (Image_Name) references Isqmage(Image_Name),
    ...> UNIQUE (Token,Image_Name)
    ...> )
    ...> ;
