@@ -73,7 +73,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             params = request.getParams();
             std::string image_name = params[0];
             long int token = stoi(params[params.size() - 1]);
-            auto n = add_entry_svc(image_name, token, sender_addr , sender_addr.sin_port);
+            auto n = add_entry_svc(image_name, token, sender_addr.sin_addr , sender_addr.sin_port);
             std::vector<std::string> reply_params;
             Message reply(MessageType::Reply, 1, request.getRPCId(), std::to_string(n), (size_t) 0, reply_params);
             serverConnector.send_no_ack(reply, sender_addr);
