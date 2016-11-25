@@ -73,7 +73,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             params = request.getParams();
             std::string image_name = params[0];
             long int token = stoi(params[params.size() - 1]);
-            auto n = add_entry_svc(image_name, token);
+            auto n = add_entry_svc(image_name, token, sender_addr , sender_addr.sin_port);
             std::vector<std::string> reply_params;
             Message reply(MessageType::Reply, 1, request.getRPCId(), std::to_string(n), (size_t) 0, reply_params);
             serverConnector.send_no_ack(reply, sender_addr);
@@ -116,7 +116,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             std::string username = params[0];
             std::string password = params[1];
             long int token;
-            auto n = retrieve_token_svc(username, password, token);
+            auto n = retrieve_token_svc((char*)username.c_str(), (char*)password.c_str(), token);
             std::vector<std::string> reply_params;
             reply_params.push_back(std::to_string(token));
             Message reply(MessageType::Reply, 4, request.getRPCId(), std::to_string(n), reply_params.size(),
@@ -156,7 +156,7 @@ int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long
     if (viewable_by_DB.empty())
         return -1;
 
-    auto n = check_token(token);
+    auto n = check_token_svc(token);
 
      if(n==0) {
          for (int i = 0; i < viewable_by_DB.size(); i++) {
@@ -176,7 +176,7 @@ int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long
 // needs testing
 int Registry::add_entry_svc(std::string image_name, long int token, char *owner_addr, int owner_port) {
 
-    auto n = check_token(token);
+    auto n = check_token_svc(token);
 
 
     //if token is correct, insert imagename, owner_addr, owner_port
@@ -205,13 +205,11 @@ int Registry::add_entry_svc(std::string image_name, long int token, char *owner_
         return -1;
     }
 
-
-
 }
 
 int Registry::remove_entry_svc(std::string image_name, long int token) {
 
-    auto n = check_token(token);
+    auto n = check_token_svc(token);
 
     if (n == 0)
     {
@@ -232,14 +230,12 @@ int Registry::remove_entry_svc(std::string image_name, long int token) {
     {
         return -1;
     }
-
-
 }
 
 
 int Registry::get_client_addr_svc(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token) {
 
-    auto n = check_token(token);
+    auto n = check_token_svc(token);
 
     if (n == 0)
         for (int i = 0; i < img_DB.size(); i++)
@@ -265,7 +261,6 @@ int Registry::retrieve_token_svc(  char *username, char *password, long int &tok
         }
 
 
-
     std::string to_hash = std::string(username) + std::string(password);
     std::hash<std::string> str_hash;
     size_t token_size_t = str_hash(to_hash);
@@ -283,8 +278,6 @@ int Registry::retrieve_token_svc(  char *username, char *password, long int &tok
     //usr_DB.push_back(newUser);
 
     return -1;
-
-
 }
 
 // return 0 if user can view image , -1 otherwise
@@ -357,7 +350,7 @@ void Registry::load_DBs() {
 
 //check the token in the user database
 //if found return 0 else -1
-int Registry::check_token(long int token) {
+int Registry::check_token_svc(long int token) {
 
     update_users();
 
@@ -445,7 +438,7 @@ void Registry::update_viewable_by()
     }
 }
 
-int Registry::numbViewsLeft(std::string image_id, long int token)
+int Registry::numbViewsLeft_svc(std::string image_id, long int token)
 {
     update_viewable_by();
 
@@ -459,7 +452,7 @@ int Registry::numbViewsLeft(std::string image_id, long int token)
     }
 }
 
-int Registry::setNumViews_EachUser(std::string image_id,int peer_token, int noViews)
+int Registry::setNumViews_EachUser_svc(std::string image_id,int peer_token, int noViews)
 {
 
    try {
@@ -473,6 +466,5 @@ int Registry::setNumViews_EachUser(std::string image_id,int peer_token, int noVi
    {
        std::cout << "exception: " << e.what() << std::endl;
        std::cout << "exception: " << e.what() << std::endl;
-
    }
 }

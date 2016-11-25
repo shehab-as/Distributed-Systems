@@ -39,7 +39,9 @@ public:
     int get_client_addr(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token);
     int retrieve_token(std::string username, std::string password, long int &token);
     int check_viewImage(std::string image_id, bool &can_view, long int token);
-
+    int check_token(long int token);
+    int numbViewsLeft(std::string image_id,long int token);
+    int setNumViews_EachUser(std::string image_id,  int peer_token, int noViews);
 };
 
 #endif //DISTRIBUTED_SYSTEMS_PEER_H

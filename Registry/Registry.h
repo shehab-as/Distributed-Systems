@@ -15,14 +15,12 @@ private:
         int token;
         const char * username;
         const char  *password;
-
     };
 
     struct image {
         const char  * img_name;
         const char  * owner_addr;
         int owner_port;
-
     };
 
     struct viewable_by {
@@ -30,14 +28,12 @@ private:
         int token;
         //should have no of views
         int noViews;
-
     };
 
     // vectors contain the tables of the database
     std::vector<user> usr_DB;
     std::vector<image> img_DB;
     std::vector<viewable_by> viewable_by_DB;
-
 
     void load_DBs();
     void update_users();
@@ -59,9 +55,9 @@ public:
     int get_client_addr_svc(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token);
     int retrieve_token_svc(  char *username,  char * password, long int &token);
     int check_viewImage_svc(std::string image_id, bool &can_view, long int token);
-    int check_token(long int token);
-    int numbViewsLeft(std::string image_id,long int token);
-    int setNumViews_EachUser(std::string image_id,  int peer_token, int noViews);
+    int check_token_svc(long int token);
+    int numbViewsLeft_svc(std::string image_id,long int token);
+    int setNumViews_EachUser_svc(std::string image_id,  int peer_token, int noViews);
 };
 
 

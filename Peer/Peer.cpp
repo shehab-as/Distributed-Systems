@@ -73,25 +73,27 @@ int Peer::download_image(std::string image_name, long int token, std::vector<std
 //             Peer RPC Implementation          //
 /////////////////////////////////////////////////
 int Peer::download_image_svc(std::string image_name, long int token, std::vector<std::string> &reply_params) {
-    int n_token;
-    // n = check_token(username, token)
-    // n = 0    Success
 
-    try {
-        //try catch block
-        //Opening image file to stream then storing it into a string.
-        std::ifstream fin(image_name, std::ios::binary);
-        std::string image_data;
-        image_data.reserve(1000000);
+    int n = check_token(token);
+    //if n = 0, success.
+    //Else return -1
+
+    if(n == 0) {
+        try {
+            //Opening image file to stream then storing it into a string.
+            std::ifstream fin(image_name, std::ios::binary);
+            std::string image_data;
+            image_data.reserve(1000000);
 //        Not working
 //        std::copy(std::istreambuf_iterator<char>(fin),
 //                  std::istreambuf_iterator<char>(),
 //                  std::back_insert_iterator(image_data));
 
-        reply_params.push_back(image_data);
-    }
-    catch (const std::exception &e) {
-        std::cout << e.what() << std::endl;
+            reply_params.push_back(image_data);
+        }
+        catch (const std::exception &e) {
+            std::cout << e.what() << std::endl;
+        }
     }
 
     return 0;
@@ -121,6 +123,18 @@ int Peer::get_client_addr(std::string image_name, std::string &owner_addr, uint1
 }
 
 int Peer::check_viewImage(std::string image_id, bool &can_view, long int token) {
+    return 0;
+}
+
+int Peer::check_token(long int token) {
+    return 0;
+}
+
+int Peer::numbViewsLeft(std::string image_id, long int token) {
+    return 0;
+}
+
+int Peer::setNumViews_EachUser(std::string image_id, int peer_token, int noViews) {
     return 0;
 }
 
