@@ -31,7 +31,7 @@ public:
 
     Header(char *marshalled_header) {
         // Decode base64 header
-        std::string decoded_header = base64_decode(marshalled_header);
+//        std::string decoded_header = base64_decode(marshalled_header);
 
         // Create stringstream from decoded payload
         std::stringstream tokenizer(marshalled_header);
@@ -65,7 +65,7 @@ public:
         headers.append(std::to_string(fragmented) + " ");
 
         // Encode to base64
-        headers = base64_encode((const unsigned char *) headers.c_str(), (unsigned int) headers.size());
+//        headers = base64_encode((const unsigned char *) headers.c_str(), (unsigned int) headers.size());
 
         return headers;
     }
@@ -85,10 +85,10 @@ public:
 
     Payload(char *marshalled_payload, bool _fragmented) : fragmented(_fragmented) {
         // Decode base64 payload
-        std::string decoded_payload = base64_decode(marshalled_payload);
+//        std::string decoded_payload = base64_decode(marshalled_payload);
 
         // Create stringstream from decoded payload
-        std::stringstream tokenizer(decoded_payload);
+        std::stringstream tokenizer(marshalled_payload);
         std::string token;
 
         for (int i = 0; i < 5; i++)
@@ -130,7 +130,7 @@ public:
         payload_str.append(parameters[parameters_size - 1]);
 
         // Encode to base64
-        payload_str = base64_encode((const unsigned char *) payload_str.c_str(), (unsigned int) payload_str.size());
+//        payload_str = base64_encode((const unsigned char *) payload_str.c_str(), (unsigned int) payload_str.size());
 
         return payload_str;
     }
