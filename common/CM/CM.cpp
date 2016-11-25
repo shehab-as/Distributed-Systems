@@ -215,7 +215,12 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
         if (bytes_read == -1)
             return -1;
 
-        // If ack was received, increment the sequence id (to be used for the next fragment to be sent) and recalculate
+        // Check if received message is actually an ack
+        Header ack_header = Header(ack_buffer);
+        if (ack_header.message_type != MessageType::Ack)
+            continue;
+
+        // since ack was received, increment the sequence id (to be used for the next fragment to be sent) and recalculate
         // the max payload size again (needed for when for when the number of digits of the sequence id is increases)
         header.sequence_id++;
         max_payload_size = RECV_BUFFER_SIZE - header.str().size() - 1;
@@ -272,7 +277,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
 
         // Get the recv_header of the received packet
         Header recv_header = Header(recv_buffer);
-//        std::cout << "Bytes read: " << bytes_read << std::endl;
+        // std::cout << "Bytes read: " << bytes_read << std::endl;
 
         // An error occured, we should have received -1 to indicate the last fragmented packet and not a 0
         if (recv_header.fragmented == 0 || recv_header.sequence_id > last_sequence_id_recv + 1)
@@ -290,16 +295,16 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
         }
 
         if (recv_header.sequence_id == last_sequence_id_recv + 1) {
+            // Update sequence id of last received fragment and update the sequence id of the next ack
             last_sequence_id_recv++;
-            total_bytes_read += bytes_read;
+            ack_header.sequence_id++;
 
             // Retrieve this message's payload and append it to rebuilt_request
             Payload payload(recv_buffer, true);
             rebuilt_request += payload.str();
 //            std::cout << payload.str() << std::endl;
 
-            // Increment sequence id of next ack header
-            ack_header.sequence_id++;
+            total_bytes_read += bytes_read;
         }
     }
 //    std::cout << "Rebuilt request: " << rebuilt_request << std::endl;
