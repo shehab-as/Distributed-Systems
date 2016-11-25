@@ -269,7 +269,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
 //        std::cout << "Bytes read: " << bytes_read << std::endl;
 
         // An error occured, we should have received -1 to indicate the last fragmented packet and not a 0
-        if (recv_header.fragmented == 0)
+        if (recv_header.fragmented == 0 || recv_header.sequence_id > last_sequence_id_recv + 1)
             return -1;
 
         // Last packet in the fragmented packets
@@ -283,7 +283,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
             udpSocket.writeToSocket((char *) ack_str.c_str(), sender_addr);
         }
 
-        if (recv_header.sequence_id != last_sequence_id_recv) {
+        if (recv_header.sequence_id == last_sequence_id_recv + 1) {
             last_sequence_id_recv++;
             total_bytes_read += bytes_read;
 
