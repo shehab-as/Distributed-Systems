@@ -22,6 +22,8 @@ Peer::Peer(char *_listen_hostname, uint16_t _listen_port) :
 
 Peer::~Peer() {
 
+    CM_Client.~CM();
+    CM_Server.~CM();
 }
 
 #pragma clang diagnostic push
@@ -140,12 +142,19 @@ int Peer::setNumViews_EachUser(std::string image_id, int peer_token, int noViews
 
 int main() {
 //    SQLite::Database    db("/home/farida/Dist-DB.db");
+    using namespace std;
     CM server(NULL, 1234);
     Message request;
     sockaddr_in sender_addr;
+    ofstream outfile ("surprise.png", ios::binary);
     while(true) {
-        server.recv_with_block(request, sender_addr);
+        auto n = server.recv_with_block(request, sender_addr);
+        if (n == -1) {
+            cout << "n is -1" <<endl;
+            continue;
+        }
         std::cout << "Message request size: " << request.marshal().size() << std::endl;
+        outfile << request.getParams()[0];
         server.send_no_ack(request, sender_addr);
     }
 }
