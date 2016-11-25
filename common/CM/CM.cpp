@@ -82,9 +82,11 @@ ssize_t CM::recv_with_timeout(Message &received_message, sockaddr_in &sender_add
         ack_header.message_type = MessageType::Ack;
         ack_header.fragmented = 0;
         ack_header.sequence_id = 0;
-        Payload ack_payload = Payload(0, 1, std::vector<std::string>{"ack"}, 0);
+        std::vector<std::string> v{"ack"};
+        Payload ack_payload = Payload("0", v.size(), v, 0);
         Message ack(ack_header, ack_payload);
         send_no_ack(ack, sender_addr);
+        return -1;
     } else if (header.fragmented == 1)
         // Call rebuild_request if header indicated that the message is fragmented
         bytes_read = rebuild_request(recv_buffer, recv_request, sender_addr);
@@ -121,9 +123,11 @@ int CM::recv_with_block(Message &received_message, sockaddr_in &sender_addr) {
         ack_header.message_type = MessageType::Ack;
         ack_header.fragmented = 0;
         ack_header.sequence_id = 0;
-        Payload ack_payload = Payload(0, 1, std::vector<std::string>{"ack"}, 0);
+        std::vector<std::string> v{"ack"};
+        Payload ack_payload = Payload("0", v.size(), v, 0);
         Message ack(ack_header, ack_payload);
         send_no_ack(ack, sender_addr);
+        return -1;
     }
         // Call rebuild_request if header indicated that the message is fragmented
     else if (header.fragmented == 1)
@@ -176,6 +180,7 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
     // Mark the message as being fragmented, needed for receiver to prepare itself to rebuild the request
     // in rebuild_request
     message_to_fragment.setFrag(1);
+    message_to_fragment.setSeqId(0);
 
     Header header = message_to_fragment.getHeader();
     std::string payload_str = message_to_fragment.getPayload().str();
@@ -239,6 +244,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
     rebuilt_request = initial_fragment;
     Header ack_header = Header((char *) rebuilt_request.c_str());
     ack_header.message_type = MessageType::Ack;
+    ack_header.fragmented = 0;
     auto v = std::vector<std::string> {"ack"};
     Payload ack_payload("0", v.size(), v, false);
 
