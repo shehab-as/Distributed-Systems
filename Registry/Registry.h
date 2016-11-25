@@ -58,7 +58,7 @@ public:
     int check_viewImage_svc(std::string image_id, bool &can_view, long int token);
     int check_token_svc(long int token);
     //int numbViewsLeft_svc(std::string image_id,long int token);
-    int setNumViews_EachUser_svc(std::string image_id,  long int peer_token);//, int noViews);
+    int set_image_viewable_by(std::string image_id,  long int peer_token);//, int noViews);
 };
 
 

@@ -34,10 +34,11 @@ void Registry::runRegistry() {
     // The core of the registry
     // Each worker thread should run this method
     sockaddr_in sender_addr;
+    sender_addr.sin_family=2;
 
     while (true) {
         Message recv_message = Message();
-        ssize_t bytes_read = serverConnector.recv_with_block(recv_message, sender_addr);
+        //ssize_t bytes_read = serverConnector.recv_with_block(recv_message, sender_addr);
         handleRequest(recv_message, sender_addr);
     }
 }
@@ -53,34 +54,76 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
     // 3: get_client_addr_svc(std::string image_name, sockaddr_in &owner_addr);
     // 4: retrieve_token_svc(std::string username, std::string password, int &token);
     // 5: check_viewImage_svc(std::string image_id, bool &can_view, int token);
+    // 6: check_token_svc(long int token);
+    // 7: int set_image_viewable_by(std::string image_id,  long int peer_token);//, int noViews);
+
+    std::vector<std::string> request_params;
+    request_params.push_back("img1");
+    request_params.push_back(std::to_string(-401554244));
+
+
+
+
+    request = Message(MessageType::Request, 5, 1, "null", request_params.size(), request_params);
+
     switch (request.getOperation()) {
+
+
         case 0: {
+
+            /* request> token
+             reply>>std::vector<std::string> &image_container
+            std::vector<std::string> request_params;
+            request_params.push_back(std::to_string(-401554244));
+            request = Message(MessageType::Request, 0, 1, "null", request_params.size(), request_params);
+           */
             // 0: view_imagelist_svc(std::vector<std::string> &image_container);
             std::vector<std::string> image_container;
             std::vector<std::string> params;
             params = request.getParams();
             //Note here: taking only token from params vector to call view_imagelist function.
             //~Shehab
-            long int token = stoi(params[params.size() - 1]);
+            long int token = stoi(params[0]);
             auto n = view_imagelist_svc(image_container, token);
-//            Message reply(MessageType::Reply, 0, request.getRPCId(), std::to_string(n), image_container.size(),
-//                          image_container);
-            //serverConnector.send_no_ack(reply, sender_addr);
+            Message reply(MessageType::Reply, request.getOperation(), request.getRPCId(), std::to_string(n), image_container.size(),
+                          image_container);
+            serverConnector.send_no_ack(reply, sender_addr);
             break;
         }
         case 1: {
+
+            /*
+             * std::vector<std::string> request_params;
+               request_params.push_back("imgZeyad");
+               request_params.push_back(std::to_string(-401554244));
+               request_params.push_back("255.255.255.255");
+               request_params.push_back("3600");
+
+               reply>> return n 0 done -1 error and reply_params which is empty you should change this from shady&shehab code
+
+             */
             // 1: add_entry_svc(std::string image_name, int token);
+
             std::vector<std::string> params;  // params[0] = image_name, params[size-1] = token
             params = request.getParams();
             std::string image_name = params[0];
-            long int token = stoi(params[params.size() - 1]);
-            auto n = add_entry_svc(image_name, token, std::to_string(sender_addr.sin_addr.s_addr) , sender_addr.sin_port);
+            long int token = stoi(params[1]);
+            std::string owner_addr = (params[2]);
+            int owner_port = stoi(params[params.size() - 1]);
+
+            auto n = add_entry_svc(image_name, token, owner_addr , owner_port);
             std::vector<std::string> reply_params;
             Message reply(MessageType::Reply, 1, request.getRPCId(), std::to_string(n), (size_t) 0, reply_params);
             serverConnector.send_no_ack(reply, sender_addr);
             break;
         }
         case 2: {
+
+            /*
+             * request_params.push_back("imgZeyad");
+               request_params.push_back(std::to_string(token));
+               reply n 0 done -1 error, empty reply param change this in shady&shehab code
+             */
             // 2: remove_entry_svc(std::string image_name, int token);
             std::vector<std::string> params;
             params = request.getParams();
@@ -93,6 +136,11 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             break;
         }
         case 3: {
+
+            /*
+             * request_params.push_back("imgZeyad");
+               request_params.push_back(std::to_string(-401554244));
+             */
             // 3: int get_client_addr_svc(std::string image_name, std::string &owner_addr, int &owner_port, int token);
             std::vector<std::string> params;
             params = request.getParams();
@@ -111,13 +159,18 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
         }
 
         case 4: {
+
+            /*
+             *  request_params.push_back("ahmed");
+               request_params.push_back(std::to_string(1234));
+             */
             // 4: int retrieve_token_svc(std::string username, std::string password, int &token);
             std::vector<std::string> params;
             params = request.getParams();
             std::string username = params[0];
             std::string password = params[1];
             long int token;
-            auto n = retrieve_token_svc((char*)username.c_str(), (char*)password.c_str(), token);
+            auto n = retrieve_token_svc(username, password, token);
             std::vector<std::string> reply_params;
             reply_params.push_back(std::to_string(token));
             Message reply(MessageType::Reply, 4, request.getRPCId(), std::to_string(n), reply_params.size(),
@@ -142,6 +195,32 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             break;
         }
 
+        case 6: {
+            std::vector<std::string> params;
+            params = request.getParams();
+            long int token = stoi(params[0]);
+            auto n = check_token_svc(token);
+            std::vector<std::string> reply_params;
+            Message reply(MessageType::Reply, 6, request.getRPCId(), std::to_string(n), reply_params.size(), reply_params);
+            serverConnector.send_no_ack(reply, sender_addr);
+            break;
+
+        }
+
+        case 7: {
+            // 7: int set_image_viewable_by(std::string image_id,  long int peer_token);//, int noViews);
+            std::vector<std::string> params;
+            params = request.getParams();
+            std::string image_id = params[0];
+            long int peer_token = stoi(params[1]);
+            auto n = set_image_viewable_by(image_id,peer_token);
+            std::vector<std::string> reply_params;
+            Message reply(MessageType::Reply, 7, request.getRPCId(), std::to_string(n), reply_params.size(), reply_params);
+            serverConnector.send_no_ack(reply, sender_addr);
+            break;
+
+        }
+
         default: {
             break;
         }
@@ -160,7 +239,7 @@ int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long
         return -1;
 
     auto n = check_token_svc(token);
-    std::cout<<viewable_by_DB.size()<<std::endl;
+
 
      if(n==0) {
          for (int i = 0; i < viewable_by_DB.size(); i++) {
@@ -281,13 +360,6 @@ int Registry::retrieve_token_svc(  std::string username, std::string password, l
     SQLite::Database db("/home/farida/Documents/Dist-DB.db",SQLite::OPEN_READWRITE,0,NULL);
     SQLite::Statement usr_query(db, "INSERT INTO user (token, username, password) VALUES ( '"+std::to_string(token)+"', '"+username+"', '"+password+"');");
     int noRowsModified = usr_query.exec();
-
-    //we dont need this after the update
-   // user newUser;
-    //newUser.username=username;
-    //newUser.password=password;
-    //newUser.token=int(token);
-    //usr_DB.push_back(newUser);
 
     return -1;
 }
