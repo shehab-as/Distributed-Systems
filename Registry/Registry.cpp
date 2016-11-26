@@ -57,16 +57,16 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
     // 6: check_token_svc(long int token);
     // 7: int set_image_viewable_by(std::string image_id,  long int peer_token);//, int noViews);
 
-    std::vector<std::string> request_params;
+   // std::vector<std::string> request_params;
     //request_params.push_back("img1");
 
-    request_params.push_back("imgFarida");
-    request_params.push_back(std::to_string(-401554244));
+   // request_params.push_back("imgFarida");
+   // request_params.push_back(std::to_string(-401554244));
 
 
 
 
-    request = Message(MessageType::Request, 7, 1, "null", request_params.size(), request_params);
+    //request = Message(MessageType::Request, 7, 1, "null", request_params.size(), request_params);
 
     switch (request.getOperation()) {
 
