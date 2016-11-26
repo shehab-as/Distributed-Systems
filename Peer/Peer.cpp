@@ -34,7 +34,7 @@ void Peer::runServer() {
     sockaddr_in sender_addr;
     while (true) {
         Message recv_message = Message();
-        ssize_t bytes_read = CM_Server.recv_with_block(recv_message, sender_addr);
+        ssize_t bytes_read = CM_Server.recv_with_block(recv_message, MessageType::Request, sender_addr);
         handleRequest(recv_message, sender_addr);
     }
 }
@@ -223,20 +223,26 @@ int Peer::check_viewImage(std::string image_name, bool &can_view, long int token
 
 
 int main() {
-//    SQLite::Database    db("/home/farida/Dist-DB.db");
     using namespace std;
-    CM server(NULL, 1234);
-    Message request;
-    sockaddr_in sender_addr;
-    ofstream outfile("surprise.png", ios::binary);
-    while (true) {
-        auto n = server.recv_with_block(request, sender_addr);
-        if (n == -1) {
-            cout << "n is -1" << endl;
-            continue;
-        }
-        std::cout << "Message request size: " << request.marshal().size() << std::endl;
-        outfile << request.getParams()[0];
-        server.send_no_ack(request, sender_addr);
+    CM client(NULL, 0);
+    std::ifstream t("/home/shadyf/Pictures/openflow.png", ios::binary);
+    std::string str;
+
+    t.seekg(0, std::ios::end);
+    str.reserve(t.tellg());
+    t.seekg(0, std::ios::beg);
+
+    str.assign((std::istreambuf_iterator<char>(t)),
+               std::istreambuf_iterator<char>());
+
+    std::vector<std::string> v{std::string(900000, 'K')};
+    Message request(MessageType::Request, 0, 0, "null", v.size(), v);
+    std::cout << "Request Size: " << request.marshal().size() << std::endl;
+//    std::cout << request.marshal() << std::endl;
+    Message reply;
+    int bytes_read = client.send_with_ack(request, reply, 500, 5, (char *) "192.168.1.100", 1234);
+    if (bytes_read >= 0) {
+        std::cout << "Reply size: " << reply.marshal().size() << std::endl;
+//        std::cout << reply.marshal() << std::endl;
     }
 }

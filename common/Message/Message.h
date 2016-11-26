@@ -8,7 +8,7 @@
 #include "../Base64/base64.h"
 
 enum MessageType {
-    Request = 0, Reply = 1, Ack = 2
+    Request, Reply, Frag, LastFrag, Ack,
 };
 
 class Header {
