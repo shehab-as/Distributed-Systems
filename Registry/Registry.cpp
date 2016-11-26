@@ -39,7 +39,7 @@ void Registry::runRegistry() {
 
     while (true) {
         Message recv_message = Message();
-        //ssize_t bytes_read = serverConnector.recv_with_block(recv_message, sender_addr);
+        ssize_t bytes_read = serverConnector.recv_with_block(recv_message, MessageType::Request, sender_addr);
         handleRequest(recv_message, sender_addr);
     }
 }
@@ -57,17 +57,6 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
     // 5: check_viewImage_svc(std::string image_id, bool &can_view, int token);
     // 6: check_token_svc(long int token);
     // 7: int set_image_viewable_by(std::string image_id,  long int peer_token);//, int noViews);
-
-   // std::vector<std::string> request_params;
-    //request_params.push_back("img1");
-
-   // request_params.push_back("imgFarida");
-   // request_params.push_back(std::to_string(-401554244));
-
-
-
-
-    //request = Message(MessageType::Request, 7, 1, "null", request_params.size(), request_params);
 
     switch (request.getOperation()) {
         case 0: {
@@ -218,7 +207,8 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             auto n = check_token_svc(token);
             std::vector<std::string> reply_params;
             reply_params.push_back(std::to_string(n));
-            Message reply(MessageType::Reply, 6, request.getRPCId(), std::to_string(n), reply_params.size(), reply_params);
+            Message reply(MessageType::Reply, 6, request.getRPCId(), std::to_string(n), reply_params.size(),
+                          reply_params);
             serverConnector.send_no_ack(reply, sender_addr);
             break;
 
@@ -234,8 +224,8 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             std::vector<std::string> params;
             params = request.getParams();
             std::string image_id = params[0];
-            long int peer_token = stoi(params[params.size()-1]);
-            auto n = set_image_viewable_by(image_id,peer_token);
+            long int peer_token = stoi(params[params.size() - 1]);
+            auto n = set_image_viewable_by(image_id, peer_token);
             std::vector<std::string> reply_params;
             Message reply(MessageType::Reply, 7, request.getRPCId(), std::to_string(n), reply_params.size(),
                           reply_params);
@@ -495,8 +485,7 @@ void Registry::update_imageList() {
     img_DB.resize(0);
     image img;
 
-    try
-    {
+    try {
         SQLite::Database db("/home/zeyad/ClionProjects/Distributed-Systems/Dist-DB.db");
         SQLite::Statement img_query(db, "SELECT * FROM image");
         while (img_query.executeStep()) {
