@@ -8,7 +8,7 @@
 #include "../Base64/base64.h"
 
 enum MessageType {
-    Request, Reply, Frag, LastFrag, Ack,
+    Request = 0, Reply = 1, Frag = 2, LastFrag = 3, Ack = 4,
 };
 
 class Header {
@@ -122,7 +122,8 @@ public:
         std::string payload_str;
         if (!fragmented) {
             payload_str.append(return_val + " ");
-            payload_str.append(std::to_string(parameters_size) + " ");
+            std::string param_string = std::to_string(parameters_size);
+            payload_str.append(param_string + " ");
         }
 
         for (int i = 0; i < parameters_size - 1; i++)

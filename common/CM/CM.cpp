@@ -70,6 +70,7 @@ ssize_t CM::recv_with_timeout(Message &received_message, MessageType message_fil
     MessageType last_frag_filter = message_filter;
     if (message_filter == MessageType::Frag)
         last_frag_filter = MessageType::LastFrag;
+
     // If the received message is an ack or part of a fragmented message, this would indicate that a connection error occured
     // in rebuild_request and these are merely the leftovers from the previous unsuccesful request, in which case they
     // should be dropped/not handled
@@ -100,7 +101,7 @@ ssize_t CM::recv_with_timeout(Message &received_message, MessageType message_fil
     if (bytes_read >= 0) {
         Payload recvd_payload;
 
-        recvd_payload = Payload(recv_buffer, recvd_header.message_type == MessageType::Frag ||
+        recvd_payload = Payload((char * )recv_request.c_str(), recvd_header.message_type == MessageType::Frag ||
                                              recvd_header.message_type == MessageType::LastFrag);
 
         received_message = Message(recvd_header, recvd_payload);
@@ -128,9 +129,6 @@ int CM::recv_with_block(Message &received_message, MessageType message_filter, s
     do {
         bytes_read = udpSocket.readFromSocketWithBlock(recv_buffer, RECV_BUFFER_SIZE, sender_addr);
 
-        if (bytes_read == -1)
-            return -1;
-
         recvd_header = Header(recv_buffer);
 
         // If sender did not get the ack for the previous message's last fragment, resend the ack
@@ -152,7 +150,7 @@ int CM::recv_with_block(Message &received_message, MessageType message_filter, s
     if (bytes_read >= 0) {
         Payload recvd_payload;
 
-        recvd_payload = Payload(recv_buffer, recvd_header.message_type == MessageType::Frag ||
+        recvd_payload = Payload((char * )recv_request.c_str(), recvd_header.message_type == MessageType::Frag ||
                                              recvd_header.message_type == MessageType::LastFrag);
 
         received_message = Message(recvd_header, recvd_payload);
@@ -203,19 +201,24 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
     message_to_fragment.setSeqId(0);
 
     Header header = message_to_fragment.getHeader();
-    std::string payload_str = message_to_fragment.getPayload().str();
+    auto payload_something = message_to_fragment.getPayload();
+    std::string payload_str = payload_something.str();
 
     // Set the maximum payload size
     // An extra 1 is subtracted to accomodate for the additional 1 that writeToSocket adds
     // when calculating the length of the buffer (strlen(message) + 1 in writeToSocket)
-    size_t max_payload_size = RECV_BUFFER_SIZE - header.str().size() - 1;
+    size_t max_payload_size = RECV_BUFFER_SIZE - header.str().size() - 2;
 
     std::string slice = payload_str.substr(0, max_payload_size);
     payload_str = payload_str.substr(max_payload_size, std::string::npos);
 
-    Payload fragmented_payload = Payload((char *) slice.c_str(), false);
+    Payload fragmented_payload = Payload((char *) (header.str() + slice).c_str(), false);
+    bool done = false;
+    while (!done) {
 
-    while (payload_str.size() > 0) {
+        if(payload_str == "")
+            done = true;
+
         max_retries = MAX_RETRIES;
         bytes_read = -1;
 
@@ -223,7 +226,7 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
             max_send_retries = max_retries;
             bytes_sent = -1;
 
-            Message fragment_to_send(header, fragmented_payload);
+            Message fragment_to_send = Message(header, fragmented_payload);
             while (max_send_retries-- && bytes_sent == -1)
                 bytes_sent = send_no_ack(fragment_to_send, receiver_sock_addr);
 
@@ -255,9 +258,9 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
             // remove the slice from the original payload
             payload_str = payload_str.substr(max_payload_size, std::string::npos);
 
-        max_payload_size = RECV_BUFFER_SIZE - header.str().size() - 1;
+        max_payload_size = RECV_BUFFER_SIZE - header.str().size() - 2;
 
-        fragmented_payload = Payload((char *) slice.c_str(), true);
+        fragmented_payload = Payload((char *) (header.str() + slice).c_str(), true);
 
         total_bytes_sent += bytes_sent;     // Update the total amount of bytes sent
     }

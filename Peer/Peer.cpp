@@ -235,14 +235,14 @@ int main() {
     str.assign((std::istreambuf_iterator<char>(t)),
                std::istreambuf_iterator<char>());
 
-    std::vector<std::string> v{std::string(900000, 'K')};
+    std::vector<std::string> v{str};
     Message request(MessageType::Request, 0, 0, "null", v.size(), v);
     std::cout << "Request Size: " << request.marshal().size() << std::endl;
 //    std::cout << request.marshal() << std::endl;
     Message reply;
-    int bytes_read = client.send_with_ack(request, reply, 500, 5, (char *) "192.168.1.100", 1234);
+    int bytes_read = client.send_with_ack(request, reply, 500, 5, (char *) "localhost", 1234);
     if (bytes_read >= 0) {
         std::cout << "Reply size: " << reply.marshal().size() << std::endl;
-//        std::cout << reply.marshal() << std::endl;
+        std::cout << reply.marshal() << std::endl;
     }
 }
