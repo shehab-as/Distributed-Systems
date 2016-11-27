@@ -38,7 +38,7 @@ void Registry::runRegistry() {
 
     while (true) {
         Message recv_message = Message();
-        ssize_t bytes_read = serverConnector.recv_with_block(recv_message, sender_addr);
+        ssize_t bytes_read = serverConnector.recv_with_block(recv_message, MessageType ::Request,sender_addr);
         handleRequest(recv_message, sender_addr);
     }
 }
@@ -425,7 +425,7 @@ void Registry::load_DBs() {
 
             usr_DB.push_back(usr);
         }
-
+/////
 
         while (img_query.executeStep()) {
             // Demonstrate how to get some typed column value
