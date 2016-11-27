@@ -101,9 +101,8 @@ public:
 
             tokenizer >> token;
             parameters_size = (size_t) std::stoi(token);
-
+            getline(tokenizer, token, '\n');
             if (parameters_size == 1) {
-                getline(tokenizer, token, '\n');
                 std::string rem(tokenizer.str().substr((unsigned long) (tokenizer.tellg())));
                 parameters.push_back(rem);
 //                std::cout << base64_encode((const unsigned char *) rem.c_str(), (unsigned int) rem.size());
