@@ -210,7 +210,7 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
     Header header = message_to_fragment.getHeader();
     auto payload_something = message_to_fragment.getPayload();
     std::string payload_str = payload_something.str();
-    std::cout << "PAYLOAD SOMETHING " << payload_str << std::endl;
+//    std::cout << "PAYLOAD SOMETHING " << payload_str << std::endl;
     // Set the maximum payload size
     // An extra 1 is subtracted to accomodate for the additional 1 that writeToSocket adds
     // when calculating the length of the buffer (strlen(message) + 1 in writeToSocket)

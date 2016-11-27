@@ -85,7 +85,7 @@ public:
         std::string token;
 
         if (header_exist)
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 6; i++)
                 tokenizer >> token;
 
         if (fragmented) {
@@ -102,11 +102,15 @@ public:
             tokenizer >> token;
             parameters_size = (size_t) std::stoi(token);
 
-            for (int i = 0; i < parameters_size; i++) {
-                getline(tokenizer, token, '\n');
+            if (parameters_size == 1) {
+                std::string rem(tokenizer.str().substr(tokenizer.tellg()));
+                parameters.push_back(rem);
+            } else
+                for (int i = 0; i < parameters_size; i++) {
+                    getline(tokenizer, token, '\n');
 //                std::cout << token << std::endl;
-                parameters.push_back(token);
-            }
+                    parameters.push_back(token);
+                }
         }
     }
 
@@ -144,7 +148,10 @@ public:
 
     Message(Header _header, Payload _payload) : header(_header), payload(_payload) {}
 
-    Message(Header _header, std::string _payload, bool fragmented, bool header_exists) : header(_header), payload((char *) _payload.c_str(), fragmented, header_exists) {}
+    Message(Header _header, std::string _payload, bool fragmented, bool header_exists) : header(_header),
+                                                                                         payload((char *) _payload.c_str(),
+                                                                                                 fragmented,
+                                                                                                 header_exists) {}
 
     explicit Message(char *marshalled_base64);      // Unmarshalling Constructor
 
