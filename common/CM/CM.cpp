@@ -233,7 +233,7 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
             max_send_retries = max_retries;
             bytes_sent = -1;
 
-            Message fragment_to_send = Message(header, slice, false, !first_fragment);
+            Message fragment_to_send = Message(header, slice, true, false);
             while (max_send_retries-- && bytes_sent == -1)
                 bytes_sent = send_no_ack(fragment_to_send, receiver_sock_addr);
 

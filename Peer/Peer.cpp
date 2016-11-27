@@ -241,7 +241,7 @@ int main() {
     std::cout << "Request Size: " << request.marshal().size() << std::endl;
 //    std::cout << request.marshal() << std::endl;
     Message reply;
-    int bytes_read = client.send_with_ack(request, reply, 500, 5, (char *) "localhost", 1234);
+    int bytes_read = client.send_with_ack(request, reply, 500, 5, (char *) "192.168.1.100", 1234);
     if (bytes_read >= 0) {
         std::cout << "Reply size: " << reply.marshal().size() << std::endl;
         std::cout << reply.marshal() << std::endl;

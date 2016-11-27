@@ -95,8 +95,7 @@ public:
         } else {
             tokenizer >> token;
             std::string decoded_payload = base64_decode(token);
-            tokenizer = std::stringstream(token);
-
+            tokenizer = std::stringstream(decoded_payload);
             tokenizer >> token;
             return_val = token;
 
@@ -145,7 +144,7 @@ public:
 
     Message(Header _header, Payload _payload) : header(_header), payload(_payload) {}
 
-    Message(Header _header, std::string _payload, bool header_exists, bool first_fragment) : header(_header), payload((char *) _payload.c_str(), first_fragment, header_exists) {}
+    Message(Header _header, std::string _payload, bool fragmented, bool header_exists) : header(_header), payload((char *) _payload.c_str(), fragmented, header_exists) {}
 
     explicit Message(char *marshalled_base64);      // Unmarshalling Constructor
 
