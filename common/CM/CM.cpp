@@ -62,7 +62,7 @@ ssize_t CM::recv_with_timeout(Message &received_message, MessageType message_fil
     ssize_t bytes_read;
     char recv_buffer[RECV_BUFFER_SIZE];
     std::string recv_request;
-
+    bool rebuilt = false;
     // Extract the packet's recvd_header
     Header recvd_header;
 
@@ -92,18 +92,21 @@ ssize_t CM::recv_with_timeout(Message &received_message, MessageType message_fil
 
     // Call rebuild_request if recvd_header indicated that the message is fragmented
     if ((recvd_header.message_type == MessageType::Request || recvd_header.message_type == MessageType::Reply)
-        && recvd_header.fragmented == 1)
+        && recvd_header.fragmented == 1) {
         bytes_read = rebuild_request(recv_buffer, recv_request, sender_addr);
-    else
+        rebuilt = true;
+    } else
         recv_request = recv_buffer;
 
     // If message was successfully received, unmarshall and build received_message
     if (bytes_read >= 0) {
         Payload recvd_payload;
-
-        recvd_payload = Payload((char * )recv_request.c_str(), recvd_header.message_type == MessageType::Frag ||
-                                             recvd_header.message_type == MessageType::LastFrag);
-
+        if (rebuilt)
+            recvd_payload = Payload((char *) recv_request.c_str(), false);
+        else
+            recvd_payload = Payload((char *) recv_request.c_str(), recvd_header.message_type == MessageType::Frag ||
+                                                                   recvd_header.message_type == MessageType::LastFrag);
+//        std::cout << recv_request << std::endl;
         received_message = Message(recvd_header, recvd_payload);
     }
 
@@ -115,7 +118,7 @@ int CM::recv_with_block(Message &received_message, MessageType message_filter, s
     char recv_buffer[RECV_BUFFER_SIZE];
     std::string recv_request;
     ssize_t bytes_read;
-
+    bool rebuilt = false;
     // Extract the packet's recvd_header
     Header recvd_header;
 
@@ -141,8 +144,10 @@ int CM::recv_with_block(Message &received_message, MessageType message_filter, s
 
     // Call rebuild_request if recvd_header indicated that the message is fragmented
     if ((recvd_header.message_type == MessageType::Request || recvd_header.message_type == MessageType::Reply)
-        && recvd_header.fragmented == 1)
+        && recvd_header.fragmented == 1) {
         bytes_read = rebuild_request(recv_buffer, recv_request, sender_addr);
+        rebuilt = true;
+    }
     else
         recv_request = recv_buffer;
 
@@ -150,9 +155,11 @@ int CM::recv_with_block(Message &received_message, MessageType message_filter, s
     if (bytes_read >= 0) {
         Payload recvd_payload;
 
-        recvd_payload = Payload((char * )recv_request.c_str(), recvd_header.message_type == MessageType::Frag ||
-                                             recvd_header.message_type == MessageType::LastFrag);
-
+        if (rebuilt)
+            recvd_payload = Payload((char *) recv_request.c_str(), false);
+        else
+            recvd_payload = Payload((char *) recv_request.c_str(), recvd_header.message_type == MessageType::Frag ||
+                                                                   recvd_header.message_type == MessageType::LastFrag);
         received_message = Message(recvd_header, recvd_payload);
     }
 
@@ -203,7 +210,7 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
     Header header = message_to_fragment.getHeader();
     auto payload_something = message_to_fragment.getPayload();
     std::string payload_str = payload_something.str();
-
+    std::cout << "PAYLOAD SOMETHING " << payload_str << std::endl;
     // Set the maximum payload size
     // An extra 1 is subtracted to accomodate for the additional 1 that writeToSocket adds
     // when calculating the length of the buffer (strlen(message) + 1 in writeToSocket)
@@ -212,11 +219,11 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
     std::string slice = payload_str.substr(0, max_payload_size);
     payload_str = payload_str.substr(max_payload_size, std::string::npos);
 
-    Payload fragmented_payload = Payload((char *) (header.str() + slice).c_str(), false);
     bool done = false;
+    bool first_fragment = true;
     while (!done) {
 
-        if(payload_str == "")
+        if (payload_str == "")
             done = true;
 
         max_retries = MAX_RETRIES;
@@ -226,7 +233,7 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
             max_send_retries = max_retries;
             bytes_sent = -1;
 
-            Message fragment_to_send = Message(header, fragmented_payload);
+            Message fragment_to_send = Message(header, slice, false, !first_fragment);
             while (max_send_retries-- && bytes_sent == -1)
                 bytes_sent = send_no_ack(fragment_to_send, receiver_sock_addr);
 
@@ -242,7 +249,7 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
         // the max payload size again (needed for when for when the number of digits of the sequence id is increases)
         header.sequence_id++;
         header.message_type = MessageType::Frag;
-
+        first_fragment = false;
         // slice the next payload
         slice = payload_str.substr(0, max_payload_size);
 
@@ -260,8 +267,7 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
 
         max_payload_size = RECV_BUFFER_SIZE - header.str().size() - 2;
 
-        fragmented_payload = Payload((char *) (header.str() + slice).c_str(), true);
-
+//        std::cout <<"FRAGGED PAYLOAD" <<  fragmented_payload.str() << std::endl;
         total_bytes_sent += bytes_sent;     // Update the total amount of bytes sent
     }
 
@@ -288,6 +294,8 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
 
     // Create Header and Payload of ack message
     rebuilt_request = initial_fragment;
+//    rebuilt_request.pop_back();
+//    std::cout << rebuilt_request.size() << std::endl;
     Header ack_header = Header((char *) rebuilt_request.c_str());
     ack_header.message_type = MessageType::Ack;
     ack_header.fragmented = 0;
@@ -335,14 +343,15 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
             // Update sequence id of last received fragment and update the sequence id of the next ack
             last_sequence_id_recv++;
             ack_header.sequence_id++;
-
             rebuilt_request += recvd_message.getPayload().str();
+//            std::cout << "RECVD PAYLOAD " << recvd_message.getPayload().str() << std::endl;
             // std::cout << payload.str() << std::endl;
 
             total_bytes_read += bytes_read;
         }
     }
-    // std::cout << "Rebuilt request: " << rebuilt_request << std::endl;
+    std::cout << rebuilt_request.size() << std::endl;
+    std::cout << "Rebuilt request: " << rebuilt_request << std::endl;
     return (int) total_bytes_read;
 }
 

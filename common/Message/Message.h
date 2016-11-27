@@ -77,25 +77,28 @@ public:
     size_t parameters_size;     // Contains the number of RPC parameters
     std::vector<std::string> parameters;        // Holds all the RPC paramters
     bool fragmented;
+    std::string fragmented_data;
 
     Payload() {}
 
     Payload(std::string _return_val, size_t params_size, std::vector<std::string> params, bool _fragmented) :
             return_val(_return_val), parameters_size(params_size), parameters(params), fragmented(_fragmented) {}
 
-    Payload(char *marshalled_payload, bool _fragmented) : fragmented(_fragmented) {
-        // Decode base64 payload
-//        std::string decoded_payload = base64_decode(marshalled_payload);
+    Payload(char *marshalled_payload, bool _fragmented, bool header_exist = true) : fragmented(_fragmented) {
 
         // Create stringstream from decoded payload
         std::stringstream tokenizer(marshalled_payload);
         std::string token;
 
-        for (int i = 0; i < 5; i++)
-            tokenizer >> token;
+        if (header_exist)
+            for (int i = 0; i < 5; i++)
+                tokenizer >> token;
 
-        if (!fragmented) {
-
+        if (fragmented) {
+            getline(tokenizer, token, ' ');
+            getline(tokenizer, token, '\0');
+            fragmented_data = token;
+        } else {
             tokenizer >> token;
             return_val = token;
 
@@ -104,13 +107,7 @@ public:
 
             for (int i = 0; i < parameters_size; i++) {
                 tokenizer >> token;
-                parameters.push_back(base64_decode(token));
-            }
-        } else {
-            parameters_size = 0;
-            while (tokenizer.good()) {
-                tokenizer >> token;
-                parameters_size++;
+//                std::cout << token << std::endl;
                 parameters.push_back(base64_decode(token));
             }
         }
@@ -119,21 +116,20 @@ public:
     ~Payload() {}
 
     std::string str() {
+        if (fragmented)
+            return fragmented_data;
+
         std::string payload_str;
-        if (!fragmented) {
-            payload_str.append(return_val + " ");
-            std::string param_string = std::to_string(parameters_size);
-            payload_str.append(param_string + " ");
-        }
+        payload_str.append(return_val + " ");
+        std::string param_string = std::to_string(parameters_size);
+        payload_str.append(param_string + " ");
 
         for (int i = 0; i < parameters_size - 1; i++)
             payload_str.append(base64_encode((const unsigned char *) parameters[i].c_str(),
                                              (unsigned int) parameters[i].size()) + " ");
         payload_str.append(
                 base64_encode((const unsigned char *) parameters[parameters_size - 1].c_str(),
-                              (unsigned int) parameters[parameters_size - 1].size())
-        );
-
+                              (unsigned int) parameters[parameters_size - 1].size()));
         return payload_str;
     }
 };
@@ -151,6 +147,8 @@ public:
             size_t p_message_size, std::vector<std::string> p_message);
 
     Message(Header _header, Payload _payload) : header(_header), payload(_payload) {}
+
+    Message(Header _header, std::string _payload, bool header_exists, bool first_fragment) : header(_header), payload((char *) _payload.c_str(), first_fragment, header_exists) {}
 
     explicit Message(char *marshalled_base64);      // Unmarshalling Constructor
 
