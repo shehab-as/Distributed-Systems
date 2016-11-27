@@ -93,6 +93,7 @@ ssize_t CM::recv_with_timeout(Message &received_message, MessageType message_fil
         if (recvd_header.message_type == MessageType::Reply) {
             std::string recvd_str = recv_buffer;
             replies[recvd_header.rpc_id % REPLIES_SIZE] = recvd_str;
+            break;
         }
 
         // If sender did not get the ack for the previous message's last fragment, resend the ack
@@ -150,6 +151,7 @@ int CM::recv_with_block(Message &received_message, MessageType message_filter, s
         if (recvd_header.message_type == MessageType::Reply) {
             std::string recvd_str = recv_buffer;
             replies[recvd_header.rpc_id % REPLIES_SIZE] = recvd_str;
+            break;
         }
 
         // If sender did not get the ack for the previous message's last fragment, resend the ack

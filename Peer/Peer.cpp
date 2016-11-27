@@ -235,7 +235,7 @@ int main() {
     str.assign((std::istreambuf_iterator<char>(t)),
                std::istreambuf_iterator<char>());
 
-    std::vector<std::string> v{std::string(900, '.'), std::string(8000, '$')};
+    std::vector<std::string> v{str};
 //    cout << base64_encode((const unsigned char *) str.c_str(), str.size()) << std::endl;
     Message request(MessageType::Request, 0, 0, "null", v.size(), v);
     std::cout << "Request Size: " << request.marshal().size() << std::endl;
