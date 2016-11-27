@@ -68,7 +68,7 @@ public:
 class Payload {
 public:
     std::string return_val;     // Holds return value of called RPC method, Should be 0 in case Message is a request and not a reply
-    size_t parameters_size;     // Contains the number of RPC parameters
+    ssize_t parameters_size;     // Contains the number of RPC parameters
     std::vector<std::string> parameters;        // Holds all the RPC paramters
     bool fragmented;
     std::string fragmented_data;
@@ -126,11 +126,12 @@ public:
         std::string param_string = std::to_string(parameters_size);
         payload_str.append(param_string + "\n");
 
-        for (int i = 0; i < parameters_size - 1; i++)
-            payload_str.append(parameters[i] + "\n");
+        if(parameters_size != 0) {
+            for (int i = 0; i < parameters_size - 1; i++)
+                payload_str.append(parameters[i] + "\n");
 
-        payload_str.append(parameters[parameters_size - 1]);
-
+            payload_str.append(parameters[parameters_size - 1]);
+        }
         return base64_encode((const unsigned char *) payload_str.c_str(), (unsigned int) payload_str.size());
     }
 };
