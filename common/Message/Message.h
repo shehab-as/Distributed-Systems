@@ -30,9 +30,6 @@ public:
             message_type(_msg_type), operation(_op), rpc_id(_rpc_id), fragmented(_fragmented), sequence_id(0) {}
 
     Header(char *marshalled_header) {
-        // Decode base64 header
-//        std::string decoded_header = base64_decode(marshalled_header);
-
         // Create stringstream from decoded payload
         std::stringstream tokenizer(marshalled_header);
         std::string token;
@@ -58,14 +55,11 @@ public:
     std::string str() {
         std::string headers;
 
-        headers.append(std::to_string(int(message_type)) + " ");
-        headers.append(std::to_string(operation) + " ");
-        headers.append(std::to_string(rpc_id) + " ");
-        headers.append(std::to_string(sequence_id) + " ");
-        headers.append(std::to_string(fragmented) + " ");
-
-        // Encode to base64
-//        headers = base64_encode((const unsigned char *) headers.c_str(), (unsigned int) headers.size());
+        headers.append(std::to_string(int(message_type)) + "\n");
+        headers.append(std::to_string(operation) + "\n");
+        headers.append(std::to_string(rpc_id) + "\n");
+        headers.append(std::to_string(sequence_id) + "\n");
+        headers.append(std::to_string(fragmented) + "\n");
 
         return headers;
     }
@@ -95,10 +89,14 @@ public:
                 tokenizer >> token;
 
         if (fragmented) {
-            getline(tokenizer, token, ' ');
+//            getline(tokenizer, token, ' ');
             getline(tokenizer, token, '\0');
             fragmented_data = token;
         } else {
+            tokenizer >> token;
+            std::string decoded_payload = base64_decode(token);
+            tokenizer = std::stringstream(token);
+
             tokenizer >> token;
             return_val = token;
 
@@ -106,9 +104,9 @@ public:
             parameters_size = (size_t) std::stoi(token);
 
             for (int i = 0; i < parameters_size; i++) {
-                tokenizer >> token;
+                getline(tokenizer, token, '\n');
 //                std::cout << token << std::endl;
-                parameters.push_back(base64_decode(token));
+                parameters.push_back(token);
             }
         }
     }
@@ -120,17 +118,16 @@ public:
             return fragmented_data;
 
         std::string payload_str;
-        payload_str.append(return_val + " ");
+        payload_str.append(return_val + "\n");
         std::string param_string = std::to_string(parameters_size);
-        payload_str.append(param_string + " ");
+        payload_str.append(param_string + "\n");
 
         for (int i = 0; i < parameters_size - 1; i++)
-            payload_str.append(base64_encode((const unsigned char *) parameters[i].c_str(),
-                                             (unsigned int) parameters[i].size()) + " ");
-        payload_str.append(
-                base64_encode((const unsigned char *) parameters[parameters_size - 1].c_str(),
-                              (unsigned int) parameters[parameters_size - 1].size()));
-        return payload_str;
+            payload_str.append(parameters[i] + "\n");
+
+        payload_str.append(parameters[parameters_size - 1]);
+
+        return base64_encode((const unsigned char *) payload_str.c_str(), (unsigned int) payload_str.size());
     }
 };
 
