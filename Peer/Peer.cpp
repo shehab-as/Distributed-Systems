@@ -135,8 +135,9 @@ int Peer::retrieve_token(std::string username, std::string password, long int &t
         return CONNECTION_ERROR;
 
     int reply_return_val = std::stoi(reply.getReturnVal());
-    if (reply_return_val != 0)
-        return GENERAL_ERROR;
+
+    if (reply_return_val == -1)
+        return UNAUTHORIZED_ACCESS;
 
     token = std::stol(reply.getParams()[0]);
     return SUCCESS;
