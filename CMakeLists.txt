@@ -24,4 +24,3 @@ qt5_wrap_ui(PEER_QT_UI Image-Viewer/mainwindow.ui)
 add_executable(peer_qt ${PEER_QT_SOURCE_FILES} ${PEER_QT_UI})
 qt5_use_modules(peer_qt Core Widgets Gui)
 target_link_libraries(peer_qt SQLiteCpp sqlite3 dl)
-
