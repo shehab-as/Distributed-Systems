@@ -11,10 +11,16 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::on_Login_clicked() {
+
+    //Getting Values
     std::string Username = ui->Input_Username->text().toStdString();
     std::string Password = ui->Input_Password->text().toStdString();
-
+    std::string IP_Address = ui->Input_IP->text().toStdString();
+    std::string Port = ui->Input_Port->text().toStdString();
     long int _token;
+
+    //peer.registry_addr = IP_Address;
+    //peer.registry_port = (uint16_t) stoi(Port);
 
     // TODO: REMOVE THIS
     peer.registry_addr = "10.40.57.28";
@@ -25,7 +31,7 @@ void MainWindow::on_Login_clicked() {
     if (n == SUCCESS) {
         token = _token;
         ui->Login_Color->setStyleSheet("background-color:green");
-        ui->Token_Value->setText(QT_STRINGIFY(token));
+        ui->Token_Value->setText(QString::number(token));
     } else
         ui->Login_Color->setStyleSheet("background-color:red");
 }
@@ -54,13 +60,4 @@ void MainWindow::on_DeleteImage_clicked() {
 void MainWindow::on_DownloadImage_clicked() {
     std::string Image_Name = ui->Input_Download_Name->text().toStdString();
 
-}
-
-//Clicking button to insert ip address and port
-void MainWindow::on_Insert_clicked() {
-    std::string IP_Address = ui->Input_IP->text().toStdString();
-    std::string Port = ui->Input_Port->text().toStdString();
-
-    peer.registry_addr = IP_Address;
-    peer.registry_port = (uint16_t) stoi(Port);
 }
