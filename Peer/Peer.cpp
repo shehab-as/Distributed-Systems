@@ -70,10 +70,11 @@ void Peer::handleRequest(Message request, sockaddr_in sender_addr) {
 
 // TODO: Finish this
 int Peer::download_image(std::string image_name, long int token, std::vector<std::string> &reply_params) {
-    std::vector<std::string> V{image_name, std::to_string(token)};
-    Message request(MessageType::Request, 0, RPC_Count++, "NULL", V.size(), V);
+    std::vector<std::string> v{image_name, std::to_string(token)};
+    Message request(MessageType::Request, 0, RPC_Count++, "NULL", v.size(), v);
     Message reply;
-    int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
+
+    int n = CM_Client.send_with_ack(request, reply, 1000, 10, (char *) registry_addr.c_str(), registry_port);
 
     if (n == -1)
         return CONNECTION_ERROR;
@@ -83,6 +84,10 @@ int Peer::download_image(std::string image_name, long int token, std::vector<std
         reply_params.push_back(REPLY[i]);
     }
 
+    int reply_return_val = stoi(reply.getReturnVal());
+
+    return reply_return_val;
+
 }
 
 //////////////////////////////////////////////////
@@ -91,29 +96,31 @@ int Peer::download_image(std::string image_name, long int token, std::vector<std
 
 // TODO: Finish this
 int Peer::download_image_svc(std::string image_name, long int token, std::vector<std::string> &reply_params) {
-//    int n = check_token(token);
-    //if n = 0, success.
-    //Else return -1
-    int n = 0;
-    if (n == 0) {
+    bool can_view;
+
+    // Check if requesting user can view the image
+    int n = check_viewImage(image_name, can_view, token);
+
+    if (n == SUCCESS) {
         try {
-            //Opening image file to stream then storing it into a string.
-            std::ifstream fin(image_name, std::ios::binary);
+            std::ifstream t(image_name, std::ios::binary);
             std::string image_data;
-            image_data.reserve(1000000);
-//        Not working
-//        std::copy(std::istreambuf_iterator<char>(fin),
-//                  std::istreambuf_iterator<char>(),
-//                  std::back_insert_iterator(image_data));
+
+            t.seekg(0, std::ios::end);
+            image_data.reserve(t.tellg());
+            t.seekg(0, std::ios::beg);
+
+            image_data.assign((std::istreambuf_iterator<char>(t)),
+                       std::istreambuf_iterator<char>());
 
             reply_params.push_back(image_data);
+            return 0;
         }
         catch (const std::exception &e) {
             std::cout << e.what() << std::endl;
         }
     }
-
-    return 0;
+    return n;
 }
 
 //////////////////////////////////////////////////
