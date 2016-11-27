@@ -31,7 +31,7 @@ public:
     void runServer();
     void handleRequest(Message request, sockaddr_in);
 
-    ~Peer();
+    virtual ~Peer();
 
     // Peer RPC stubs
     int download_image(std::string image_name, long int token, std::vector<std::string> &reply_params);

@@ -19,8 +19,9 @@ find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Gui REQUIRED)
 
-set(PEER_QT_SOURCE_FILES Image-Viewer/main.cpp Image-Viewer/mainwindow.cpp Image-Viewer/mainwindow.h)
+set(PEER_QT_SOURCE_FILES Image-Viewer/main.cpp Image-Viewer/mainwindow.cpp Image-Viewer/mainwindow.h common/Message/Message.h common/UDP/UDPSocket.h common/UDP/UDPSocket.cpp common/Message/Message.cpp common/CM/CM.cpp common/CM/CM.h Peer/Peer.cpp Peer/Peer.h common/Base64/base64.cpp common/Base64/base64.h)
 qt5_wrap_ui(PEER_QT_UI Image-Viewer/mainwindow.ui)
 add_executable(peer_qt ${PEER_QT_SOURCE_FILES} ${PEER_QT_UI})
 qt5_use_modules(peer_qt Core Widgets Gui)
+target_link_libraries(peer_qt SQLiteCpp sqlite3 dl)
 

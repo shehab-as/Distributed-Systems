@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include "QString"
 
-MainWindow::MainWindow(QWidget *parent):QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent):QMainWindow(parent), ui(new Ui::MainWindow), peer(NULL, 1234)
 {
     ui->setupUi(this);
 }

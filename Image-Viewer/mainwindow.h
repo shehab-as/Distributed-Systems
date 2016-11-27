@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "../ClionProjects/Distributed-Systems/Peer/Peer.h"
+#include "../Peer/Peer.h"
 
 namespace Ui {
 class MainWindow;
