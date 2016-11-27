@@ -7,9 +7,11 @@
 
 class Registry {
 private:
+
+    std::string pathLocation;
+
     CM serverConnector;
 
-    std::string DB_location;
     // const char * to be of the same type as columns
     //structs create vectors from database
     struct user {
@@ -22,6 +24,7 @@ private:
         std::string img_name;
         std::string owner_addr;
         int owner_port;
+        int token;
     };
 
     struct viewable_by {
@@ -42,6 +45,7 @@ private:
     void update_viewable_by();
 
 public:
+
     Registry (char *_listen_hostname, uint16_t _listen_port, int num_of_workers, std::string);
     ~Registry();
 
@@ -58,7 +62,7 @@ public:
     int check_viewImage_svc(std::string image_id, bool &can_view, long int token);
     int check_token_svc(long int token);
     //int numbViewsLeft_svc(std::string image_id,long int token);
-    int set_image_viewable_by(std::string image_id,  long int peer_token);//, int noViews);
+    int set_image_viewable_by(std::string image_id, long int user_token, long int peer_token);//, int noViews);
 };
 
 

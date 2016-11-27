@@ -10,7 +10,7 @@
 Registry::Registry(char *_listen_hostname, uint16_t _listen_port, int num_of_workers, std::string DB_location) : serverConnector(
         _listen_hostname, _listen_port) {
 
-    DB_location = DB_location;
+    pathLocation = DB_location;
     std::vector<std::thread> workers;
     load_DBs();
 
@@ -38,7 +38,7 @@ void Registry::runRegistry() {
 
     while (true) {
         Message recv_message = Message();
-        //ssize_t bytes_read = serverConnector.recv_with_block(recv_message, sender_addr);
+        ssize_t bytes_read = serverConnector.recv_with_block(recv_message, sender_addr);
         handleRequest(recv_message, sender_addr);
     }
 }
@@ -230,8 +230,10 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             std::vector<std::string> params;
             params = request.getParams();
             std::string image_id = params[0];
-            long int peer_token = stoi(params[params.size()-1]);
-            auto n = set_image_viewable_by(image_id,peer_token);
+            long int user_token = stoi(params[1]);
+            long int peer_token = stoi(params[2]);
+
+            auto n = set_image_viewable_by(image_id,user_token,peer_token);
             std::vector<std::string> reply_params;
             Message reply(MessageType::Reply, 7, request.getRPCId(), std::to_string(n), reply_params.size(), reply_params);
             serverConnector.send_no_ack(reply, sender_addr);
@@ -257,6 +259,7 @@ int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long
         return -1;
 
     auto n = check_token_svc(token);
+    update_imageList();
 
 
      if(n==0) {
@@ -289,11 +292,11 @@ int Registry::add_entry_svc(std::string image_name, long int token,  std::string
     {
         try {
             // Open a database file
-            SQLite::Database db("/home/zeyad/ClionProjects/Distributed-Systems/Dist-DB.db",SQLite::OPEN_READWRITE,0,NULL);
+            SQLite::Database db( pathLocation,SQLite::OPEN_READWRITE,0,"");
 
             SQLite::Statement img_query(db,
-                                        "INSERT INTO image (Img_name, owner_addr, owner_port) VALUES ( '" + image_name +
-                                        "', '" + std::string(owner_addr) + "', '" + std::to_string(owner_port) +
+                                        "INSERT INTO image (Img_name, owner_addr, owner_port,token) VALUES ( '" + image_name +
+                                        "', '" + std::string(owner_addr) + "', '"+std::to_string(owner_port)+"' ,'"+ std::to_string(token) +
                                         "');");
             int noRowsModified = img_query.exec();
             return 0;
@@ -321,12 +324,11 @@ int Registry::remove_entry_svc(std::string image_name, long int token) {
     {
         try
         {
-            SQLite::Database db("/home/zeyad/ClionProjects/Distributed-Systems/Dist-DB.db",SQLite::OPEN_READWRITE,0,NULL);
-            std::string query = "DELETE FROM image WHERE Img_name =' " + image_name + "';";
-            std::cout << query << std::endl;
-            SQLite::Statement img_query(db, "DELETE FROM image WHERE Img_name ='" + image_name + "';");
+            SQLite::Database db(pathLocation,SQLite::OPEN_READWRITE,0,"");
+            SQLite::Statement view_query(db, "DELETE FROM viewable_by WHERE img_name ='" + image_name +"';");
+            int noRowsModified1 = view_query.exec();
+            SQLite::Statement img_query(db, "DELETE FROM image WHERE Img_name ='" + image_name + "' and token= "+std::to_string(token)+" ;");
             int noRowsModified = img_query.exec();
-            std::cout << "noRowsModified " << noRowsModified << std::endl;
             return 0;
         }
         catch (std::exception &e)
@@ -375,7 +377,7 @@ int Registry::retrieve_token_svc(  std::string username, std::string password, l
     size_t token_size_t = str_hash(to_hash);
     token = (int) token_size_t;
 
-    SQLite::Database db("/home/zeyad/ClionProjects/Distributed-Systems/Dist-DB.db",SQLite::OPEN_READWRITE,0,NULL);
+    SQLite::Database db(pathLocation,SQLite::OPEN_READWRITE,0,"");
     SQLite::Statement usr_query(db, "INSERT INTO user (token, username, password) VALUES ( '"+std::to_string(token)+"', '"+username+"', '"+password+"');");
     int noRowsModified = usr_query.exec();
 
@@ -407,7 +409,7 @@ void Registry::load_DBs() {
     viewable_by view;
     try {
         // Open a database file
-        SQLite::Database db("/home/zeyad/ClionProjects/Distributed-Systems/Dist-DB.db"); //location of database should be in constructor of Registry and used as a string?
+        SQLite::Database db(pathLocation); //location of database should be in constructor of Registry and used as a string?
 
         // Compile a SQL query, containing one parameter (index 1)
         SQLite::Statement usr_query(db, "SELECT * FROM user");
@@ -430,6 +432,7 @@ void Registry::load_DBs() {
             img.img_name = img_query.getColumn(0).getString();
             img.owner_addr = img_query.getColumn(1).getString();
             img.owner_port = img_query.getColumn(2);
+            img.token = img_query.getColumn(3);
 
             img_DB.push_back(img);
         }
@@ -474,7 +477,7 @@ void Registry::update_users()
     user usr;
     try
     {
-        SQLite::Database db("/home/zeyad/ClionProjects/Distributed-Systems/Dist-DB.db");
+        SQLite::Database db(pathLocation);
         SQLite::Statement usr_query(db, "SELECT * FROM user");
         while (usr_query.executeStep()) {
             // Demonstrate how to get some typed column value
@@ -502,13 +505,14 @@ void Registry::update_imageList()
 
     try
     {
-        SQLite::Database db("/home/zeyad/ClionProjects/Distributed-Systems/Dist-DB.db");
+        SQLite::Database db(pathLocation);
         SQLite::Statement img_query(db, "SELECT * FROM image");
         while (img_query.executeStep()) {
             // Demonstrate how to get some typed column value
             img.img_name = img_query.getColumn(0).getString();
             img.owner_addr = img_query.getColumn(1).getString();
             img.owner_port = img_query.getColumn(2);
+            img.token=img_query.getColumn(3);
 
             img_DB.push_back(img);
         }
@@ -528,7 +532,7 @@ void Registry::update_viewable_by()
 
     try
     {
-        SQLite::Database db("/home/zeyad/ClionProjects/Distributed-Systems/Dist-DB.db");
+        SQLite::Database db(pathLocation);
         SQLite::Statement viewable_by_query(db, "SELECT * FROM viewable_by");
         while (viewable_by_query.executeStep()) {
 
@@ -558,22 +562,26 @@ void Registry::update_viewable_by()
 //    }
 //}
 
-int Registry::set_image_viewable_by(std::string image_id, long int peer_token)//, int noViews)
+int Registry::set_image_viewable_by(std::string image_id,long int user_token, long int peer_token)//, int noViews)
 {
+    update_imageList();
+    for (int i =0; i < img_DB.size(); i++)
+        if (img_DB[i].token == user_token && img_DB[i].img_name == image_id) {
+            try {
+                SQLite::Database db(pathLocation, SQLite::OPEN_READWRITE, 0, "");
+                SQLite::Statement viewable_by_query(db, "INSERT INTO viewable_by (img_name, token) VALUES ( '" +
+                                                        image_id + "', '" + std::to_string(peer_token) + "');");
+                int noRowsModified = viewable_by_query.exec();
+                return 0;
+            }
+            catch (std::exception &e) {
+                std::cout << "exception: " << e.what() << std::endl;
+                std::cout << "exception: " << e.what() << std::endl;
 
-   try {
-           SQLite::Database db("/home/zeyad/ClionProjects/Distributed-Systems/Dist-DB.db",SQLite::OPEN_READWRITE,0,NULL);
-           SQLite::Statement viewable_by_query(db, "INSERT INTO viewable_by (img_name, token) VALUES ( '" +
-                                            image_id + "', '" + std::to_string(peer_token) + "');");
-           int noRowsModified = viewable_by_query.exec();
-           return 0;
-       }
-   catch (std::exception &e)
-   {
-       std::cout << "exception: " << e.what() << std::endl;
-       std::cout << "exception: " << e.what() << std::endl;
+            }
+        }
 
-   }
+
 
     return -1;
 }
