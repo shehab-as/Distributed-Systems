@@ -165,17 +165,22 @@ int Peer::view_imagelist(std::vector<std::string> &image_container, long int tok
     return SUCCESS;
 }
 
-// TODO: Finish this, it's NOT DONE!
 int Peer::add_entry(std::string image_name, long int token) {
     std::vector<std::string> V{image_name, std::to_string(token)};
     Message request(MessageType::Request, 1, RPC_Count++, "NULL", V.size(), V);
     Message reply;
     int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
 
+    if(n == -1)
+        return CONNECTION_ERROR;
 
+    int reply_return_val = std::stoi(reply.getReturnVal());
+    if (reply_return_val == -1)
+        return GENERAL_ERROR;
+
+    return SUCCESS;
 }
 
-//NOT DONE!
 int Peer::remove_entry(std::string image_name, long int token) {
     std::vector<std::string> V{image_name, std::to_string(token)};
     Message request(MessageType::Request, 2, RPC_Count++, "NULL", V.size(), V);

@@ -48,6 +48,7 @@ void MainWindow::on_AddImage_clicked() {
 
     int n = peer.add_entry(Image_Name, token);
 
+
 }
 
 //Clicking button to delete image after entering the image name.
