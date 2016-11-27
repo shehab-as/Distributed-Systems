@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "QString"
@@ -74,7 +75,24 @@ void MainWindow::on_DeleteImage_clicked() {
 void MainWindow::on_DownloadImage_clicked() {
     std::string Image_Name = ui->Input_Download_Name->text().toStdString();
 
-    //Use this whenever you feel like it.
+    // Use this whenever you feel like it.
+    // Ok dude we should keep this as a super secret ultimate weapon against the plumber
     //QMessageBox::information(this, tr("Plumber GUI"), tr("Image removed successfully."));
 
 }
+
+// Code for view image
+//std::vector<std::string> image_container;
+//
+//int n = peer.download_image(Image_Name, token, image_container);
+//
+//if(n == SUCCESS)
+//{
+//std::string image_data = image_container[0];
+//std::ofstream outfile (Image_Name, std::ios::binary);
+//outfile << image_data;
+//QImage image_to_display(QString::fromStdString(Image_Name));
+//
+////Change QGraphicsView into label to make to simpler to display image
+//ui->label_3->setPixmap(QPixmap::fromImage(image_to_display));
+//}
