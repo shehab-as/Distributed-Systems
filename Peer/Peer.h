@@ -21,12 +21,12 @@ class Peer {
 private:
     CM CM_Client;
     CM CM_Server;
-    long int token;
     unsigned long long int RPC_Count = 0;
+
+public:
     std::string registry_addr;
     uint16_t registry_port;
 
-public:
     Peer(char *_listen_hostname, uint16_t _listen_port);
     void runServer();
     void handleRequest(Message request, sockaddr_in);

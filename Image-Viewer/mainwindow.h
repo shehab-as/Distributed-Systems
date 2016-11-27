@@ -14,6 +14,7 @@ class MainWindow : public QMainWindow
 
 public:
     Peer peer;
+    long int token;
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
