@@ -55,7 +55,7 @@ public:
     // Registry RPC implementations
 
     int view_imagelist_svc(std::vector<std::string> &image_container, long int token);
-    int add_entry_svc(std::string image_name, long int token,  std::string owner_addr, int owner_port);
+    int add_entry_svc(std::string image_name, long int token, sockaddr_in owner);
     int remove_entry_svc(std::string image_name, long int token);
     int get_client_addr_svc(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token);
     int retrieve_token_svc(  std:: string username,  std::string password, long int &token);

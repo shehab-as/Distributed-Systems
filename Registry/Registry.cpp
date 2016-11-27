@@ -115,7 +115,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             std::string owner_addr = (params[2]);
             int owner_port = stoi(params[params.size() - 1]);
 
-            auto n = add_entry_svc(image_name, token, owner_addr, owner_port);
+            auto n = add_entry_svc(image_name, token, sender_addr);
             std::vector<std::string> reply_params;
             Message reply(MessageType::Reply, 1, request.getRPCId(), std::to_string(n), (size_t) 0, reply_params);
             serverConnector.send_no_ack(reply, sender_addr);
@@ -283,9 +283,10 @@ int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long
 
 //return 0 if a new image is inserted else -1
 // needs testing
-int Registry::add_entry_svc(std::string image_name, long int token, std::string owner_addr, int owner_port) {
+int Registry::add_entry_svc(std::string image_name, long int token, sockaddr_in owner ) {
 
-
+    std::string owner_addr = std::to_string(owner.sin_addr.s_addr);
+    int owner_port = owner.sin_port;
     auto n = check_token_svc(token);
 
 
