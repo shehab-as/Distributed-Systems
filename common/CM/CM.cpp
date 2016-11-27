@@ -38,9 +38,9 @@ int CM::send_with_ack(Message message_to_send, Message &received_message, int ti
         max_send_retries = max_retries;
         bytes_sent = -1;
 
-        if(replies[message_to_send.getSeqId() % REPLIES_SIZE] != "") {
-            received_message = Message((char *) replies[message_to_send.getSeqId() % REPLIES_SIZE].c_str());
-            bytes_read = replies[message_to_send.getSeqId() % REPLIES_SIZE].size();
+        if(replies[message_to_send.getRPCId() % REPLIES_SIZE] != "") {
+            received_message = Message((char *) replies[message_to_send.getRPCId() % REPLIES_SIZE].c_str());
+            bytes_read = replies[message_to_send.getRPCId() % REPLIES_SIZE].size();
             break;
         }
 

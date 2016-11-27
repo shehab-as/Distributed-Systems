@@ -63,7 +63,7 @@
    <widget class="QPushButton" name="Login">
     <property name="geometry">
      <rect>
-      <x>250</x>
+      <x>480</x>
       <y>20</y>
       <width>80</width>
       <height>22</height>
@@ -86,8 +86,8 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>570</x>
-      <y>10</y>
+      <x>600</x>
+      <y>20</y>
       <width>41</width>
       <height>16</height>
      </rect>
@@ -99,10 +99,10 @@
    <widget class="QLabel" name="Token_Value">
     <property name="geometry">
      <rect>
-      <x>620</x>
-      <y>10</y>
-      <width>59</width>
-      <height>14</height>
+      <x>570</x>
+      <y>40</y>
+      <width>121</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -249,10 +249,10 @@
    <widget class="QLabel" name="Login_Color">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>20</y>
-      <width>41</width>
-      <height>31</height>
+      <x>10</x>
+      <y>60</y>
+      <width>31</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -262,7 +262,7 @@
    <widget class="QLabel" name="Label_IP">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>240</x>
       <y>10</y>
       <width>71</width>
       <height>16</height>
@@ -275,7 +275,7 @@
    <widget class="QLabel" name="Label_Port">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>240</x>
       <y>40</y>
       <width>81</width>
       <height>16</height>
@@ -288,9 +288,9 @@
    <widget class="QLineEdit" name="Input_IP">
     <property name="geometry">
      <rect>
-      <x>430</x>
+      <x>320</x>
       <y>10</y>
-      <width>113</width>
+      <width>151</width>
       <height>22</height>
      </rect>
     </property>
@@ -298,24 +298,11 @@
    <widget class="QLineEdit" name="Input_Port">
     <property name="geometry">
      <rect>
-      <x>430</x>
+      <x>320</x>
       <y>40</y>
-      <width>113</width>
+      <width>151</width>
       <height>22</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="Insert">
-    <property name="geometry">
-     <rect>
-      <x>550</x>
-      <y>30</y>
-      <width>80</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Insert</string>
     </property>
    </widget>
   </widget>
