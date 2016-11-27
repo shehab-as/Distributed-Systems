@@ -10,6 +10,9 @@
 class CM {
 private:
     UDPSocket udpSocket;
+
+    std::vector<std::string> replies;
+    const int REPLIES_SIZE = 5000;
     const size_t RECV_BUFFER_SIZE = 8000;
 
     sockaddr_in create_sockaddr(char *addr, uint16_t port);

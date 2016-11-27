@@ -7,6 +7,8 @@
 
 CM::CM(char *_myAddr, uint16_t _myPort) {
     udpSocket.initializeSocket(_myAddr, _myPort);
+    replies.resize(REPLIES_SIZE);
+    fill(replies.begin(), replies.end(), "");
 }
 
 CM::~CM() {
@@ -35,6 +37,11 @@ int CM::send_with_ack(Message message_to_send, Message &received_message, int ti
     while (max_retries-- && bytes_read == -1) {
         max_send_retries = max_retries;
         bytes_sent = -1;
+
+        if(replies[message_to_send.getSeqId() % REPLIES_SIZE] != "") {
+            received_message = Message((char *) replies[message_to_send.getSeqId() % REPLIES_SIZE].c_str());
+            bytes_read = replies[message_to_send.getSeqId() % REPLIES_SIZE].size();
+        }
 
         while (max_send_retries-- && bytes_sent == -1)
             bytes_sent = send_no_ack(message_to_send, receiver_sock_addr);
@@ -81,6 +88,11 @@ ssize_t CM::recv_with_timeout(Message &received_message, MessageType message_fil
             return -1;
 
         recvd_header = Header(recv_buffer);
+
+        if (recvd_header.message_type == MessageType::Reply) {
+            std::string recvd_str = recv_buffer;
+            replies[recvd_header.rpc_id % REPLIES_SIZE] = recvd_str;
+        }
 
         // If sender did not get the ack for the previous message's last fragment, resend the ack
         // This is done to not let the sender report a connection error due to the last fragment's
@@ -134,6 +146,11 @@ int CM::recv_with_block(Message &received_message, MessageType message_filter, s
 
         recvd_header = Header(recv_buffer);
 
+        if (recvd_header.message_type == MessageType::Reply) {
+            std::string recvd_str = recv_buffer;
+            replies[recvd_header.rpc_id % REPLIES_SIZE] = recvd_str;
+        }
+
         // If sender did not get the ack for the previous message's last fragment, resend the ack
         // This is done to not let the sender report a connection error due to the last fragment's
         // ack not being received (rebuild_request only send out one ack with no retries for the last fragment)
@@ -147,8 +164,7 @@ int CM::recv_with_block(Message &received_message, MessageType message_filter, s
         && recvd_header.fragmented == 1) {
         bytes_read = rebuild_request(recv_buffer, recv_request, sender_addr);
         rebuilt = true;
-    }
-    else
+    } else
         recv_request = recv_buffer;
 
     // If message was successfully received, unmarshall and build received_message
@@ -344,8 +360,6 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
             last_sequence_id_recv++;
             ack_header.sequence_id++;
             rebuilt_request += recvd_message.getPayload().str();
-//            std::cout << "RECVD PAYLOAD " << recvd_message.getPayload().str() << std::endl;
-            // std::cout << payload.str() << std::endl;
 
             total_bytes_read += bytes_read;
         }
