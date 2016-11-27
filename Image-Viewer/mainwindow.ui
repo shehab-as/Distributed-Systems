@@ -73,7 +73,7 @@
      <string>Login</string>
     </property>
    </widget>
-   <widget class="QListView" name="Image_List">
+   <widget class="QListWidget" name="Image_List">
     <property name="geometry">
      <rect>
       <x>10</x>

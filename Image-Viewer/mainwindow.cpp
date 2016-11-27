@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "QString"
+#include "QMessageBox"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), peer(NULL, 1234) {
     ui->setupUi(this);
@@ -38,7 +39,7 @@ void MainWindow::on_Login_clicked() {
 
 //Clicking button to view list of images.
 void MainWindow::on_Click_View_List_clicked() {
-    //ui->Image_List->model()
+    ui->Image_List->addItem();
 
 }
 
@@ -48,6 +49,8 @@ void MainWindow::on_AddImage_clicked() {
 
     int n = peer.add_entry(Image_Name, token);
 
+    if(n == SUCCESS)
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Image added successfully."));
 
 }
 
@@ -55,10 +58,18 @@ void MainWindow::on_AddImage_clicked() {
 void MainWindow::on_DeleteImage_clicked() {
     std::string Image_Name = ui->Input_Delete_Name->text().toStdString();
 
+    int n = peer.remove_entry(Image_Name, token);
+
+    if(n == SUCCESS)
+         QMessageBox::information(this, tr("Plumber GUI"), tr("Image removed successfully."));
+
 }
 
 //Clicking button to download image after entering the image name.
 void MainWindow::on_DownloadImage_clicked() {
     std::string Image_Name = ui->Input_Download_Name->text().toStdString();
+
+    //Use this whenever you feel like it.
+    //QMessageBox::information(this, tr("Plumber GUI"), tr("Image removed successfully."));
 
 }
