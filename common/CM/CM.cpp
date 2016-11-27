@@ -351,7 +351,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
         }
     }
     std::cout << rebuilt_request.size() << std::endl;
-    std::cout << "Rebuilt request: " << rebuilt_request << std::endl;
+//    std::cout << "Rebuilt request: " << rebuilt_request << std::endl;
     return (int) total_bytes_read;
 }
 

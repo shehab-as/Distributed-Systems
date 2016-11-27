@@ -9,7 +9,7 @@ int main() {
     CM server(NULL, 1234);
     Message request;
     sockaddr_in sender_addr;
-    ofstream outfile ("doesthiswork.png", ios::binary);
+    ofstream outfile ("WORKPLS.png", ios::binary);
     while(true) {
         auto n = server.recv_with_block(request, MessageType::Request, sender_addr);
         if (n == -1) {
