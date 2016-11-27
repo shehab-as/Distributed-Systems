@@ -1,3 +1,4 @@
+#include <iostream>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "QString"
@@ -39,8 +40,12 @@ void MainWindow::on_Login_clicked() {
 
 //Clicking button to view list of images.
 void MainWindow::on_Click_View_List_clicked() {
-    ui->Image_List->addItem();
 
+    std::vector<std::string> image_container;
+    int n = peer.view_imagelist(image_container, token);
+    std::cout << n;
+    for (auto image_name : image_container)
+        ui->Image_List->addItem(QString::fromStdString(image_name));
 }
 
 //Clicking button to add image after entering the image name.
@@ -49,7 +54,7 @@ void MainWindow::on_AddImage_clicked() {
 
     int n = peer.add_entry(Image_Name, token);
 
-    if(n == SUCCESS)
+    if (n == SUCCESS)
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image added successfully."));
 
 }
@@ -60,8 +65,8 @@ void MainWindow::on_DeleteImage_clicked() {
 
     int n = peer.remove_entry(Image_Name, token);
 
-    if(n == SUCCESS)
-         QMessageBox::information(this, tr("Plumber GUI"), tr("Image removed successfully."));
+    if (n == SUCCESS)
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Image removed successfully."));
 
 }
 

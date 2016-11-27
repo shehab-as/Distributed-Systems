@@ -29,7 +29,6 @@ private slots:
 
     void on_DownloadImage_clicked();
 
-    void on_Insert_clicked();
 
 private:
     Ui::MainWindow *ui;

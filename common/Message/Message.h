@@ -89,7 +89,6 @@ public:
                 tokenizer >> token;
 
         if (fragmented) {
-//            getline(tokenizer, token, ' ');
             getline(tokenizer, token, '\0');
             fragmented_data = token;
         } else {
