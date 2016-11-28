@@ -4,9 +4,20 @@
 #include "ui_mainwindow.h"
 #include "QString"
 #include "QMessageBox"
+#include "QThread"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), peer(NULL, 1234) {
     ui->setupUi(this);
+
+    QThread* thread = new QThread;
+    Server* server = new Server(&peer);
+    server->moveToThread(thread);
+    connect(server, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
+    connect(thread, SIGNAL(started()), server, SLOT(runServer()));
+    connect(server, SIGNAL(finished()), thread, SLOT(quit()));
+    connect(server, SIGNAL(finished()), server, SLOT(deleteLater()));
+    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    thread->start();
 }
 
 MainWindow::~MainWindow() {

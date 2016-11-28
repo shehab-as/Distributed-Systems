@@ -17,7 +17,7 @@ Peer::Peer(char *_listen_hostname, uint16_t _listen_port) :
     //Each object should have two threads.
     // Server thread that keeps listening infinitely.
     // Client thread which provides an interface in Qt.
-    std::thread Peer_Server, Peer_Client;
+//    std::thread Peer_Server, Peer_Client;
 
 }
 
