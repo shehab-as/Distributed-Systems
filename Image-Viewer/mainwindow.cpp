@@ -24,6 +24,7 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
+//////////////// 1  ////////////////
 void MainWindow::on_Login_clicked() {
 
     //Getting Values
@@ -43,23 +44,37 @@ void MainWindow::on_Login_clicked() {
     int n = peer.retrieve_token(Username, Password, _token);
 
     if (n == SUCCESS) {
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Login Success!."));
         token = _token;
         ui->Login_Color->setStyleSheet("background-color:green");
         ui->Token_Value->setText(QString::number(token));
     } else
+    {
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Login Failed!."));
         ui->Login_Color->setStyleSheet("background-color:red");
+    }
 }
-
-//Clicking button to view list of images.
+//////////////// 2  ////////////////
+//Clicking button to view image viewable list.
 void MainWindow::on_Click_View_List_clicked() {
 
     std::vector<std::string> image_container;
     int n = peer.view_imagelist(image_container, token);
     std::cout << n;
     for (auto image_name : image_container)
-        ui->Image_List->addItem(QString::fromStdString(image_name));
+        ui->Image_Viewable_List->addItem(QString::fromStdString(image_name));
 }
-
+//////////////// 3  ////////////////
+//Clicking button to view image downloaded list.
+void MainWindow::on_Click_Downloaded_List_clicked()
+{
+    std::vector<std::string> image_container;
+    int n = peer.view_imagelist(image_container, token);
+    std::cout << n;
+    for (auto image_name : image_container)
+        ui->Image_Downloaded_List->addItem(QString::fromStdString(image_name));
+}
+//////////////// 4  ////////////////
 //Clicking button to add image after entering the image name.
 void MainWindow::on_AddImage_clicked() {
     std::string Image_Name = ui->Input_Add_Name->text().toStdString();
@@ -68,9 +83,11 @@ void MainWindow::on_AddImage_clicked() {
 
     if (n == SUCCESS)
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image added successfully."));
+    else
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Image failed to add."));
 
 }
-
+//////////////// 5 ////////////////
 //Clicking button to delete image after entering the image name.
 void MainWindow::on_DeleteImage_clicked() {
     std::string Image_Name = ui->Input_Delete_Name->text().toStdString();
@@ -79,12 +96,22 @@ void MainWindow::on_DeleteImage_clicked() {
 
     if (n == SUCCESS)
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image removed successfully."));
+    else
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Image failed to remove."));
 
 }
-
+//////////////// 6  ////////////////
 //Clicking button to download image after entering the image name.
 void MainWindow::on_DownloadImage_clicked() {
+
     std::string Image_Name = ui->Input_Download_Name->text().toStdString();
+    std::vector<std::string> image_container;
+
+    int n = peer.download_image(Image_Name, token, image_container);
+    if(n == SUCCESS)
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Image downloaded successfully."));
+    else
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Image failed to download."));
 
     // Use this whenever you feel like it.
     // Ok dude we should keep this as a super secret ultimate weapon against the plumber
@@ -102,8 +129,25 @@ void MainWindow::on_DownloadImage_clicked() {
 //std::string image_data = image_container[0];
 //std::ofstream outfile (Image_Name, std::ios::binary);
 //outfile << image_data;
-//QImage image_to_display(QString::fromStdString(Image_Name));
-//
-////Change QGraphicsView into label to make to simpler to display image
-//ui->label_3->setPixmap(QPixmap::fromImage(image_to_display));
-//}
+
+//////////////// 7  ////////////////
+//Clicking button to display image after entering the image name.
+void MainWindow::on_Display_Button_clicked()
+{
+    bool can_view;
+    std::string Image_Name = ui->ImageName_to_Display->text().toStdString();
+    int n = peer.check_viewImage(Image_Name, can_view, token);
+
+    if(n == SUCCESS)
+    {
+        if(can_view == true)
+        {
+            QImage image_to_display(QString::fromStdString(Image_Name));
+            ui->Image_Display->setPixmap(QPixmap::fromImage(image_to_display));
+        }
+        else
+            QMessageBox::information(this, tr("Plumber GUI"), tr("Unauthorized Image Access."));
+    }
+
+
+}

@@ -36,6 +36,10 @@ private slots:
         // Add here what happens when server thread crashes/reports error
     }
 
+    void on_Click_Downloaded_List_clicked();
+
+    void on_Display_Button_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

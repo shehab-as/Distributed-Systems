@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>693</width>
-    <height>514</height>
+    <width>872</width>
+    <height>759</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,7 +43,7 @@
    <widget class="QLineEdit" name="Input_Username">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>90</x>
       <y>10</y>
       <width>151</width>
       <height>22</height>
@@ -53,7 +53,7 @@
    <widget class="QLineEdit" name="Input_Password">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>90</x>
       <y>40</y>
       <width>151</width>
       <height>22</height>
@@ -63,45 +63,45 @@
    <widget class="QPushButton" name="Login">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>20</y>
+      <x>250</x>
+      <y>30</y>
       <width>80</width>
-      <height>22</height>
+      <height>61</height>
      </rect>
     </property>
     <property name="text">
      <string>Login</string>
     </property>
    </widget>
-   <widget class="QListWidget" name="Image_List">
+   <widget class="QListWidget" name="Image_Viewable_List">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
-      <width>256</width>
-      <height>211</height>
+      <y>170</y>
+      <width>261</width>
+      <height>251</height>
      </rect>
     </property>
    </widget>
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>600</x>
-      <y>20</y>
+      <x>670</x>
+      <y>10</y>
       <width>41</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Token</string>
+     <string>Token: </string>
     </property>
    </widget>
    <widget class="QLabel" name="Token_Value">
     <property name="geometry">
      <rect>
-      <x>570</x>
-      <y>40</y>
-      <width>121</width>
+      <x>720</x>
+      <y>10</y>
+      <width>101</width>
       <height>20</height>
      </rect>
     </property>
@@ -112,9 +112,9 @@
    <widget class="QPushButton" name="AddImage">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>370</y>
-      <width>111</width>
+      <x>420</x>
+      <y>40</y>
+      <width>131</width>
       <height>22</height>
      </rect>
     </property>
@@ -125,9 +125,9 @@
    <widget class="QPushButton" name="DeleteImage">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>400</y>
-      <width>111</width>
+      <x>420</x>
+      <y>70</y>
+      <width>131</width>
       <height>22</height>
      </rect>
     </property>
@@ -138,9 +138,9 @@
    <widget class="QPushButton" name="DownloadImage">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>430</y>
-      <width>111</width>
+      <x>420</x>
+      <y>100</y>
+      <width>131</width>
       <height>22</height>
      </rect>
     </property>
@@ -151,83 +151,60 @@
    <widget class="QLineEdit" name="Input_Add_Name">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>370</y>
-      <width>113</width>
+      <x>580</x>
+      <y>40</y>
+      <width>161</width>
       <height>22</height>
      </rect>
     </property>
     <property name="text">
-     <string>Image Name</string>
+     <string/>
     </property>
    </widget>
    <widget class="QLineEdit" name="Input_Delete_Name">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>400</y>
-      <width>113</width>
+      <x>580</x>
+      <y>70</y>
+      <width>161</width>
       <height>22</height>
      </rect>
     </property>
     <property name="text">
-     <string>Image Name</string>
+     <string/>
     </property>
    </widget>
    <widget class="QLineEdit" name="Input_Download_Name">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>430</y>
-      <width>113</width>
+      <x>580</x>
+      <y>100</y>
+      <width>161</width>
       <height>22</height>
      </rect>
     </property>
     <property name="text">
-     <string>Image Name</string>
-    </property>
-   </widget>
-   <widget class="QGraphicsView" name="Viewer">
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>100</y>
-      <width>401</width>
-      <height>381</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>80</y>
-      <width>101</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>List of Images</string>
+     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="Click_View_List">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>320</y>
-      <width>201</width>
+      <x>10</x>
+      <y>140</y>
+      <width>261</width>
       <height>22</height>
      </rect>
     </property>
     <property name="text">
-     <string>View Image List</string>
+     <string>My Viewable Images</string>
     </property>
    </widget>
    <widget class="QPushButton" name="Display_Button">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>70</y>
+      <x>340</x>
+      <y>160</y>
       <width>141</width>
       <height>22</height>
      </rect>
@@ -239,8 +216,8 @@
    <widget class="QLineEdit" name="ImageName_to_Display">
     <property name="geometry">
      <rect>
-      <x>482</x>
-      <y>70</y>
+      <x>490</x>
+      <y>160</y>
       <width>191</width>
       <height>22</height>
      </rect>
@@ -249,10 +226,10 @@
    <widget class="QLabel" name="Login_Color">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>31</width>
-      <height>21</height>
+      <x>350</x>
+      <y>30</y>
+      <width>51</width>
+      <height>61</height>
      </rect>
     </property>
     <property name="text">
@@ -262,8 +239,8 @@
    <widget class="QLabel" name="Label_IP">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>10</y>
+      <x>10</x>
+      <y>70</y>
       <width>71</width>
       <height>16</height>
      </rect>
@@ -275,8 +252,8 @@
    <widget class="QLabel" name="Label_Port">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>40</y>
+      <x>10</x>
+      <y>100</y>
       <width>81</width>
       <height>16</height>
      </rect>
@@ -288,8 +265,8 @@
    <widget class="QLineEdit" name="Input_IP">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>10</y>
+      <x>90</x>
+      <y>70</y>
       <width>151</width>
       <height>22</height>
      </rect>
@@ -298,11 +275,47 @@
    <widget class="QLineEdit" name="Input_Port">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>40</y>
+      <x>90</x>
+      <y>100</y>
       <width>151</width>
       <height>22</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="Image_Downloaded_List">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>480</y>
+      <width>261</width>
+      <height>251</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Click_Downloaded_List">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>450</y>
+      <width>261</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>My Downloaded Images</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Image_Display">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>220</y>
+      <width>511</width>
+      <height>461</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>
