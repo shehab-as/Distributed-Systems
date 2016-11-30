@@ -5,6 +5,26 @@
 #include <sqlite3.h>
 #include "../common/CM/CM.h"
 
+// 0: view_imagelist_svc(std::vector<std::string> &image_container);
+// 1: add_entry_svc(std::string image_name);
+// 2: remove_entry_svc(std::string image_name);
+// 3: get_client_addr_svc(std::string image_name, sockaddr_in &owner_addr);
+// 4: retrieve_token_svc(std::string username, std::string password, int &token);
+// 5: check_viewImage_svc(std::string image_id, bool &can_view, int token);
+// 6: check_token_svc(long int token);
+// 7: int set_image_viewable_by(std::string image_id,  long int peer_token);//, int noViews);
+
+enum Operation {
+    VIEW_IMAGELIST,
+    ADD_ENTRY,
+    REMOVE_ENTRY,
+    GET_CLIENT_ADDR,
+    RETRIEVE_TOKEN,
+    CHECK_VIEWIMAGE,
+    CHECK_TOKEN,
+    SET_IMAGE_VIEWABLE_BY
+};
+
 class Registry {
 private:
 
