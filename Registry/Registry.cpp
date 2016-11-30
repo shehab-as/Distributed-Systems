@@ -392,7 +392,6 @@ void Registry::load_DBs() {
 
             usr_DB.push_back(usr);
         }
-/////
 
         while (img_query.executeStep()) {
             // Demonstrate how to get some typed column value

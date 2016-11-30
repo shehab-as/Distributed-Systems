@@ -23,6 +23,7 @@ Peer::~Peer() {}
 
 void Peer::runServer() {
     sockaddr_in sender_addr;
+
     while (true) {
         Message recv_message = Message();
         ssize_t bytes_read = CM_Server.recv_with_block(recv_message, MessageType::Request, sender_addr);
@@ -61,24 +62,37 @@ void Peer::handleRequest(Message request, sockaddr_in sender_addr) {
 
 // TODO: Finish this
 int Peer::download_image(std::string image_name, long int token, std::vector<std::string> &reply_params) {
-    std::vector<std::string> v{image_name, std::to_string(token)};
-    Message request(MessageType::Request, 0, RPC_Count++, "NULL", v.size(), v);
-    Message reply;
+    std::string owner_addr;
+    uint16_t owner_port;
 
-    int n = CM_Client.send_with_ack(request, reply, 1000, 10, (char *) registry_addr.c_str(), registry_port);
+    int n = get_client_addr(image_name, owner_addr, owner_port, token);
 
-    if (n == -1)
-        return CONNECTION_ERROR;
+    // Needed conversion
+    owner_addr = std::to_string(htonl((uint32_t) std::stol(owner_addr)));
+    owner_port = htons(owner_port);
 
-    std::vector<std::string> REPLY = reply.getParams();
-    for (int i = 0; i < reply.getParamsSize(); i++) {
-        reply_params.push_back(REPLY[i]);
+    if (n == SUCCESS) {
+        std::vector<std::string> v{image_name, std::to_string(token)};
+        Message request(MessageType::Request, 0, RPC_Count++, "NULL", v.size(), v);
+        Message reply;
+
+        n = CM_Client.send_with_ack(request, reply, 1000, 10, (char *) owner_addr.c_str(), owner_port);
+
+        if (n == -1)
+            return CONNECTION_ERROR;
+
+        std::vector<std::string> REPLY = reply.getParams();
+
+        for (int i = 0; i < reply.getParamsSize(); i++) {
+            reply_params.push_back(REPLY[i]);
+        }
+
+        int reply_return_val = stoi(reply.getReturnVal());
+
+        return reply_return_val;
     }
 
-    int reply_return_val = stoi(reply.getReturnVal());
-
-    return reply_return_val;
-
+    return n;
 }
 
 //////////////////////////////////////////////////
