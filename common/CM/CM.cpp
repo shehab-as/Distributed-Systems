@@ -94,7 +94,7 @@ ssize_t CM::recv_with_timeout(Message &received_message, MessageType message_fil
 
         recvd_header = Header(recv_buffer);
 
-        if (recvd_header.message_type == MessageType::Reply) {
+        if (recvd_header.message_type == MessageType::Reply && recvd_header.fragmented == 0) {
             std::string recvd_str = recv_buffer;
             replies[recvd_header.rpc_id % REPLIES_SIZE] = recvd_str;
             break;
@@ -124,7 +124,6 @@ ssize_t CM::recv_with_timeout(Message &received_message, MessageType message_fil
         else
             recvd_payload = Payload((char *) recv_request.c_str(), recvd_header.message_type == MessageType::Frag ||
                                                                    recvd_header.message_type == MessageType::LastFrag);
-//        std::cout << recv_request << std::endl;
         received_message = Message(recvd_header, recvd_payload);
     }
 
@@ -152,7 +151,7 @@ int CM::recv_with_block(Message &received_message, MessageType message_filter, s
 
         recvd_header = Header(recv_buffer);
 
-        if (recvd_header.message_type == MessageType::Reply) {
+        if (recvd_header.message_type == MessageType::Reply && recvd_header.fragmented == 0) {
             std::string recvd_str = recv_buffer;
             replies[recvd_header.rpc_id % REPLIES_SIZE] = recvd_str;
             break;
@@ -233,7 +232,7 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
     Header header = message_to_fragment.getHeader();
     auto payload_something = message_to_fragment.getPayload();
     std::string payload_str = payload_something.str();
-//    std::cout << "PAYLOAD SOMETHING " << payload_str << std::endl;
+
     // Set the maximum payload size
     // An extra 1 is subtracted to accomodate for the additional 1 that writeToSocket adds
     // when calculating the length of the buffer (strlen(message) + 1 in writeToSocket)
@@ -290,7 +289,6 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
 
         max_payload_size = RECV_BUFFER_SIZE - header.str().size() - 2;
 
-//        std::cout <<"FRAGGED PAYLOAD" <<  fragmented_payload.str() << std::endl;
         total_bytes_sent += bytes_sent;     // Update the total amount of bytes sent
     }
 
@@ -317,8 +315,6 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
 
     // Create Header and Payload of ack message
     rebuilt_request = initial_fragment;
-//    rebuilt_request.pop_back();
-//    std::cout << rebuilt_request.size() << std::endl;
     Header ack_header = Header((char *) rebuilt_request.c_str());
     ack_header.message_type = MessageType::Ack;
     ack_header.fragmented = 0;
@@ -353,8 +349,12 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
 
         // Get the recv_header of the received packet
         Header recv_header = recvd_message.getHeader();
-        // std::cout << "Bytes read: " << bytes_read << std::endl;
 
+
+        if (recv_header.message_type == MessageType::Reply) {
+            rebuilt_request = recvd_message.marshal();
+            return (int) recvd_message.marshal().size();
+        }
 
         // Last packet in the fragmented packets
         if (recv_header.fragmented == -1 && recv_header.message_type == MessageType::LastFrag) {
@@ -371,7 +371,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
             total_bytes_read += bytes_read;
         }
     }
-    std::cout << rebuilt_request.size() << std::endl;
+    std::cout << "Rebuilt request size: " << rebuilt_request.size() << std::endl;
 //    std::cout << "Rebuilt request: " << rebuilt_request << std::endl;
     return (int) total_bytes_read;
 }
