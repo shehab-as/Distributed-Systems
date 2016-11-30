@@ -108,6 +108,8 @@ int Peer::download_image_svc(std::string image_name, long int token, std::vector
 
     if (n == SUCCESS) {
         try {
+
+            // TODO: Encode the original image into the dummy one here
             std::ifstream t(image_name, std::ios::binary);
             std::string image_data;
 
