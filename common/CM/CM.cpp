@@ -30,12 +30,15 @@ int CM::send_with_ack(Message message_to_send, Message &received_message, int ti
     sockaddr_in sender_addr;
 
     int max_send_retries;
+    int max_recv_retries;
+    received_message.setRPCId(message_to_send.getRPCId()+1);
+
     // Send message and wait for a reply
     // If no reply is sent within timeout_in_ms, bytes_read will be -1
     // If a reply is received, bytes_read will contain a value > 0 indicating the number of bytes read
     // We repeat this send/wait for reply sequence until a reply is received or max_retries reaches 0
     while (max_retries-- && bytes_read == -1) {
-        max_send_retries = max_retries;
+        max_send_retries = max_recv_retries = max_retries;
         bytes_sent = -1;
 
         if(replies[message_to_send.getRPCId() % REPLIES_SIZE] != "") {
@@ -48,10 +51,11 @@ int CM::send_with_ack(Message message_to_send, Message &received_message, int ti
             bytes_sent = send_no_ack(message_to_send, receiver_sock_addr);
 
         if (bytes_sent != -1)
-            bytes_read = recv_with_timeout(received_message, MessageType::Reply, sender_addr, timeout_in_ms);
+            while(max_recv_retries-- && message_to_send.getRPCId() != received_message.getRPCId())
+                bytes_read = recv_with_timeout(received_message, MessageType::Reply, sender_addr, timeout_in_ms);
     }
 
-    return (int) bytes_read;
+    return (int) (message_to_send.getRPCId() == received_message.getRPCId() ? bytes_read : -1);
 }
 
 int CM::send_no_ack(Message message_to_send, char *receiver_addr, uint16_t receiver_port) {
