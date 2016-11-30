@@ -172,9 +172,9 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             params = request.getParams();
             std::string image_id = params[0];
             long int user_token = stoi(params[1]);
-            long int peer_token = stoi(params[2]);
+            std::string allowed_user = params[2];
 
-            auto n = set_image_viewable_by(image_id, user_token, peer_token);
+            auto n = set_image_viewable_by_svc(image_id, user_token, allowed_user);
 
             Message reply(MessageType::Reply, 7, request.getRPCId(), std::to_string(n), reply_params.size(),
                           reply_params);
@@ -305,13 +305,11 @@ int Registry::retrieve_token_svc(std::string username, std::string password, lon
     update_users();
 
     for (int i = 0; i < usr_DB.size(); i++)
-        if (usr_DB[i].username == username) {
-            if (usr_DB[i].password == password) {
-                token = usr_DB[i].token;
-                return 0;
-            } else
-                return -1;
-        }
+        if (usr_DB[i].username == username && usr_DB[i].password == password) {
+            token = usr_DB[i].token;
+            return 0;
+        } else
+            return -1;
 
 
     std::string to_hash = std::string(username) + std::string(password);
@@ -343,6 +341,31 @@ int Registry::check_viewImage_svc(std::string image_id, bool &can_view, long int
 
     return -1;
 }
+
+int Registry::set_image_viewable_by_svc(std::string image_id, long int user_token, std::string allowed_user)
+{
+    update_imageList();
+    long int peer_token = fetch_token(allowed_user);
+    if(peer_token < 0)
+        return -1;
+    for (int i = 0; i < img_DB.size(); i++)
+        if (img_DB[i].token == user_token && img_DB[i].img_name == image_id) {
+            try {
+                SQLite::Database db(pathLocation, SQLite::OPEN_READWRITE, 0, "");
+                SQLite::Statement viewable_by_query(db, "INSERT INTO viewable_by (img_name, token) VALUES ( '" +
+                                                        image_id + "', '" + std::to_string(peer_token) + "');");
+                int noRowsModified = viewable_by_query.exec();
+                return 0;
+            }
+            catch (std::exception &e) {
+                std::cout << "exception: " << e.what() << std::endl;
+            }
+        }
+
+
+    return -1;
+}
+
 
 //should return n?
 void Registry::load_DBs() {
@@ -483,39 +506,10 @@ void Registry::update_viewable_by() {
     }
 }
 
-//int Registry::numbViewsLeft_svc(std::string image_id, long int token)
-//{
-//    update_viewable_by();
-//
-//    for (int i = 0; i < viewable_by_DB.size(); i++)
-//    {
-//        if (viewable_by_DB[i].img_name == image_id && viewable_by_DB[i].token == token)
-//        {
-//
-//            return viewable_by_DB[i].noViews;
-//        }
-//    }
-//}
-
-int Registry::set_image_viewable_by(std::string image_id, long int user_token, long int peer_token)//, int noViews)
-{
-    update_imageList();
-    for (int i = 0; i < img_DB.size(); i++)
-        if (img_DB[i].token == user_token && img_DB[i].img_name == image_id) {
-            try {
-                SQLite::Database db(pathLocation, SQLite::OPEN_READWRITE, 0, "");
-                SQLite::Statement viewable_by_query(db, "INSERT INTO viewable_by (img_name, token) VALUES ( '" +
-                                                        image_id + "', '" + std::to_string(peer_token) + "');");
-                int noRowsModified = viewable_by_query.exec();
-                return 0;
-            }
-            catch (std::exception &e) {
-                std::cout << "exception: " << e.what() << std::endl;
-                std::cout << "exception: " << e.what() << std::endl;
-
-            }
-        }
-
+long int Registry::fetch_token(std::string username) {
+    for (int i = 0; i < usr_DB.size(); i++)
+        if (usr_DB[i].username == username)
+            return usr_DB[i].token;
 
     return -1;
 }
