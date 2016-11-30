@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 
-    // Needed for images to properly resize inside Image Display label
+    // Needed for images to properly scale inside Image Display label
     ui->Image_Display->setScaledContents(true);
 }
 
@@ -46,7 +46,9 @@ void MainWindow::on_Login_clicked() {
 
     int n = peer.retrieve_token(Username, Password, _token);
     token = 0;
+
     ui->Image_Viewable_List->clear();
+    ui->Image_Downloaded_List->clear();
 
     if (n == SUCCESS) {
         token = _token;
@@ -129,8 +131,14 @@ void MainWindow::on_DownloadImage_clicked() {
     std::vector<std::string> image_container;
 
     int n = peer.download_image(Image_Name, token, image_container);
-    if (n == SUCCESS)
+
+    if (n == SUCCESS) {
+        std::ofstream downloaded_image (Image_Name, std::ios::binary);
+        downloaded_image << image_container[0];
+        QString qstring_image_name = QString::fromStdString(Image_Name);
+        ui->Image_Downloaded_List->addItem(qstring_image_name);
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image downloaded successfully."));
+    }
     else
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image failed to download."));
 
