@@ -9,8 +9,8 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), peer(NULL, 1234) {
     ui->setupUi(this);
 
-    QThread* thread = new QThread;
-    Server* server = new Server(&peer);
+    QThread *thread = new QThread;
+    Server *server = new Server(&peer);
     server->moveToThread(thread);
     connect(server, SIGNAL(error(QString)), this, SLOT(errorString(QString)));
     connect(thread, SIGNAL(started()), server, SLOT(runServer()));
@@ -38,42 +38,58 @@ void MainWindow::on_Login_clicked() {
     //peer.registry_port = (uint16_t) stoi(Port);
 
     // TODO: REMOVE THIS
-    peer.registry_addr = "10.40.57.28";
+    peer.registry_addr = "192.168.1.116";
     peer.registry_port = 1234;
 
     int n = peer.retrieve_token(Username, Password, _token);
+    token = 0;
+    ui->Image_Viewable_List->clear();
 
     if (n == SUCCESS) {
-        QMessageBox::information(this, tr("Plumber GUI"), tr("Login Success!."));
         token = _token;
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Login Success!."));
         ui->Login_Color->setStyleSheet("background-color:green");
         ui->Token_Value->setText(QString::number(token));
-    } else
-    {
-        QMessageBox::information(this, tr("Plumber GUI"), tr("Login Failed!."));
+    } else if (n == CONNECTION_ERROR) {
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Connection Error occured"));
         ui->Login_Color->setStyleSheet("background-color:red");
+        ui->Token_Value->setText("Invalid Token");
+    } else {
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Login Failed"));
+        ui->Login_Color->setStyleSheet("background-color:red");
+        ui->Token_Value->setText("Invalid Token");
     }
 }
+
 //////////////// 2  ////////////////
 //Clicking button to view image viewable list.
 void MainWindow::on_Click_View_List_clicked() {
-
     std::vector<std::string> image_container;
+
+    // Clear the viewable images list
+    ui->Image_Viewable_List->clear();
+
     int n = peer.view_imagelist(image_container, token);
-    std::cout << n;
-    for (auto image_name : image_container)
-        ui->Image_Viewable_List->addItem(QString::fromStdString(image_name));
+
+    if (image_container.empty())
+        ui->Image_Viewable_List->addItem("No images available");
+    else
+        for (auto image_name : image_container) {
+            QString line = QString::fromStdString(image_name);
+            ui->Image_Viewable_List->addItem(line);
+        }
 }
+
 //////////////// 3  ////////////////
 //Clicking button to view image downloaded list.
-void MainWindow::on_Click_Downloaded_List_clicked()
-{
+void MainWindow::on_Click_Downloaded_List_clicked() {
     std::vector<std::string> image_container;
     int n = peer.view_imagelist(image_container, token);
     std::cout << n;
     for (auto image_name : image_container)
         ui->Image_Downloaded_List->addItem(QString::fromStdString(image_name));
 }
+
 //////////////// 4  ////////////////
 //Clicking button to add image after entering the image name.
 void MainWindow::on_AddImage_clicked() {
@@ -87,6 +103,7 @@ void MainWindow::on_AddImage_clicked() {
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image failed to add."));
 
 }
+
 //////////////// 5 ////////////////
 //Clicking button to delete image after entering the image name.
 void MainWindow::on_DeleteImage_clicked() {
@@ -100,6 +117,7 @@ void MainWindow::on_DeleteImage_clicked() {
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image failed to remove."));
 
 }
+
 //////////////// 6  ////////////////
 //Clicking button to download image after entering the image name.
 void MainWindow::on_DownloadImage_clicked() {
@@ -108,7 +126,7 @@ void MainWindow::on_DownloadImage_clicked() {
     std::vector<std::string> image_container;
 
     int n = peer.download_image(Image_Name, token, image_container);
-    if(n == SUCCESS)
+    if (n == SUCCESS)
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image downloaded successfully."));
     else
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image failed to download."));
@@ -132,20 +150,16 @@ void MainWindow::on_DownloadImage_clicked() {
 
 //////////////// 7  ////////////////
 //Clicking button to display image after entering the image name.
-void MainWindow::on_Display_Button_clicked()
-{
+void MainWindow::on_Display_Button_clicked() {
     bool can_view;
     std::string Image_Name = ui->ImageName_to_Display->text().toStdString();
     int n = peer.check_viewImage(Image_Name, can_view, token);
 
-    if(n == SUCCESS)
-    {
-        if(can_view == true)
-        {
+    if (n == SUCCESS) {
+        if (can_view) {
             QImage image_to_display(QString::fromStdString(Image_Name));
             ui->Image_Display->setPixmap(QPixmap::fromImage(image_to_display));
-        }
-        else
+        } else
             QMessageBox::information(this, tr("Plumber GUI"), tr("Unauthorized Image Access."));
     }
 
