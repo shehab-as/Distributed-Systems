@@ -49,26 +49,6 @@ void Registry::runRegistry() {
 void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
     // THE GREAT SWITCH
     // Check which RPC method/operation was called and send reply accordingly
-    // 0: view_imagelist_svc(std::vector<std::string> &image_container);
-    // 1: add_entry_svc(std::string image_name);
-    // 2: remove_entry_svc(std::string image_name);
-    // 3: get_client_addr_svc(std::string image_name, sockaddr_in &owner_addr);
-    // 4: retrieve_token_svc(std::string username, std::string password, int &token);
-    // 5: check_viewImage_svc(std::string image_id, bool &can_view, int token);
-    // 6: check_token_svc(long int token);
-    // 7: int set_image_viewable_by(std::string image_id,  long int peer_token);//, int noViews);
-
-    // std::vector<std::string> request_params;
-    //request_params.push_back("img1");
-
-    // request_params.push_back("imgFarida");
-    // request_params.push_back(std::to_string(-401554244));
-
-
-
-
-    //request = Message(MessageType::Request, 7, 1, "null", request_params.size(), request_params);
-
     switch (request.getOperation()) {
         case VIEW_IMAGELIST: {
             std::vector<std::string> image_container, params;
@@ -186,6 +166,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
         }
 
         case SET_IMAGE_VIEWABLE_BY: {
+            // TODO: should take peer username instead of peer token
             std::vector<std::string> params, reply_params;
 
             params = request.getParams();
@@ -241,7 +222,7 @@ int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long
 
 //return 0 if a new image is inserted else -1
 // needs testing
-int Registry::add_entry_svc(std::string image_name, long int token, sockaddr_in owner ) {
+int Registry::add_entry_svc(std::string image_name, long int token, sockaddr_in owner) {
 
     std::string owner_addr = std::to_string(owner.sin_addr.s_addr);
     int owner_port = owner.sin_port;
