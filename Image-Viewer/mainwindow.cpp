@@ -18,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(server, SIGNAL(finished()), server, SLOT(deleteLater()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
+
+    // Needed for images to properly resize inside Image Display label
+    ui->Image_Display->setScaledContents(true);
 }
 
 MainWindow::~MainWindow() {
@@ -137,31 +140,13 @@ void MainWindow::on_DownloadImage_clicked() {
 
 }
 
-// Code for view image
-//std::vector<std::string> image_container;
-//
-//int n = peer.download_image(Image_Name, token, image_container);
-//
-//if(n == SUCCESS)
-//{
-//std::string image_data = image_container[0];
-//std::ofstream outfile (Image_Name, std::ios::binary);
-//outfile << image_data;
-
 //////////////// 7  ////////////////
 //Clicking button to display image after entering the image name.
 void MainWindow::on_Display_Button_clicked() {
-    bool can_view;
+
     std::string Image_Name = ui->ImageName_to_Display->text().toStdString();
-    int n = peer.check_viewImage(Image_Name, can_view, token);
 
-    if (n == SUCCESS) {
-        if (can_view) {
-            QImage image_to_display(QString::fromStdString(Image_Name));
-            ui->Image_Display->setPixmap(QPixmap::fromImage(image_to_display));
-        } else
-            QMessageBox::information(this, tr("Plumber GUI"), tr("Unauthorized Image Access."));
-    }
-
-
+    // TODO: Implement stegnography decoding here, check num of views left, if num of views is 0 display encoded image
+    QImage image_to_display(QString::fromStdString(Image_Name));
+    ui->Image_Display->setPixmap(QPixmap::fromImage(image_to_display));
 }
