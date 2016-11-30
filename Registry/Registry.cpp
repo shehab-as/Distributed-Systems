@@ -90,8 +90,6 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             params = request.getParams();
             std::string image_name = params[0];
             long int token = stoi(params[1]);
-            std::string owner_addr = (params[2]);
-            int owner_port = stoi(params[params.size() - 1]);
 
             auto n = add_entry_svc(image_name, token, sender_addr);
 
