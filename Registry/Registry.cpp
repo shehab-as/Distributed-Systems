@@ -305,11 +305,12 @@ int Registry::retrieve_token_svc(std::string username, std::string password, lon
     update_users();
 
     for (int i = 0; i < usr_DB.size(); i++)
-        if (usr_DB[i].username == username && usr_DB[i].password == password) {
-            token = usr_DB[i].token;
-            return 0;
-        } else
-            return -1;
+        if (usr_DB[i].username == username)
+            if (usr_DB[i].password == password) {
+                token = usr_DB[i].token;
+                return 0;
+            } else
+                return -1;
 
 
     std::string to_hash = std::string(username) + std::string(password);
@@ -342,11 +343,10 @@ int Registry::check_viewImage_svc(std::string image_id, bool &can_view, long int
     return -1;
 }
 
-int Registry::set_image_viewable_by_svc(std::string image_id, long int user_token, std::string allowed_user)
-{
+int Registry::set_image_viewable_by_svc(std::string image_id, long int user_token, std::string allowed_user) {
     update_imageList();
     long int peer_token = fetch_token(allowed_user);
-    if(peer_token < 0)
+    if (peer_token < 0)
         return -1;
     for (int i = 0; i < img_DB.size(); i++)
         if (img_DB[i].token == user_token && img_DB[i].img_name == image_id) {
