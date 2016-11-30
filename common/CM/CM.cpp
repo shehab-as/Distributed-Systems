@@ -351,6 +351,7 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
         Header recv_header = recvd_message.getHeader();
 
 
+        // TODO: Should check if messagetype is a request aswell
         if (recv_header.message_type == MessageType::Reply) {
             rebuilt_request = recvd_message.marshal();
             return (int) recvd_message.marshal().size();
