@@ -14,18 +14,9 @@
 Peer::Peer(char *_listen_hostname, uint16_t _listen_port) :
         CM_Client(_listen_hostname, 0),
         CM_Server(_listen_hostname, _listen_port) {
-    //Each object should have two threads.
-    // Server thread that keeps listening infinitely.
-    // Client thread which provides an interface in Qt.
-//    std::thread Peer_Server, Peer_Client;
-
 }
 
-Peer::~Peer() {
-
-    CM_Client.~CM();
-    CM_Server.~CM();
-}
+Peer::~Peer() {}
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
@@ -111,7 +102,7 @@ int Peer::download_image_svc(std::string image_name, long int token, std::vector
             t.seekg(0, std::ios::beg);
 
             image_data.assign((std::istreambuf_iterator<char>(t)),
-                       std::istreambuf_iterator<char>());
+                              std::istreambuf_iterator<char>());
 
             reply_params.push_back(image_data);
             return 0;
@@ -131,6 +122,7 @@ int Peer::retrieve_token(std::string username, std::string password, long int &t
     Message request(MessageType::Request, 4, RPC_Count++, "NULL", V.size(), V);
     Message reply;
     int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
+
     if (n < 0)
         return CONNECTION_ERROR;
 
@@ -171,13 +163,16 @@ int Peer::add_entry(std::string image_name, long int token) {
     Message reply;
     int n = CM_Server.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
 
-    if(n == -1)
+    if (n == -1)
         return CONNECTION_ERROR;
 
     int reply_return_val = std::stoi(reply.getReturnVal());
+
     if (reply_return_val == -1)
         return GENERAL_ERROR;
 
+    n = set_image_viewable_by(image_name, token, "Zeyad");
+    std::cout << n << std::endl;
     return SUCCESS;
 }
 
@@ -231,5 +226,22 @@ int Peer::check_viewImage(std::string image_name, bool &can_view, long int token
         return GENERAL_ERROR;
 
     can_view = true;
+    return SUCCESS;
+}
+
+int Peer::set_image_viewable_by(std::string image_id, long int user_token, std::string allowed_user) {
+    std::vector<std::string> v{image_id, std::to_string(user_token), allowed_user};
+    Message request(MessageType::Request, 7, RPC_Count++, "NULL", v.size(), v);
+    Message reply;
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
+
+    if (n == -1)
+        return CONNECTION_ERROR;
+
+    int request_reply_val = stoi(reply.getReturnVal());
+
+    if (request_reply_val == -1)
+        return GENERAL_ERROR;
+
     return SUCCESS;
 }

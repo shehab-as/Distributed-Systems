@@ -46,6 +46,7 @@ public:
     int get_client_addr(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token);
     int retrieve_token(std::string username, std::string password, long int &token);
     int check_viewImage(std::string image_name, bool &can_view, long int token);
+    int set_image_viewable_by(std::string image_id, long int user_token, std::string allowed_user);
 };
 
 #endif //DISTRIBUTED_SYSTEMS_PEER_H
