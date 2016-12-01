@@ -89,10 +89,16 @@ void MainWindow::on_Click_View_List_clicked() {
 //Clicking button to view image downloaded list.
 void MainWindow::on_Click_Downloaded_List_clicked() {
     std::vector<std::string> image_container;
+
+    ui->Image_Downloaded_List->clear();
+
     int n = peer.view_imagelist(image_container, token);
     std::cout << n;
-    for (auto image_name : image_container)
-        ui->Image_Downloaded_List->addItem(QString::fromStdString(image_name));
+    if(image_container.empty())
+        ui->Image_Downloaded_List->addItem("No images available.");
+    else
+        for (auto image_name : image_container)
+            ui->Image_Downloaded_List->addItem(QString::fromStdString(image_name));
 }
 
 //////////////// 4  ////////////////
