@@ -41,7 +41,7 @@ void MainWindow::on_Login_clicked() {
     //peer.registry_port = (uint16_t) stoi(Port);
 
     // TODO: REMOVE THIS
-    peer.registry_addr = "192.168.1.116";
+    peer.registry_addr = "10.40.54.1";
     peer.registry_port = 1234;
 
     int n = peer.retrieve_token(Username, Password, _token);
@@ -157,4 +157,11 @@ void MainWindow::on_Display_Button_clicked() {
     // TODO: Implement stegnography decoding here, check num of views left, if num of views is 0 display encoded image
     QImage image_to_display(QString::fromStdString(Image_Name));
     ui->Image_Display->setPixmap(QPixmap::fromImage(image_to_display));
+}
+
+void MainWindow::on_Grant_Access_clicked()
+{
+    std::string Image_Name = ui->Input_Imgname_Allow->text().toStdString();
+    std::string Username = ui->Input_Username_Allow->text().toStdString();
+
 }
