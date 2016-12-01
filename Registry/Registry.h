@@ -35,12 +35,12 @@ private:
         std::string img_name;
         std::string owner_addr;
         int owner_port;
-        int token;
+        long int token;
     };
 
     struct viewable_by {
         std::string img_name;
-        int token;
+        long int token;
         //should have no of views
         //int noViews;
     };
