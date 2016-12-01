@@ -19,12 +19,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 
+
     // Needed for images to properly scale inside Image Display label
     ui->Image_Display->setScaledContents(true);
 }
 
 MainWindow::~MainWindow() {
     delete ui;
+    for(auto image_name : downloaded_image_container)
+        remove((char*)image_name.c_str());
 }
 
 //////////////// 1  ////////////////
@@ -70,12 +73,10 @@ void MainWindow::on_Login_clicked() {
 //Clicking button to view image viewable list.
 void MainWindow::on_Click_View_List_clicked() {
     std::vector<std::string> image_container;
-
     // Clear the viewable images list
     ui->Image_Viewable_List->clear();
 
     int n = peer.view_imagelist(image_container, token);
-
     if (image_container.empty())
         ui->Image_Viewable_List->addItem("No images available");
     else
@@ -88,16 +89,14 @@ void MainWindow::on_Click_View_List_clicked() {
 //////////////// 3  ////////////////
 //Clicking button to view image downloaded list.
 void MainWindow::on_Click_Downloaded_List_clicked() {
-    std::vector<std::string> image_container;
-
     ui->Image_Downloaded_List->clear();
 
-    int n = peer.view_imagelist(image_container, token);
-    std::cout << n;
-    if(image_container.empty())
+    //int n = peer.view_imagelist(downloaded_image_container, token);
+    //std::cout << n;
+    if(downloaded_image_container.empty())
         ui->Image_Downloaded_List->addItem("No images available.");
     else
-        for (auto image_name : image_container)
+        for (auto image_name : downloaded_image_container)
             ui->Image_Downloaded_List->addItem(QString::fromStdString(image_name));
 }
 
@@ -143,6 +142,8 @@ void MainWindow::on_DownloadImage_clicked() {
         downloaded_image << image_container[0];
         QString qstring_image_name = QString::fromStdString(Image_Name);
         ui->Image_Downloaded_List->addItem(qstring_image_name);
+        //Adding the Image to the Downloaded List (Public Attribute)
+        downloaded_image_container.push_back(Image_Name);
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image downloaded successfully."));
     }
     else
