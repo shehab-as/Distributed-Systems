@@ -187,8 +187,6 @@ int Peer::add_entry(std::string image_name, long int token) {
     if (reply_return_val == -1)
         return GENERAL_ERROR;
 
-    n = set_image_viewable_by(image_name, token, "Zeyad");
-    std::cout << n << std::endl;
     return SUCCESS;
 }
 

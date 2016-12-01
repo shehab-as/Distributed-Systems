@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <iostream>
+#include <string>
+#include <vector>
 #include "../Peer/Peer.h"
 
 namespace Ui {
@@ -15,6 +17,7 @@ Q_OBJECT
 public:
     Peer peer;
     long int token;
+    std::vector<std::string> downloaded_image_container;
 
     explicit MainWindow(QWidget *parent = 0);
 
@@ -39,6 +42,8 @@ private slots:
     void on_Click_Downloaded_List_clicked();
 
     void on_Display_Button_clicked();
+
+    void on_Grant_Access_clicked();
 
 private:
     Ui::MainWindow *ui;

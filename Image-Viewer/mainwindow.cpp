@@ -19,12 +19,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 
+
     // Needed for images to properly scale inside Image Display label
     ui->Image_Display->setScaledContents(true);
 }
 
 MainWindow::~MainWindow() {
     delete ui;
+    for(auto image_name : downloaded_image_container)
+        remove((char*)image_name.c_str());
 }
 
 //////////////// 1  ////////////////
@@ -41,7 +44,7 @@ void MainWindow::on_Login_clicked() {
     //peer.registry_port = (uint16_t) stoi(Port);
 
     // TODO: REMOVE THIS
-    peer.registry_addr = "10.0.2.15";
+    peer.registry_addr = "10.40.54.1";
     peer.registry_port = 1234;
 
     int n = peer.retrieve_token(Username, Password, _token);
@@ -70,12 +73,10 @@ void MainWindow::on_Login_clicked() {
 //Clicking button to view image viewable list.
 void MainWindow::on_Click_View_List_clicked() {
     std::vector<std::string> image_container;
-
     // Clear the viewable images list
     ui->Image_Viewable_List->clear();
 
     int n = peer.view_imagelist(image_container, token);
-
     if (image_container.empty())
         ui->Image_Viewable_List->addItem("No images available");
     else
@@ -88,11 +89,15 @@ void MainWindow::on_Click_View_List_clicked() {
 //////////////// 3  ////////////////
 //Clicking button to view image downloaded list.
 void MainWindow::on_Click_Downloaded_List_clicked() {
-    std::vector<std::string> image_container;
-    int n = peer.view_imagelist(image_container, token);
-    std::cout << n;
-    for (auto image_name : image_container)
-        ui->Image_Downloaded_List->addItem(QString::fromStdString(image_name));
+    ui->Image_Downloaded_List->clear();
+
+    //int n = peer.view_imagelist(downloaded_image_container, token);
+    //std::cout << n;
+    if(downloaded_image_container.empty())
+        ui->Image_Downloaded_List->addItem("No images available.");
+    else
+        for (auto image_name : downloaded_image_container)
+            ui->Image_Downloaded_List->addItem(QString::fromStdString(image_name));
 }
 
 //////////////// 4  ////////////////
@@ -137,6 +142,8 @@ void MainWindow::on_DownloadImage_clicked() {
         downloaded_image << image_container[0];
         QString qstring_image_name = QString::fromStdString(Image_Name);
         ui->Image_Downloaded_List->addItem(qstring_image_name);
+        //Adding the Image to the Downloaded List (Public Attribute)
+        downloaded_image_container.push_back(Image_Name);
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image downloaded successfully."));
     }
     else
@@ -157,4 +164,18 @@ void MainWindow::on_Display_Button_clicked() {
     // TODO: Implement stegnography decoding here, check num of views left, if num of views is 0 display encoded image
     QImage image_to_display(QString::fromStdString(Image_Name));
     ui->Image_Display->setPixmap(QPixmap::fromImage(image_to_display));
+}
+
+void MainWindow::on_Grant_Access_clicked()
+{
+    std::string Image_Name = ui->Input_Imgname_Allow->text().toStdString();
+    std::string Username = ui->Input_Username_Allow->text().toStdString();
+
+    int n = peer.set_image_viewable_by(Image_Name, token, Username);
+
+    if(n == SUCCESS)
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully added Viewer."));
+    else
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Failed to add Viewer."));
+
 }

@@ -204,7 +204,7 @@
     <property name="geometry">
      <rect>
       <x>340</x>
-      <y>160</y>
+      <y>180</y>
       <width>141</width>
       <height>22</height>
      </rect>
@@ -217,7 +217,7 @@
     <property name="geometry">
      <rect>
       <x>490</x>
-      <y>160</y>
+      <y>180</y>
       <width>191</width>
       <height>22</height>
      </rect>
@@ -316,6 +316,71 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Grant_Access">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>150</y>
+      <width>131</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Grant Access</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Input_Imgname_Allow">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>150</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Input_Username_Allow">
+    <property name="geometry">
+     <rect>
+      <x>710</x>
+      <y>150</y>
+      <width>131</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>130</y>
+      <width>71</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Username</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>130</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Image Name</string>
     </property>
    </widget>
   </widget>
