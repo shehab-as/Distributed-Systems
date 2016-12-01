@@ -40,8 +40,6 @@ private slots:
 
     void on_Display_Button_clicked();
 
-    void on_pushButton_clicked();
-
     void on_Grant_Access_clicked();
 
 private:

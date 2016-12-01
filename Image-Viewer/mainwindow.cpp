@@ -164,4 +164,11 @@ void MainWindow::on_Grant_Access_clicked()
     std::string Image_Name = ui->Input_Imgname_Allow->text().toStdString();
     std::string Username = ui->Input_Username_Allow->text().toStdString();
 
+    int n = peer.set_image_viewable_by(Image_Name, token, Username);
+
+    if(n == SUCCESS)
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully added Viewer."));
+    else
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Failed to add Viewer."));
+
 }
