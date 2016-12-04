@@ -65,14 +65,12 @@ int Peer::download_image(std::string image_name, long int token, std::vector<std
     std::string owner_addr;
     uint16_t owner_port;
 
-//    int n = get_client_addr(image_name, owner_addr, owner_port, token);
+    int n = get_client_addr(image_name, owner_addr, owner_port, token);
 
     // Needed conversion
-    owner_addr = "10.40.55.114";
-    owner_port = 1234;
-//    owner_addr = std::to_string(htonl((uint32_t) std::stol(owner_addr)));
-//    owner_port = htons(owner_port);
-    int n = SUCCESS;
+    owner_addr = std::to_string(htonl((uint32_t) std::stol(owner_addr)));
+    owner_port = htons(owner_port);
+
     if (n == SUCCESS) {
         std::vector<std::string> v{image_name, std::to_string(token)};
         Message request(MessageType::Request, 0, RPC_Count++, "NULL", v.size(), v);
@@ -106,8 +104,8 @@ int Peer::download_image_svc(std::string image_name, long int token, std::vector
     bool can_view;
 
     // Check if requesting user can view the image
-//    int n = check_viewImage(image_name, can_view, token);
-    int n = SUCCESS;
+    int n = check_viewImage(image_name, can_view, token);
+
     if (n == SUCCESS) {
         try {
             //Hardcoded Value 10

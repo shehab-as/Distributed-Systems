@@ -38,12 +38,12 @@ void MainWindow::on_Login_clicked() {
     std::string Port = ui->Input_Port->text().toStdString();
     long int _token;
 
-    //peer.registry_addr = IP_Address;
-    //peer.registry_port = (uint16_t) stoi(Port);
+    peer.registry_addr = IP_Address;
+    peer.registry_port = (uint16_t) stoi(Port);
 
     // TODO: REMOVE THIS
-    peer.registry_addr = "192.168.43.140";
-    peer.registry_port = 1234;
+//    peer.registry_addr = "192.168.43.140";
+//    peer.registry_port = 1234;
 
     int n = peer.retrieve_token(Username, Password, _token);
     token = 0;
