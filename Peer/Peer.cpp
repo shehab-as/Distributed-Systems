@@ -68,7 +68,7 @@ int Peer::download_image(std::string image_name, long int token, std::vector<std
 //    int n = get_client_addr(image_name, owner_addr, owner_port, token);
 
     // Needed conversion
-    owner_addr = "10.40.55.114";
+    owner_addr = "10.40.35.51";
     owner_port = 1234;
 //    owner_addr = std::to_string(htonl((uint32_t) std::stol(owner_addr)));
 //    owner_port = htons(owner_port);

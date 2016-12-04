@@ -195,7 +195,7 @@ void MainWindow::on_Display_Button_clicked() {
         //Encoding.
         CMD = "steghide embed -cf " + Real_Image + " -ef " + Views_File + " -p '' ";
         system(CMD.c_str());
-        CMD = "steghide embed - cf " + Image_Name + " -ef " + Real_Image + " -p '' ";
+        CMD = "steghide embed -cf " + Image_Name + " -ef " + Real_Image + " -p '' ";
         system(CMD.c_str());
 
         remove(Real_Image.c_str());
