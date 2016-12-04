@@ -42,7 +42,7 @@ void MainWindow::on_Login_clicked() {
     //peer.registry_port = (uint16_t) stoi(Port);
 
     // TODO: REMOVE THIS
-    peer.registry_addr = "10.7.57.117";
+    peer.registry_addr = "192.168.43.140";
     peer.registry_port = 1234;
 
     int n = peer.retrieve_token(Username, Password, _token);
@@ -161,10 +161,9 @@ void MainWindow::on_Display_Button_clicked() {
 
     //Image_Name --> Dummy Image. The Real Image is inside it. The Views File is inside Real Image.
     std::string Image_Name = ui->ImageName_to_Display->text().toStdString();
-    std::string Real_Image,
-                Views_File = Image_Name+"_Views.txt";
+    std::string Real_Image = "OG_" + Image_Name,
+                Views_File = Image_Name.substr(0, Image_Name.find('.')) + "_Views.txt";
     std::ifstream Read_File;
-    Read_File.open(Views_File);
     int views;
     // TODO: Implement stegnography decoding here, check num of views left, if num of views is 0 display encoded image
     std::string CMD;
@@ -176,6 +175,7 @@ void MainWindow::on_Display_Button_clicked() {
     system(CMD.c_str());
     //Getting Views Value from File.
     std::string line;
+    Read_File.open(Views_File);
     getline(Read_File, line);
     views = std::stoi(line);
     Read_File.close();
@@ -186,6 +186,7 @@ void MainWindow::on_Display_Button_clicked() {
         QImage real_image_to_display(QString::fromStdString(Real_Image));
         ui->Image_Display->setPixmap(QPixmap::fromImage(real_image_to_display));
         views--;
+        std::cout << views << std::endl;
         std::ofstream Write_File;
         Write_File.open(Views_File);
         Write_File << views;
@@ -197,6 +198,7 @@ void MainWindow::on_Display_Button_clicked() {
         CMD = "steghide embed - cf " + Image_Name + " -ef " + Real_Image + " -p '' ";
         system(CMD.c_str());
 
+        remove(Real_Image.c_str());
         remove(Views_File.c_str());
     } else
         //If Views reached to 0, Display the dummy image.
