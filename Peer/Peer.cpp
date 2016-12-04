@@ -118,9 +118,9 @@ int Peer::download_image_svc(std::string image_name, long int token, std::vector
             std::string CMD;
             //Encoding.
             CMD = "steghide embed -cf " + image_name + " -ef " + File_Views + " -p '' ";
-            system(CMD);
+            system(CMD.c_str());
             CMD = "steghide embed -cf " + dummy_image + " -ef " + image_name + " -p '' ";
-            system(CMD);
+            system(CMD.c_str());
 
             // TODO: Encode the original image into the dummy one here
             std::ifstream t(image_name, std::ios::binary);

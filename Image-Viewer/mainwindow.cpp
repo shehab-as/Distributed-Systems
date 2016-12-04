@@ -8,7 +8,6 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), peer(NULL, 1234) {
     ui->setupUi(this);
-
     QThread *thread = new QThread;
     Server *server = new Server(&peer);
     server->moveToThread(thread);
@@ -28,13 +27,10 @@ MainWindow::~MainWindow() {
     delete ui;
     for(auto image_name : downloaded_image_container)
         remove((char*)image_name.c_str());
-    for(auto text_file_name : downloaded_viewsTXT_container)
-        remove((char*)text_file_name.c_str());
 }
 
 //////////////// 1  ////////////////
 void MainWindow::on_Login_clicked() {
-
     //Getting Values
     std::string Username = ui->Input_Username->text().toStdString();
     std::string Password = ui->Input_Password->text().toStdString();
@@ -107,7 +103,7 @@ void MainWindow::on_Click_Downloaded_List_clicked() {
 void MainWindow::on_AddImage_clicked() {
     std::string Image_Name = ui->Input_Add_Name->text().toStdString();
     std::stringstream CMD;
-    CMD << "steghide embed -cf " + Image_Name + " -ef "
+    CMD << "steghide embed -cf " + Image_Name + " -ef ";
 
     int n = peer.add_entry(Image_Name, token);
 
@@ -175,9 +171,9 @@ void MainWindow::on_Display_Button_clicked() {
 
     //Decoding.
     CMD = "steghide extract -sf " + Image_Name + " -xf " + Real_Image + " -p '' ";
-    system(CMD);
+    system(CMD.c_str());
     CMD = "steghide extract -sf " + Real_Image + " -xf " + Views_File + " -p '' ";
-    system(CMD);
+    system(CMD.c_str());
     //Getting Views Value from File.
     std::string line;
     getline(Read_File, line);
@@ -197,11 +193,11 @@ void MainWindow::on_Display_Button_clicked() {
 
         //Encoding.
         CMD = "steghide embed -cf " + Real_Image + " -ef " + Views_File + " -p '' ";
-        system(CMD);
+        system(CMD.c_str());
         CMD = "steghide embed - cf " + Image_Name + " -ef " + Real_Image + " -p '' ";
-        system(CMD);
+        system(CMD.c_str());
 
-        remove(Views_File);
+        remove(Views_File.c_str());
     } else
         //If Views reached to 0, Display the dummy image.
     {
