@@ -111,7 +111,7 @@ int Peer::download_image_svc(std::string image_name, long int token, std::vector
     if (n == SUCCESS) {
         try {
             //Hardcoded Value 10
-            int views = 1;
+            int views = 3;
             std::string views_text = image_name.substr(0, image_name.find('.')) + "_Views.txt";
             std::string dummy_image = "dummy.jpg";
             std::ofstream File;
@@ -120,9 +120,9 @@ int Peer::download_image_svc(std::string image_name, long int token, std::vector
             File.close();
             std::string CMD;
             //Encoding.
-            CMD = "steghide embed -cf " + image_name + " -ef " + views_text + " -p '' ";
+            CMD = "steghide embed -cf " + image_name + " -ef " + views_text + " -p '' --force";
             system(CMD.c_str());
-            CMD = "steghide embed -cf " + dummy_image + " -ef " + image_name + " -p '' ";
+            CMD = "steghide embed -cf " + dummy_image + " -ef " + image_name + " -p '' --force";
             system(CMD.c_str());
 
             // TODO: Encode the original image into the dummy one here
