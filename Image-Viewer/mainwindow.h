@@ -18,7 +18,6 @@ public:
     Peer peer;
     long int token;
     std::vector<std::string> downloaded_image_container;
-    std::vector<std::string> downloaded_files_container;
 
     explicit MainWindow(QWidget *parent = 0);
 
