@@ -218,7 +218,7 @@
      <rect>
       <x>490</x>
       <y>180</y>
-      <width>191</width>
+      <width>161</width>
       <height>22</height>
      </rect>
     </property>
@@ -308,10 +308,10 @@
    <widget class="QLabel" name="Image_Display">
     <property name="geometry">
      <rect>
-      <x>320</x>
+      <x>290</x>
       <y>220</y>
-      <width>511</width>
-      <height>461</height>
+      <width>561</width>
+      <height>501</height>
      </rect>
     </property>
     <property name="text">
@@ -381,6 +381,32 @@
     </property>
     <property name="text">
      <string>Image Name</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>180</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Remaining Views:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Views_Value">
+    <property name="geometry">
+     <rect>
+      <x>770</x>
+      <y>180</y>
+      <width>59</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
     </property>
    </widget>
   </widget>

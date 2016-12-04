@@ -186,6 +186,7 @@ void MainWindow::on_Display_Button_clicked() {
         QImage real_image_to_display(QString::fromStdString(Real_Image));
         ui->Image_Display->setPixmap(QPixmap::fromImage(real_image_to_display));
         views--;
+        ui->Views_Value->setText(QString::number(views));
         std::cout << views << std::endl;
         std::ofstream Write_File;
         Write_File.open(Views_File);
@@ -205,6 +206,7 @@ void MainWindow::on_Display_Button_clicked() {
     {
         QImage dummy_image_to_display(QString::fromStdString(Image_Name));
         ui->Image_Display->setPixmap(QPixmap::fromImage(dummy_image_to_display));
+        ui->Views_Value->setText(QString::number(views));
     }
 }
 
