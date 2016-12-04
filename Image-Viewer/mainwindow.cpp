@@ -169,9 +169,9 @@ void MainWindow::on_Display_Button_clicked() {
     std::string CMD;
 
     //Decoding.
-    CMD = "steghide extract -sf " + Image_Name + " -xf " + Real_Image + " -p '' ";
+    CMD = "steghide extract -sf " + Image_Name + " -xf " + Real_Image + " -p '' --force";
     system(CMD.c_str());
-    CMD = "steghide extract -sf " + Real_Image + " -xf " + Views_File + " -p '' ";
+    CMD = "steghide extract -sf " + Real_Image + " -xf " + Views_File + " -p '' --force";
     system(CMD.c_str());
     //Getting Views Value from File.
     std::string line;
@@ -194,9 +194,9 @@ void MainWindow::on_Display_Button_clicked() {
         Write_File.close();
 
         //Encoding.
-        CMD = "steghide embed -cf " + Real_Image + " -ef " + Views_File + " -p '' ";
+        CMD = "steghide embed -cf " + Real_Image + " -ef " + Views_File + " -p '' --force";
         system(CMD.c_str());
-        CMD = "steghide embed -cf " + Image_Name + " -ef " + Real_Image + " -p '' ";
+        CMD = "steghide embed -cf " + Image_Name + " -ef " + Real_Image + " -p '' --force";
         system(CMD.c_str());
 
         remove(Real_Image.c_str());
