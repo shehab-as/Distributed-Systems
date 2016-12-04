@@ -42,7 +42,7 @@ void MainWindow::on_Login_clicked() {
     //peer.registry_port = (uint16_t) stoi(Port);
 
     // TODO: REMOVE THIS
-    peer.registry_addr = "10.40.54.1";
+    peer.registry_addr = "10.7.57.117";
     peer.registry_port = 1234;
 
     int n = peer.retrieve_token(Username, Password, _token);
