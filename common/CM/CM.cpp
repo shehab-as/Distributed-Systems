@@ -206,7 +206,7 @@ ssize_t CM::send_message(Message message_to_send, sockaddr_in receiver_sock_addr
 
 ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_sock_addr) {
     // Maximum time (in ms) to wait for an ack
-    const int ACK_TIMEOUT = 250;
+    const int ACK_TIMEOUT = 750;
 
     // Max attempts at sending a fragment
     const int MAX_RETRIES = 5;
@@ -297,7 +297,7 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
 
 int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, sockaddr_in &sender_addr) {
     // Maximum time (in ms) to wait for an ack
-    const int ACK_TIMEOUT = 250;
+    const int ACK_TIMEOUT = 750;
 
     const int MAX_RETRIES = 5;
     int max_retries;

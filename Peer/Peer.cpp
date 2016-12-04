@@ -78,7 +78,7 @@ int Peer::download_image(std::string image_name, long int token, std::vector<std
         Message request(MessageType::Request, 0, RPC_Count++, "NULL", v.size(), v);
         Message reply;
 
-        n = CM_Client.send_with_ack(request, reply, 1000, 10, (char *) owner_addr.c_str(), owner_port);
+        n = CM_Client.send_with_ack(request, reply, 2000, 10, (char *) owner_addr.c_str(), owner_port);
 
         if (n == -1)
             return CONNECTION_ERROR;
@@ -101,7 +101,7 @@ int Peer::download_image(std::string image_name, long int token, std::vector<std
 //             Peer RPC Implementation          //
 /////////////////////////////////////////////////
 
-// TODO: Finish this
+
 int Peer::download_image_svc(std::string image_name, long int token, std::vector<std::string> &reply_params) {
     bool can_view;
 
