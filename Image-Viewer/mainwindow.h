@@ -45,6 +45,8 @@ private slots:
 
     void on_Grant_Access_clicked();
 
+    void on_Revoke_Access_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>872</width>
-    <height>759</height>
+    <width>937</width>
+    <height>789</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -203,8 +203,8 @@
    <widget class="QPushButton" name="Display_Button">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>180</y>
+      <x>330</x>
+      <y>220</y>
       <width>141</width>
       <height>22</height>
      </rect>
@@ -216,8 +216,8 @@
    <widget class="QLineEdit" name="ImageName_to_Display">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>180</y>
+      <x>480</x>
+      <y>220</y>
       <width>161</width>
       <height>22</height>
      </rect>
@@ -309,8 +309,8 @@
     <property name="geometry">
      <rect>
       <x>290</x>
-      <y>220</y>
-      <width>561</width>
+      <y>260</y>
+      <width>621</width>
       <height>501</height>
      </rect>
     </property>
@@ -387,7 +387,7 @@
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>180</y>
+      <y>220</y>
       <width>121</width>
       <height>20</height>
      </rect>
@@ -399,14 +399,53 @@
    <widget class="QLabel" name="Views_Value">
     <property name="geometry">
      <rect>
-      <x>770</x>
-      <y>180</y>
+      <x>780</x>
+      <y>220</y>
       <width>59</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="Revoke_Access">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>180</y>
+      <width>131</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Revoke Access</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Input_Imgname_Revoke">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>180</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Input_Username_Revoke">
+    <property name="geometry">
+     <rect>
+      <x>710</x>
+      <y>180</y>
+      <width>131</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

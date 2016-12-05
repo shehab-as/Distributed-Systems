@@ -204,6 +204,8 @@ void MainWindow::on_Display_Button_clicked() {
     } else
         //If Views reached to 0, Display the dummy image.
     {
+        if(Read_File.good())
+            remove(Views_File.c_str());
         QImage dummy_image_to_display(QString::fromStdString(Image_Name));
         ui->Image_Display->setPixmap(QPixmap::fromImage(dummy_image_to_display));
         ui->Views_Value->setText(QString::number(views));
@@ -218,8 +220,21 @@ void MainWindow::on_Grant_Access_clicked()
     int n = peer.set_image_viewable_by(Image_Name, token, Username);
 
     if(n == SUCCESS)
-        QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully added Viewer."));
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully added access."));
     else
-        QMessageBox::information(this, tr("Plumber GUI"), tr("Failed to add Viewer."));
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Failed to add access."));
 
+}
+
+void MainWindow::on_Revoke_Access_clicked()
+{
+    std::string Image_Name = ui->Input_Imgname_Allow->text().toStdString();
+    std::string Username = ui->Input_Username_Revoke->text().toStdString();
+
+    // int n = Farid'a function.
+
+    if( n == SUCCESS)
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully revoked access."));
+    else
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Failed to revoke access added."));
 }
