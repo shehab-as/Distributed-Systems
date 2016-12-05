@@ -213,9 +213,8 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
 //////////////////////////////////////////////////
 //           Registry RPC Implementation        //
 /////////////////////////////////////////////////
-int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long int token) {
-
-
+int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long int token)
+{
     if (viewable_by_DB.empty())
         return -1;
     else

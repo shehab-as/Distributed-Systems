@@ -179,6 +179,8 @@ void MainWindow::on_Display_Button_clicked() {
     getline(Read_File, line);
     views = std::stoi(line);
     Read_File.close();
+    // views got the value from the file. Deleted file.
+    remove(Views_File.c_str());
 
     if(views > 0)
         //If Views > 0, Display the real embedded image.
@@ -219,11 +221,24 @@ void MainWindow::on_Grant_Access_clicked()
 
     int n = peer.set_image_viewable_by(Image_Name, token, Username);
 
-    if(n == SUCCESS)
-        QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully added access."));
-    else
-        QMessageBox::information(this, tr("Plumber GUI"), tr("Failed to add access."));
+    switch (n)
+    {
+        case SUCCESS:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully added access!"));
+            break;
+        case UNAUTHORIZED_ACCESS:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("Unauthorized access!"));
+            break;
+        case CONNECTION_ERROR:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("Connection Error!"));
+            break;
+        case GENERAL_ERROR:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("General Error: Failed to add access!"));
+            break;
 
+        default:
+            break;
+    }
 }
 
 //Function Revoking Access from User.
@@ -233,9 +248,22 @@ void MainWindow::on_Revoke_Access_clicked()
     std::string Username = ui->Input_Username_Revoke->text().toStdString();
 
     int n = peer.revoke_access(Image_Name, token, Username);
+    switch (n)
+    {
+        case SUCCESS:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully revoked access!"));
+            break;
+        case UNAUTHORIZED_ACCESS:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("Unauthorized access!"));
+            break;
+        case CONNECTION_ERROR:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("Connection Error!"));
+            break;
+        case GENERAL_ERROR:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("General Error: Failed to revoke access!"));
+            break;
 
-    if( n == SUCCESS)
-        QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully revoked access."));
-    else
-        QMessageBox::information(this, tr("Plumber GUI"), tr("Failed to revoke access."));
+        default:
+            break;
+    }
 }
