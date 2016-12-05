@@ -166,7 +166,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
         }
 
         case SET_IMAGE_VIEWABLE_BY: {
-            // TODO: should take peer username instead of peer token
+
             std::vector<std::string> params, reply_params;
 
             params = request.getParams();
@@ -177,6 +177,25 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             auto n = set_image_viewable_by_svc(image_id, user_token, allowed_user);
 
             Message reply(MessageType::Reply, 7, request.getRPCId(), std::to_string(n), reply_params.size(),
+                          reply_params);
+
+            serverConnector.send_no_ack(reply, sender_addr);
+            break;
+
+        }
+
+        case REVOKE_ACCESS: {
+
+            std::vector<std::string> params, reply_params;
+
+            params = request.getParams();
+            std::string image_id = params[0];
+            long int user_token = stoi(params[1]);
+            std::string user_to_revoke = params[2];
+
+            auto n = revoke_access_svc(image_id, user_token, user_to_revoke);
+
+            Message reply(MessageType::Reply, 8, request.getRPCId(), std::to_string(n), reply_params.size(),
                           reply_params);
 
             serverConnector.send_no_ack(reply, sender_addr);
@@ -199,6 +218,8 @@ int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long
 
     if (viewable_by_DB.empty())
         return -1;
+    else
+        update_viewable_by();
 
     auto n = check_token_svc(token);
     update_imageList();
@@ -247,7 +268,7 @@ int Registry::add_entry_svc(std::string image_name, long int token, sockaddr_in 
 
         }
         catch (std::exception &e) {
-            std::cout << "exception: " << e.what() << std::endl;
+            std::cout << "add_entry_svc exception: " << e.what() << std::endl;
         }
 
     } else {
@@ -260,9 +281,15 @@ int Registry::add_entry_svc(std::string image_name, long int token, sockaddr_in 
 int Registry::remove_entry_svc(std::string image_name, long int token) {
 
     auto n = check_token_svc(token);
+    bool check_owner = false;
+
+    for (int i = 0; i < img_DB.size(); i++)
+        if (img_DB[i].img_name == image_name)
+            if (img_DB[i].token == token)
+                check_owner = true;
 
 //    const char const_char_image_name = image_name;
-    if (n == 0) {
+    if (n == 0 && check_owner) {
         try {
             SQLite::Database db(pathLocation, SQLite::OPEN_READWRITE, 0, "");
             SQLite::Statement view_query(db, "DELETE FROM viewable_by WHERE img_name ='" + image_name + "';");
@@ -270,10 +297,12 @@ int Registry::remove_entry_svc(std::string image_name, long int token) {
             SQLite::Statement img_query(db, "DELETE FROM image WHERE Img_name ='" + image_name + "' and token= " +
                                             std::to_string(token) + " ;");
             int noRowsModified = img_query.exec();
+            update_viewable_by();
+            update_imageList();
             return 0;
         }
         catch (std::exception &e) {
-            std::cout << "exception: " << e.what() << std::endl;
+            std::cout << "remove_entry_svc exception: " << e.what() << std::endl;
         }
 
     } else {
@@ -344,10 +373,11 @@ int Registry::check_viewImage_svc(std::string image_id, bool &can_view, long int
 }
 
 int Registry::set_image_viewable_by_svc(std::string image_id, long int user_token, std::string allowed_user) {
+
     update_imageList();
     long int peer_token = fetch_token(allowed_user);
-    if (peer_token < 0)
-        return -1;
+
+
     for (int i = 0; i < img_DB.size(); i++)
         if (img_DB[i].token == user_token && img_DB[i].img_name == image_id) {
             try {
@@ -358,7 +388,7 @@ int Registry::set_image_viewable_by_svc(std::string image_id, long int user_toke
                 return 0;
             }
             catch (std::exception &e) {
-                std::cout << "exception: " << e.what() << std::endl;
+                std::cout << "set_image_viewable_by_svc exception: " << e.what() << std::endl;
             }
         }
 
@@ -414,7 +444,7 @@ void Registry::load_DBs() {
 
     }
     catch (std::exception &e) {
-        std::cout << "exception: " << e.what() << std::endl;
+        std::cout << "load_DBs exception: " << e.what() << std::endl;
     }
 
 }
@@ -453,7 +483,7 @@ void Registry::update_users() {
         }
     }
     catch (std::exception &e) {
-        std::cout << "exception: " << e.what() << std::endl;
+        std::cout << " update_users exception: " << e.what() << std::endl;
     }
 
 
@@ -511,4 +541,42 @@ long int Registry::fetch_token(std::string username) {
             return usr_DB[i].token;
 
     return -1;
+}
+
+int Registry::revoke_access_svc(std::string image_id, long int user_token, std::string user_to_revoke) {
+
+    update_viewable_by();
+    auto n = check_token_svc(user_token);
+    bool check_owner = false;
+
+    if (n == 0) {
+        for (int i = 0; i < img_DB.size(); i++)     //check that the user is the owner of the image
+            if (img_DB[i].img_name == image_id)
+                if (img_DB[i].token == user_token)
+                    check_owner = true;
+    } else
+        return -1;
+
+    long int peer_token = fetch_token(user_to_revoke);
+
+    for (int i = 0; i < img_DB.size(); i++)
+        if ((viewable_by_DB[i].token == peer_token && viewable_by_DB[i].img_name == image_id) && check_owner) {
+            try {
+                SQLite::Database db(pathLocation, SQLite::OPEN_READWRITE, 0, "");
+
+                SQLite::Statement viewable_by_query(db, "DELETE FROM viewable_by WHERE img_name ='" + image_id +
+                                                        "' AND token= " + std::to_string(peer_token) + ";");
+                int noRowsModified = viewable_by_query.exec();
+                update_viewable_by();
+                return 0;
+
+            }
+            catch (std::exception &e) {
+                std::cout << "revoke_access_svc exception: " << e.what() << std::endl;
+            }
+        } else return -1;
+
+
+
+    return 0;
 }

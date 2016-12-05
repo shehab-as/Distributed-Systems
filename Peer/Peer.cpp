@@ -273,3 +273,22 @@ int Peer::set_image_viewable_by(std::string image_id, long int user_token, std::
 
     return SUCCESS;
 }
+
+int Peer::revoke_access(std::string image_id, long int user_token, std::string user_to_revoke) {
+
+    std::vector<std::string> v{image_id, std::to_string(user_token), user_to_revoke};
+    Message request(MessageType::Request, 8, RPC_Count++, "NULL", v.size(), v);
+    Message reply;
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
+
+    if (n == -1)
+        return CONNECTION_ERROR;
+
+    int request_reply_val = stoi(reply.getReturnVal());
+
+    if (request_reply_val == -1)
+        return GENERAL_ERROR;
+
+    return SUCCESS;
+
+}
