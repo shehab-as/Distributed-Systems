@@ -252,6 +252,12 @@ int Registry::add_entry_svc(std::string image_name, long int token, sockaddr_in 
 
     //if token is correct, insert imagename, owner_addr, owner_port
 
+    update_imageList();
+
+    for (int i =0; i < img_DB.size(); i++)
+        if (img_DB[i].img_name==image_name)
+            return 0;
+
     if (n == 0) {
         try {
             // Open a database file
@@ -376,6 +382,12 @@ int Registry::set_image_viewable_by_svc(std::string image_id, long int user_toke
 
     update_imageList();
     long int peer_token = fetch_token(allowed_user);
+
+    update_viewable_by();
+
+    for (int i = 0; i < viewable_by_DB.size(); i++)
+        if(viewable_by_DB[i].img_name == image_id && viewable_by_DB[i].token == peer_token)
+            return 0;
 
 
     for (int i = 0; i < img_DB.size(); i++)
@@ -559,13 +571,13 @@ int Registry::revoke_access_svc(std::string image_id, long int user_token, std::
 
     long int peer_token = fetch_token(user_to_revoke);
 
-    for (int i = 0; i < img_DB.size(); i++)
-        if ((viewable_by_DB[i].token == peer_token && viewable_by_DB[i].img_name == image_id) && check_owner) {
+    for (int i = 0; i < viewable_by_DB.size(); i++)
+        if ((viewable_by_DB[i].token == peer_token && viewable_by_DB[i].img_name == image_id) && check_owner)
             try {
                 SQLite::Database db(pathLocation, SQLite::OPEN_READWRITE, 0, "");
 
                 SQLite::Statement viewable_by_query(db, "DELETE FROM viewable_by WHERE img_name ='" + image_id +
-                                                        "' AND token= " + std::to_string(peer_token) + ";");
+                                                        "' and token= " + std::to_string(peer_token) + ";");
                 int noRowsModified = viewable_by_query.exec();
                 update_viewable_by();
                 return 0;
@@ -574,9 +586,9 @@ int Registry::revoke_access_svc(std::string image_id, long int user_token, std::
             catch (std::exception &e) {
                 std::cout << "revoke_access_svc exception: " << e.what() << std::endl;
             }
-        } else return -1;
+
+    return -1;
 
 
-
-    return 0;
+    //return 0;
 }
