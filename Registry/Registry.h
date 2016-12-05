@@ -75,6 +75,7 @@ public:
     int check_token_svc(long int token);
     //int numbViewsLeft_svc(std::string image_id,long int token);
     int set_image_viewable_by_svc(std::string image_id, long int user_token, std::string allowed_user);
+    int revoke_access_svc (std::string image_id, long int user_token, std::string revoked_user);
 };
 
 

@@ -264,7 +264,7 @@ int Registry::remove_entry_svc(std::string image_name, long int token) {
     auto n = check_token_svc(token);
     bool check_owner = false;
 
-    for ( int i = 0; i < img_DB.size(); i++)
+    for (int i = 0; i < img_DB.size(); i++)
         if (img_DB[i].img_name == image_name)
             if (img_DB[i].token == token)
                 check_owner = true;
@@ -521,4 +521,27 @@ long int Registry::fetch_token(std::string username) {
             return usr_DB[i].token;
 
     return -1;
+}
+
+int Registry::revoke_access_svc(std::string image_id, long int user_token, std::string revoked_user) {
+
+
+    long int peer_token = fetch_token(revoked_user);
+
+    for (int i = 0; i < img_DB.size(); i++)
+        if (img_DB[i].token == user_token && img_DB[i].img_name == image_id) {
+            try {
+                SQLite::Database db(pathLocation, SQLite::OPEN_READWRITE, 0, "");
+
+                SQLite::Statement viewable_by_query(db, "DELETE FROM viewable_by WHERE img_name ='" + image_id +
+                                                        "' AND token= " + std::to_string(peer_token) + ";");
+                int noRowsModified = viewable_by_query.exec();
+                return 0;
+
+            }
+            catch (std::exception &e) {
+                std::cout << "set_image_viewable_by_svc exception: " << e.what() << std::endl;
+            }
+        }
+    return 0;
 }
