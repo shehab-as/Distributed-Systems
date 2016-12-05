@@ -184,6 +184,25 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
 
         }
 
+        case REVOKE_ACCESS: {
+
+            std::vector<std::string> params, reply_params;
+
+            params = request.getParams();
+            std::string image_id = params[0];
+            long int user_token = stoi(params[1]);
+            std::string revoked_user = params[2];
+
+            auto n = revoke_access_svc(image_id, user_token, revoked_user);
+
+            Message reply(MessageType::Reply, 8, request.getRPCId(), std::to_string(n), reply_params.size(),
+                          reply_params);
+
+            serverConnector.send_no_ack(reply, sender_addr);
+            break;
+
+        }
+
         default: {
             break;
         }
@@ -354,10 +373,11 @@ int Registry::check_viewImage_svc(std::string image_id, bool &can_view, long int
 }
 
 int Registry::set_image_viewable_by_svc(std::string image_id, long int user_token, std::string allowed_user) {
+
     update_imageList();
     long int peer_token = fetch_token(allowed_user);
-//    if (peer_token < 0)
-//        return -1;
+
+
     for (int i = 0; i < img_DB.size(); i++)
         if (img_DB[i].token == user_token && img_DB[i].img_name == image_id) {
             try {
@@ -525,11 +545,21 @@ long int Registry::fetch_token(std::string username) {
 
 int Registry::revoke_access_svc(std::string image_id, long int user_token, std::string revoked_user) {
 
+    auto n = check_token_svc(user_token);
+    bool check_owner = false;
+
+    if (n == 0) {
+        for (int i = 0; i < img_DB.size(); i++)     //check that the user is the owner of the image
+            if (img_DB[i].img_name == image_id)
+                if (img_DB[i].token == user_token)
+                    check_owner = true;
+    } else
+        return -1;
 
     long int peer_token = fetch_token(revoked_user);
 
     for (int i = 0; i < img_DB.size(); i++)
-        if (img_DB[i].token == user_token && img_DB[i].img_name == image_id) {
+        if ((viewable_by_DB[i].token == peer_token && viewable_by_DB[i].img_name == image_id) && check_owner) {
             try {
                 SQLite::Database db(pathLocation, SQLite::OPEN_READWRITE, 0, "");
 
@@ -540,8 +570,8 @@ int Registry::revoke_access_svc(std::string image_id, long int user_token, std::
 
             }
             catch (std::exception &e) {
-                std::cout << "set_image_viewable_by_svc exception: " << e.what() << std::endl;
+                std::cout << "revoke_access_svc exception: " << e.what() << std::endl;
             }
-        }
+        } else return -1;
     return 0;
 }
