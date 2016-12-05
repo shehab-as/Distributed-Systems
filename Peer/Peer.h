@@ -1,11 +1,3 @@
-r RPC implementations
-    int download_image_svc(std::string image_name, long int token, std::vector<std::string>& reply_params);
-
-    // Registry RPC Stubs
-    int view_imagelist(std::vector<std::string> &image_container, long int token);
-    int add_entry(std::string image_name, long int token);
-    int remove_entry(std::string image_name, long int token);
-    int ge//
 // Created by shehab on 11/18/16.
 //
 
@@ -43,11 +35,22 @@ public:
     // Peer RPC stubs
     int download_image(std::string image_name, long int token, std::vector<std::string> &reply_params);
 
-    // Peer_client_addr(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token);
+    // RPC implementations
+    int download_image_svc(std::string image_name, long int token, std::vector<std::string>& reply_params);
+
+    // Registry RPC Stubs
+    int view_imagelist(std::vector<std::string> &image_container, long int token);
+    int add_entry(std::string image_name, long int token);
+    int remove_entry(std::string image_name, long int token);
+    int get_client_addr(std::string image_name, std::string &owner_addr, uint16_t &owner_port, long int token);
     int retrieve_token(std::string username, std::string password, long int &token);
     int check_viewImage(std::string image_name, bool &can_view, long int token);
     int set_image_viewable_by(std::string image_id, long int user_token, std::string allowed_user);
+    //New Function
     int revoke_access(std::string image_id, long int user_token, std::string user_to_revoke);
+
+
 };
+
 
 #endif //DISTRIBUTED_SYSTEMS_PEER_H
