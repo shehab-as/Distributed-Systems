@@ -166,7 +166,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
         }
 
         case SET_IMAGE_VIEWABLE_BY: {
-            // TODO: should take peer username instead of peer token
+
             std::vector<std::string> params, reply_params;
 
             params = request.getParams();
@@ -191,9 +191,9 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             params = request.getParams();
             std::string image_id = params[0];
             long int user_token = stoi(params[1]);
-            std::string revoked_user = params[2];
+            std::string user_to_revoke = params[2];
 
-            auto n = revoke_access_svc(image_id, user_token, revoked_user);
+            auto n = revoke_access_svc(image_id, user_token, user_to_revoke);
 
             Message reply(MessageType::Reply, 8, request.getRPCId(), std::to_string(n), reply_params.size(),
                           reply_params);
@@ -543,8 +543,9 @@ long int Registry::fetch_token(std::string username) {
     return -1;
 }
 
-int Registry::revoke_access_svc(std::string image_id, long int user_token, std::string revoked_user) {
+int Registry::revoke_access_svc(std::string image_id, long int user_token, std::string user_to_revoke) {
 
+    update_viewable_by();
     auto n = check_token_svc(user_token);
     bool check_owner = false;
 
@@ -556,7 +557,7 @@ int Registry::revoke_access_svc(std::string image_id, long int user_token, std::
     } else
         return -1;
 
-    long int peer_token = fetch_token(revoked_user);
+    long int peer_token = fetch_token(user_to_revoke);
 
     for (int i = 0; i < img_DB.size(); i++)
         if ((viewable_by_DB[i].token == peer_token && viewable_by_DB[i].img_name == image_id) && check_owner) {
@@ -566,6 +567,7 @@ int Registry::revoke_access_svc(std::string image_id, long int user_token, std::
                 SQLite::Statement viewable_by_query(db, "DELETE FROM viewable_by WHERE img_name ='" + image_id +
                                                         "' AND token= " + std::to_string(peer_token) + ";");
                 int noRowsModified = viewable_by_query.exec();
+                update_viewable_by();
                 return 0;
 
             }
@@ -573,5 +575,8 @@ int Registry::revoke_access_svc(std::string image_id, long int user_token, std::
                 std::cout << "revoke_access_svc exception: " << e.what() << std::endl;
             }
         } else return -1;
+
+
+
     return 0;
 }

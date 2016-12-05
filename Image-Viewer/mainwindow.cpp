@@ -223,3 +223,17 @@ void MainWindow::on_Grant_Access_clicked()
         QMessageBox::information(this, tr("Plumber GUI"), tr("Failed to add Viewer."));
 
 }
+
+//void MainWindow::on_revoke_Access_clicked()
+//{
+//    std::string Image_Name = ui->Input_Imgname_Allow->text().toStdString();
+//    std::string Username = ui->Input_Username_Allow->text().toStdString();
+//
+//    int n = peer.revoke_access(Image_Name, token, Username);
+//
+//    if(n == SUCCESS)
+//        QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully Removed Viewer."));
+//    else
+//        QMessageBox::information(this, tr("Plumber GUI"), tr("Failed to Remove Viewer."));
+//
+//}
