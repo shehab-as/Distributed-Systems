@@ -8,7 +8,6 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow), peer(NULL, 1234) {
     ui->setupUi(this);
-
     QThread *thread = new QThread;
     Server *server = new Server(&peer);
     server->moveToThread(thread);
@@ -32,7 +31,6 @@ MainWindow::~MainWindow() {
 
 //////////////// 1  ////////////////
 void MainWindow::on_Login_clicked() {
-
     //Getting Values
     std::string Username = ui->Input_Username->text().toStdString();
     std::string Password = ui->Input_Password->text().toStdString();
@@ -40,12 +38,12 @@ void MainWindow::on_Login_clicked() {
     std::string Port = ui->Input_Port->text().toStdString();
     long int _token;
 
-    //peer.registry_addr = IP_Address;
-    //peer.registry_port = (uint16_t) stoi(Port);
+    peer.registry_addr = IP_Address;
+    peer.registry_port = (uint16_t) stoi(Port);
 
     // TODO: REMOVE THIS
-    peer.registry_addr = "10.40.54.1";
-    peer.registry_port = 1234;
+//    peer.registry_addr = "192.168.43.140";
+//    peer.registry_port = 1234;
 
     int n = peer.retrieve_token(Username, Password, _token);
     token = 0;
@@ -104,6 +102,8 @@ void MainWindow::on_Click_Downloaded_List_clicked() {
 //Clicking button to add image after entering the image name.
 void MainWindow::on_AddImage_clicked() {
     std::string Image_Name = ui->Input_Add_Name->text().toStdString();
+    std::stringstream CMD;
+    CMD << "steghide embed -cf " + Image_Name + " -ef ";
 
     int n = peer.add_entry(Image_Name, token);
 
@@ -159,11 +159,55 @@ void MainWindow::on_DownloadImage_clicked() {
 //Clicking button to display image after entering the image name.
 void MainWindow::on_Display_Button_clicked() {
 
+    //Image_Name --> Dummy Image. The Real Image is inside it. The Views File is inside Real Image.
     std::string Image_Name = ui->ImageName_to_Display->text().toStdString();
-
+    std::string Real_Image = "OG_" + Image_Name,
+                Views_File = Image_Name.substr(0, Image_Name.find('.')) + "_Views.txt";
+    std::ifstream Read_File;
+    int views;
     // TODO: Implement stegnography decoding here, check num of views left, if num of views is 0 display encoded image
-    QImage image_to_display(QString::fromStdString(Image_Name));
-    ui->Image_Display->setPixmap(QPixmap::fromImage(image_to_display));
+    std::string CMD;
+
+    //Decoding.
+    CMD = "steghide extract -sf " + Image_Name + " -xf " + Real_Image + " -p '' --force";
+    system(CMD.c_str());
+    CMD = "steghide extract -sf " + Real_Image + " -xf " + Views_File + " -p '' --force";
+    system(CMD.c_str());
+    //Getting Views Value from File.
+    std::string line;
+    Read_File.open(Views_File);
+    getline(Read_File, line);
+    views = std::stoi(line);
+    Read_File.close();
+
+    if(views > 0)
+        //If Views > 0, Display the real embedded image.
+    {
+        QImage real_image_to_display(QString::fromStdString(Real_Image));
+        ui->Image_Display->setPixmap(QPixmap::fromImage(real_image_to_display));
+        views--;
+        ui->Views_Value->setText(QString::number(views));
+        std::cout << views << std::endl;
+        std::ofstream Write_File;
+        Write_File.open(Views_File);
+        Write_File << views;
+        Write_File.close();
+
+        //Encoding.
+        CMD = "steghide embed -cf " + Real_Image + " -ef " + Views_File + " -p '' --force";
+        system(CMD.c_str());
+        CMD = "steghide embed -cf " + Image_Name + " -ef " + Real_Image + " -p '' --force";
+        system(CMD.c_str());
+
+        remove(Real_Image.c_str());
+        remove(Views_File.c_str());
+    } else
+        //If Views reached to 0, Display the dummy image.
+    {
+        QImage dummy_image_to_display(QString::fromStdString(Image_Name));
+        ui->Image_Display->setPixmap(QPixmap::fromImage(dummy_image_to_display));
+        ui->Views_Value->setText(QString::number(views));
+    }
 }
 
 void MainWindow::on_Grant_Access_clicked()

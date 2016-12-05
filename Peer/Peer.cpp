@@ -99,7 +99,7 @@ int Peer::download_image(std::string image_name, long int token, std::vector<std
 //             Peer RPC Implementation          //
 /////////////////////////////////////////////////
 
-// TODO: Finish this
+
 int Peer::download_image_svc(std::string image_name, long int token, std::vector<std::string> &reply_params) {
     bool can_view;
 
@@ -108,9 +108,23 @@ int Peer::download_image_svc(std::string image_name, long int token, std::vector
 
     if (n == SUCCESS) {
         try {
+            //Hardcoded Value 10
+            int views = 3;
+            std::string views_text = image_name.substr(0, image_name.find('.')) + "_Views.txt";
+            std::string dummy_image = "dummy.jpg";
+            std::ofstream File;
+            File.open(views_text);
+            File << views;
+            File.close();
+            std::string CMD;
+            //Encoding.
+            CMD = "steghide embed -cf " + image_name + " -ef " + views_text + " -p '' --force";
+            system(CMD.c_str());
+            CMD = "steghide embed -cf " + dummy_image + " -ef " + image_name + " -p '' --force";
+            system(CMD.c_str());
 
             // TODO: Encode the original image into the dummy one here
-            std::ifstream t(image_name, std::ios::binary);
+            std::ifstream t(dummy_image, std::ios::binary);
             std::string image_data;
 
             t.seekg(0, std::ios::end);
