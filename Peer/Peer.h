@@ -46,8 +46,9 @@ public:
     int retrieve_token(std::string username, std::string password, long int &token);
     int check_viewImage(std::string image_name, bool &can_view, long int token);
     int set_image_viewable_by(std::string image_id, long int user_token, std::string allowed_user);
-    //New Function
+    //New Functions
     int revoke_access(std::string image_id, long int user_token, std::string user_to_revoke);
+    int check_views_update(std::string image_name, long int, int&);
 
 
 };
