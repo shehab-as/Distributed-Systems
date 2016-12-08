@@ -15,7 +15,7 @@ enum Operation {
     CHECK_TOKEN,
     SET_IMAGE_VIEWABLE_BY,
     REVOKE_ACCESS,
-    CHECK_VIEWS_UPDATE
+    UPDATE_VIEWS
 };
 
 class Registry {
@@ -76,8 +76,10 @@ public:
     int check_viewImage_svc(std::string image_id, bool &can_view, long int token);
     int check_token_svc(long int token);
     int set_image_viewable_by_svc(std::string image_id, long int user_token, std::string allowed_user);
+    //New functions.
     int revoke_access_svc (std::string image_id, long int user_token, std::string user_to_revoke);
-    int check_views_update_svc(std::string image_name, long int user_token, int& views_val);
+    int update_views_svc(std::string image_name, long int user_token, int& views);
+    int retrieve_updated_views(std::string image_name, long int user_token, int& views);
 };
 
 

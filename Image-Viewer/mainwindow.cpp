@@ -155,32 +155,31 @@ void MainWindow::on_DownloadImage_clicked() {
 }
 
 //Function Updating Views of an image from User.
+//~~~~~~~~~~~~~~~~~NOT WORKING YET.~~~~~~~~~~~~~~~~~//
 void MainWindow::on_UpdateViews_clicked()
 {
     std::string Image_Name = ui->Input_Views_Name->text().toStdString();
     int Views_Val = ui->Input_ViewsNo->text().toInt();
 
-    // ~~~~ Uncomment code below when function check views is implemented. ~~~~//
+    int n = peer.update_views(Image_Name, token, Views_Val);
 
-//    int n = peer.check_views_update(Image_Name, token, Views_Val);
-
-//    switch (n)
-//    {
-//        case SUCCESS:
-//            QMessageBox::information(this, tr("Plumber GUI"), tr("Views successfully updated!"));
-//            break;
-//        case UNAUTHORIZED_ACCESS:
-//            QMessageBox::information(this, tr("Plumber GUI"), tr("Unauthorized access!"));
-//            break;
-//        case CONNECTION_ERROR:
-//            QMessageBox::information(this, tr("Plumber GUI"), tr("Connection Error!"));
-//            break;
-//        case GENERAL_ERROR:
-//            QMessageBox::information(this, tr("Plumber GUI"), tr("General Error: Failed to update views!"));
-//            break;
-//        default:
-//            break;
-//    }
+    switch (n)
+    {
+        case SUCCESS:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("Views successfully updated!"));
+            break;
+        case UNAUTHORIZED_ACCESS:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("Unauthorized access!"));
+            break;
+        case CONNECTION_ERROR:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("Connection Error!"));
+            break;
+        case GENERAL_ERROR:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("General Error: Failed to update views!"));
+            break;
+        default:
+            break;
+    }
 
 }
 

@@ -203,20 +203,21 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
 
         }
 
-        case CHECK_VIEWS_UPDATE: {
+        case UPDATE_VIEWS: {
             std::vector<std::string> params, reply_params;
 
             params = request.getParams();
             std::string image_name = params[0];
             long int user_token = stoi(params[1]);
-            int nice_view = stoi(params[2]);
+            int views = stoi(params[2]);
 
-            auto n = check_views_update_svc(image_name, user_token, nice_view);
+            auto n = update_views_svc(image_name, user_token, views);
 
             Message reply(MessageType::Reply, 9, request.getRPCId(), std::to_string(n), reply_params.size(),
                             reply_params);
 
             serverConnector.send_no_ack(reply, sender_addr);
+            break;
         }
         default: {
             break;
@@ -421,7 +422,7 @@ int Registry::set_image_viewable_by_svc(std::string image_id, long int user_toke
 
     return -1;
 }
-int Registry::check_views_update_svc(std::string image_name, long int user_token, int& views_val)
+int Registry::update_views_svc(std::string image_name, long int user_token, int& views_val)
 {
 
     //TO DO..
