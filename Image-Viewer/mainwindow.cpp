@@ -128,7 +128,6 @@ void MainWindow::on_DeleteImage_clicked() {
 
 }
 
-//////////////// 6  ////////////////
 //Clicking button to download image after entering the image name.
 void MainWindow::on_DownloadImage_clicked() {
 
@@ -155,7 +154,37 @@ void MainWindow::on_DownloadImage_clicked() {
 
 }
 
-//////////////// 7  ////////////////
+//Function Updating Views of an image from User.
+void MainWindow::on_UpdateViews_clicked()
+{
+    std::string Image_Name = ui->Input_Views_Name->text().toStdString();
+    int Views_Val = ui->Input_ViewsNo->text().toInt();
+
+    // ~~~~ Uncomment code below when function check views is implemented. ~~~~//
+
+//    int n = peer.check_views_update(Image_Name, token, Views_Val);
+
+//    switch (n)
+//    {
+//        case SUCCESS:
+//            QMessageBox::information(this, tr("Plumber GUI"), tr("Views successfully updated!"));
+//            break;
+//        case UNAUTHORIZED_ACCESS:
+//            QMessageBox::information(this, tr("Plumber GUI"), tr("Unauthorized access!"));
+//            break;
+//        case CONNECTION_ERROR:
+//            QMessageBox::information(this, tr("Plumber GUI"), tr("Connection Error!"));
+//            break;
+//        case GENERAL_ERROR:
+//            QMessageBox::information(this, tr("Plumber GUI"), tr("General Error: Failed to update views!"));
+//            break;
+//        default:
+//            break;
+//    }
+
+}
+
+
 //Clicking button to display image after entering the image name.
 void MainWindow::on_Display_Button_clicked() {
 
@@ -267,3 +296,4 @@ void MainWindow::on_Revoke_Access_clicked()
             break;
     }
 }
+

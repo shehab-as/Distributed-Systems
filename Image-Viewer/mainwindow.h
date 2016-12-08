@@ -47,6 +47,8 @@ private slots:
 
     void on_Revoke_Access_clicked();
 
+    void on_UpdateViews_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
