@@ -67,11 +67,11 @@ int Peer::download_image(std::string image_name, long int token, std::vector<std
 
     int n = get_client_addr(image_name, owner_addr, owner_port, token);
 
-    // Needed conversion
-    owner_addr = std::to_string(htonl((uint32_t) std::stol(owner_addr)));
-    owner_port = htons(owner_port);
-
     if (n == SUCCESS) {
+        // Needed conversion
+        owner_addr = std::to_string(htonl((uint32_t) std::stol(owner_addr)));
+        owner_port = htons(owner_port);
+
         std::vector<std::string> v{image_name, std::to_string(token)};
         Message request(MessageType::Request, 0, RPC_Count++, "NULL", v.size(), v);
         Message reply;

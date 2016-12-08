@@ -31,7 +31,7 @@ int CM::send_with_ack(Message message_to_send, Message &received_message, int ti
 
     int max_send_retries;
     int max_recv_retries;
-    received_message.setRPCId(message_to_send.getRPCId()+1);
+    received_message.setRPCId(message_to_send.getRPCId() + 1);
 
     // Send message and wait for a reply
     // If no reply is sent within timeout_in_ms, bytes_read will be -1
@@ -41,7 +41,7 @@ int CM::send_with_ack(Message message_to_send, Message &received_message, int ti
         max_send_retries = max_recv_retries = max_retries;
         bytes_sent = -1;
 
-        if(replies[message_to_send.getRPCId() % REPLIES_SIZE] != "") {
+        if (replies[message_to_send.getRPCId() % REPLIES_SIZE] != "") {
             received_message = Message((char *) replies[message_to_send.getRPCId() % REPLIES_SIZE].c_str());
             bytes_read = replies[message_to_send.getRPCId() % REPLIES_SIZE].size();
             break;
@@ -51,7 +51,7 @@ int CM::send_with_ack(Message message_to_send, Message &received_message, int ti
             bytes_sent = send_no_ack(message_to_send, receiver_sock_addr);
 
         if (bytes_sent != -1)
-            while(max_recv_retries-- && message_to_send.getRPCId() != received_message.getRPCId())
+            while (max_recv_retries-- && message_to_send.getRPCId() != received_message.getRPCId())
                 bytes_read = recv_with_timeout(received_message, MessageType::Reply, sender_addr, timeout_in_ms);
     }
 
@@ -206,7 +206,7 @@ ssize_t CM::send_message(Message message_to_send, sockaddr_in receiver_sock_addr
 
 ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_sock_addr) {
     // Maximum time (in ms) to wait for an ack
-    const int ACK_TIMEOUT = 300;
+    const int ACK_TIMEOUT = 800;
 
     // Max attempts at sending a fragment
     const int MAX_RETRIES = 5;
@@ -297,7 +297,7 @@ ssize_t CM::send_fragments(Message message_to_fragment, sockaddr_in receiver_soc
 
 int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, sockaddr_in &sender_addr) {
     // Maximum time (in ms) to wait for an ack
-    const int ACK_TIMEOUT = 300;
+    const int ACK_TIMEOUT = 800;
 
     const int MAX_RETRIES = 5;
     int max_retries;
@@ -357,13 +357,13 @@ int CM::rebuild_request(char *initial_fragment, std::string &rebuilt_request, so
             return (int) recvd_message.marshal().size();
         }
 
-        // Last packet in the fragmented packets
-        if (recv_header.fragmented == -1 && recv_header.message_type == MessageType::LastFrag) {
-            still_fragmented = false;
-            total_bytes_read += bytes_read;
-        }
-
         if (recv_header.sequence_id == last_sequence_id_recv + 1) {
+            // Last packet in the fragmented packets
+            if (recv_header.fragmented == -1 && recv_header.message_type == MessageType::LastFrag) {
+                still_fragmented = false;
+                total_bytes_read += bytes_read;
+            }
+
             // Update sequence id of last received fragment and update the sequence id of the next ack
             last_sequence_id_recv++;
             ack_header.sequence_id++;
