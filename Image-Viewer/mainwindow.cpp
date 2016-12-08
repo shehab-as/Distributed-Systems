@@ -206,8 +206,12 @@ void MainWindow::on_Display_Button_clicked() {
     Read_File.open(Views_File);
     getline(Read_File, line);
     views = std::stoi(line);
+
+    // Uncomment when DB part is implemented.
+    // Below Peer will call this function to check the recent value of Views everytime.
+    //peer.retrieve_updated_views(Image_Name, token, views);
+
     Read_File.close();
-    // views got the value from the file. Deleted file.
     remove(Views_File.c_str());
 
     if(views > 0)
