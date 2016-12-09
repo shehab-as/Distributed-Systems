@@ -83,37 +83,11 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>670</x>
-      <y>10</y>
-      <width>41</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Token: </string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="Token_Value">
-    <property name="geometry">
-     <rect>
-      <x>720</x>
-      <y>10</y>
-      <width>101</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
    <widget class="QPushButton" name="AddImage">
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>40</y>
+      <y>10</y>
       <width>131</width>
       <height>22</height>
      </rect>
@@ -126,7 +100,7 @@
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>70</y>
+      <y>40</y>
       <width>131</width>
       <height>22</height>
      </rect>
@@ -139,7 +113,7 @@
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>100</y>
+      <y>70</y>
       <width>131</width>
       <height>22</height>
      </rect>
@@ -152,7 +126,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>40</y>
+      <y>10</y>
       <width>161</width>
       <height>22</height>
      </rect>
@@ -165,7 +139,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>70</y>
+      <y>40</y>
       <width>161</width>
       <height>22</height>
      </rect>
@@ -178,7 +152,7 @@
     <property name="geometry">
      <rect>
       <x>580</x>
-      <y>100</y>
+      <y>70</y>
       <width>161</width>
       <height>22</height>
      </rect>
@@ -446,6 +420,97 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>30</y>
+      <width>181</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>41</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Token: </string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="Token_Value">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>10</y>
+       <width>111</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="UpdateViews">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>100</y>
+      <width>131</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Update Views</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Input_Views_Name">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>100</y>
+      <width>161</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Input_ViewsNo">
+    <property name="geometry">
+     <rect>
+      <x>750</x>
+      <y>100</y>
+      <width>31</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>790</x>
+      <y>100</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Views</string>
     </property>
    </widget>
   </widget>

@@ -203,6 +203,41 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
 
         }
 
+        case UPDATE_VIEWS: {
+            std::vector<std::string> params, reply_params;
+
+            params = request.getParams();
+            std::string image_name = params[0];
+            long int user_token = stoi(params[1]);
+            int views = stoi(params[2]);
+
+            auto n = update_views_svc(image_name, user_token, views);
+
+            Message reply(MessageType::Reply, 9, request.getRPCId(), std::to_string(n), reply_params.size(),
+                            reply_params);
+
+            serverConnector.send_no_ack(reply, sender_addr);
+            break;
+        }
+
+        case RETRIEVE_UPDATED_VIEWS: {
+
+            std::vector<std::string> params, reply_params;
+            long int token;
+
+            params = request.getParams();
+            std::string image_name = params[0];
+            long int user_token = stoi(params[1]);
+            int views = stoi(params[2]);
+
+            auto n = retrieve_updated_views_svc(image_name, user_token, views);
+
+            Message reply(MessageType::Reply, 10, request.getRPCId(), std::to_string(n), reply_params.size(),
+                          reply_params);
+
+            serverConnector.send_no_ack(reply, sender_addr);
+            break;
+        }
         default: {
             break;
         }
@@ -373,7 +408,6 @@ int Registry::check_viewImage_svc(std::string image_id, bool &can_view, long int
             return 0;
         }
 
-
     return -1;
 }
 
@@ -402,10 +436,24 @@ int Registry::set_image_viewable_by_svc(std::string image_id, long int user_toke
                 std::cout << "set_image_viewable_by_svc exception: " << e.what() << std::endl;
             }
         }
-
-
     return -1;
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+int Registry::update_views_svc(std::string image_name, long int user_token, int& views_val)
+{
+
+    //TO DO..
+}
+
+int Registry::retrieve_updated_views_svc(std::string image_name, long int user_token, int& views)
+{
+
+    //TO DO..
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
 //should return n?

@@ -292,3 +292,35 @@ int Peer::revoke_access(std::string image_id, long int user_token, std::string u
     return SUCCESS;
 
 }
+
+int Peer::update_views(std::string image_name, long int user_token, int& views)
+{
+    std::vector<std::string> v{image_name, std::to_string(user_token), std::to_string(views)};
+    Message request(MessageType::Request, 9, RPC_Count++, "NULL", v.size(), v);
+    Message reply;
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
+    if(n == -1)
+        return CONNECTION_ERROR;
+
+    int request_reply_val = stoi(reply.getReturnVal());
+    if( request_reply_val == -1)
+        return GENERAL_ERROR;
+
+    return SUCCESS;
+}
+
+int Peer::retrieve_updated_views(std::string image_name, long int user_token, int &views)
+{
+    std::vector<std::string> v{image_name, std::to_string(user_token), std::to_string(views)};
+    Message request(MessageType::Request, 10, RPC_Count++, "NULL", v.size(), v);
+    Message reply;
+    int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
+    if(n == -1)
+        return CONNECTION_ERROR;
+
+    int request_reply_val = stoi(reply.getReturnVal());
+    if(request_reply_val == -1)
+        return GENERAL_ERROR;
+
+    return SUCCESS;
+}
