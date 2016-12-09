@@ -15,11 +15,11 @@ Registry::Registry(char *_listen_hostname, uint16_t _listen_port, int num_of_wor
     std::vector<std::thread> workers;
     load_DBs();
 
-    for (int i = 0; i < num_of_workers; i++)
-        workers.push_back(std::thread(&Registry::runRegistry, this));
-
-    for (int i = 0; i < num_of_workers; i++)
-        workers[i].join();
+//    for (int i = 0; i < num_of_workers; i++)
+//        workers.push_back(std::thread(&Registry::runRegistry, this));
+//
+//    for (int i = 0; i < num_of_workers; i++)
+//        workers[i].join();
 
 }
 
@@ -173,8 +173,9 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             std::string image_id = params[0];
             long int user_token = stoi(params[1]);
             std::string allowed_user = params[2];
+            int views = stoi(params[3]);
 
-            auto n = set_image_viewable_by_svc(image_id, user_token, allowed_user);
+            auto n = set_image_viewable_by_svc(image_id, user_token, allowed_user, views);
 
             Message reply(MessageType::Reply, 7, request.getRPCId(), std::to_string(n), reply_params.size(),
                           reply_params);
@@ -209,12 +210,14 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             params = request.getParams();
             std::string image_name = params[0];
             long int user_token = stoi(params[1]);
-            int views = stoi(params[2]);
+            std::string allowed_user = params[2];
+            int views = stoi(params[3]);
 
-            auto n = update_views_svc(image_name, user_token, views);
+
+            auto n = update_views_svc(image_name, user_token, allowed_user, views);
 
             Message reply(MessageType::Reply, 9, request.getRPCId(), std::to_string(n), reply_params.size(),
-                            reply_params);
+                          reply_params);
 
             serverConnector.send_no_ack(reply, sender_addr);
             break;
@@ -223,14 +226,14 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
         case RETRIEVE_UPDATED_VIEWS: {
 
             std::vector<std::string> params, reply_params;
-            long int token;
 
             params = request.getParams();
             std::string image_name = params[0];
             long int user_token = stoi(params[1]);
-            int views = stoi(params[2]);
+            std::string allowed_user = params[2];
+            int views = stoi(params[3]);
 
-            auto n = retrieve_updated_views_svc(image_name, user_token, views);
+            auto n = retrieve_updated_views_svc(image_name, user_token, allowed_user, views);
 
             Message reply(MessageType::Reply, 10, request.getRPCId(), std::to_string(n), reply_params.size(),
                           reply_params);
@@ -248,8 +251,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
 //////////////////////////////////////////////////
 //           Registry RPC Implementation        //
 /////////////////////////////////////////////////
-int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long int token)
-{
+int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long int token) {
     if (viewable_by_DB.empty())
         return -1;
     else
@@ -288,8 +290,8 @@ int Registry::add_entry_svc(std::string image_name, long int token, sockaddr_in 
 
     update_imageList();
 
-    for (int i =0; i < img_DB.size(); i++)
-        if (img_DB[i].img_name==image_name)
+    for (int i = 0; i < img_DB.size(); i++)
+        if (img_DB[i].img_name == image_name)
             return 0;
 
     if (n == 0) {
@@ -411,15 +413,19 @@ int Registry::check_viewImage_svc(std::string image_id, bool &can_view, long int
     return -1;
 }
 
-int Registry::set_image_viewable_by_svc(std::string image_id, long int user_token, std::string allowed_user) {
+int
+Registry::set_image_viewable_by_svc(std::string image_id, long int user_token, std::string allowed_user, int views) {
 
     update_imageList();
     long int peer_token = fetch_token(allowed_user);
 
+    if (peer_token == -1)
+        return -1;
+
     update_viewable_by();
 
     for (int i = 0; i < viewable_by_DB.size(); i++)
-        if(viewable_by_DB[i].img_name == image_id && viewable_by_DB[i].token == peer_token)
+        if (viewable_by_DB[i].img_name == image_id && viewable_by_DB[i].token == peer_token)
             return 0;
 
 
@@ -427,8 +433,9 @@ int Registry::set_image_viewable_by_svc(std::string image_id, long int user_toke
         if (img_DB[i].token == user_token && img_DB[i].img_name == image_id) {
             try {
                 SQLite::Database db(pathLocation, SQLite::OPEN_READWRITE, 0, "");
-                SQLite::Statement viewable_by_query(db, "INSERT INTO viewable_by (img_name, token) VALUES ( '" +
-                                                        image_id + "', '" + std::to_string(peer_token) + "');");
+                SQLite::Statement viewable_by_query(db, "INSERT INTO viewable_by (img_name, token, views) VALUES ( '" +
+                                                        image_id + "', '" + std::to_string(peer_token) + " ' , '" +
+                                                        std::to_string(views) + "');");
                 int noRowsModified = viewable_by_query.exec();
                 return 0;
             }
@@ -441,16 +448,55 @@ int Registry::set_image_viewable_by_svc(std::string image_id, long int user_toke
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-int Registry::update_views_svc(std::string image_name, long int user_token, int& views_val)
-{
+int Registry::update_views_svc(std::string image_name, long int user_token, std::string allowed_user, int views_val) {
 
-    //TO DO..
+
+    long int peer_token = fetch_token(allowed_user);
+
+    if (peer_token == -1)
+        return -1;
+
+    for (int i = 0; i < img_DB.size(); i++)
+        if (img_DB[i].token == user_token && img_DB[i].img_name == image_name) {
+            try {
+                SQLite::Database db(pathLocation, SQLite::OPEN_READWRITE, 0, "");
+                SQLite::Statement update_views_query(db,
+                                                     "UPDATE viewable_by SET views = '" + std::to_string(views_val) +
+                                                     "' WHERE img_name = '" + image_name + "' AND token = '" +
+                                                     std::to_string(peer_token) + "' ;");
+                int noRowsModified = update_views_query.exec();
+                update_viewable_by();
+                return 0;
+            }
+            catch (std::exception &e) {
+                std::cout << "update_views_svc exception: " << e.what() << std::endl;
+            }
+        }
+    return -1;
+
 }
 
-int Registry::retrieve_updated_views_svc(std::string image_name, long int user_token, int& views)
-{
+int Registry::retrieve_updated_views_svc(std::string image_name, long int user_token, std::string allowed_user,
+                                         int &views) {
 
-    //TO DO..
+    long int peer_token = fetch_token(allowed_user);
+
+    if (peer_token == -1)
+        return -1;
+
+    update_viewable_by();
+
+    for (int i = 0; i < img_DB.size(); i++)
+        if (img_DB[i].token == user_token && img_DB[i].img_name == image_name) {
+            for (int i = 0; i < viewable_by_DB.size(); i++)
+                if (viewable_by_DB[i].img_name == image_name && viewable_by_DB[i].token == peer_token) {
+                    views = viewable_by_DB[i].views;
+                    return 0;
+                }
+        }
+
+
+    return -1;
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
@@ -496,6 +542,7 @@ void Registry::load_DBs() {
 
             view.img_name = viewable_by_query.getColumn(0).getString();
             view.token = viewable_by_query.getColumn(1);
+            view.views = viewable_by_query.getColumn(2);
 
             viewable_by_DB.push_back(view);
         }
@@ -585,6 +632,7 @@ void Registry::update_viewable_by() {
 
             view.img_name = viewable_by_query.getColumn(0).getString();
             view.token = viewable_by_query.getColumn(1);
+            view.views = viewable_by_query.getColumn(2);
 
             viewable_by_DB.push_back(view);
         }

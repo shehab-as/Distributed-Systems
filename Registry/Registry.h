@@ -44,8 +44,7 @@ private:
     struct viewable_by {
         std::string img_name;
         long int token;
-        //should have no of views
-        //int noViews;
+        int views;
     };
 
     // vectors contain the tables of the database
@@ -76,11 +75,14 @@ public:
     int retrieve_token_svc(  std:: string username,  std::string password, long int &token);
     int check_viewImage_svc(std::string image_id, bool &can_view, long int token);
     int check_token_svc(long int token);
-    int set_image_viewable_by_svc(std::string image_id, long int user_token, std::string allowed_user);
+    int set_image_viewable_by_svc(std::string image_id, long int user_token, std::string allowed_user, int views);
     //New functions.
     int revoke_access_svc (std::string image_id, long int user_token, std::string user_to_revoke);
-    int update_views_svc(std::string image_name, long int user_token, int& views);
-    int retrieve_updated_views_svc(std::string image_name, long int user_token, int& views);
+    int update_views_svc(std::string image_name, long int user_token, std::string allowed_user, int views);
+    int retrieve_updated_views_svc(std::string image_name, long int user_token, std::string allowed_user, int& views);
+
+
+
 };
 
 

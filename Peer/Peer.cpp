@@ -257,8 +257,8 @@ int Peer::check_viewImage(std::string image_name, bool &can_view, long int token
     return SUCCESS;
 }
 
-int Peer::set_image_viewable_by(std::string image_id, long int user_token, std::string allowed_user) {
-    std::vector<std::string> v{image_id, std::to_string(user_token), allowed_user};
+int Peer::set_image_viewable_by(std::string image_id, long int user_token, std::string allowed_user, int views) {
+    std::vector<std::string> v{image_id, std::to_string(user_token), allowed_user, std::to_string(views)};
     Message request(MessageType::Request, 7, RPC_Count++, "NULL", v.size(), v);
     Message reply;
     int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
@@ -293,9 +293,9 @@ int Peer::revoke_access(std::string image_id, long int user_token, std::string u
 
 }
 
-int Peer::update_views(std::string image_name, long int user_token, int& views)
+int Peer::update_views(std::string image_name, long int user_token, std::string allowed_user, int views)
 {
-    std::vector<std::string> v{image_name, std::to_string(user_token), std::to_string(views)};
+    std::vector<std::string> v{image_name, std::to_string(user_token), allowed_user, std::to_string(views)};
     Message request(MessageType::Request, 9, RPC_Count++, "NULL", v.size(), v);
     Message reply;
     int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);
@@ -309,9 +309,9 @@ int Peer::update_views(std::string image_name, long int user_token, int& views)
     return SUCCESS;
 }
 
-int Peer::retrieve_updated_views(std::string image_name, long int user_token, int &views)
+int Peer::retrieve_updated_views(std::string image_name, long int user_token, std::string allowed_user, int &views)
 {
-    std::vector<std::string> v{image_name, std::to_string(user_token), std::to_string(views)};
+    std::vector<std::string> v{image_name, std::to_string(user_token), allowed_user, std::to_string(views)};
     Message request(MessageType::Request, 10, RPC_Count++, "NULL", v.size(), v);
     Message reply;
     int n = CM_Client.send_with_ack(request, reply, 500, 5, (char *) registry_addr.c_str(), registry_port);

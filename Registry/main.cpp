@@ -7,5 +7,11 @@ int main() {
     //FOR FOREIGN KEY CONSTRAINT TO WORK, MUST WRITE -> PRAGMA foreign_keys = ON; IN SQLITE TERMINAL
 
     Registry Reg(NULL, 1234, 10, "/home/farida/NEW_DB2.db");
+    int n ;
+    int x;
 
+    n = Reg.retrieve_updated_views_svc("dog.jpg", 900, "malak", x);
+
+    std::cout << "n: " << n << std::endl;
+    std::cout << "x: " << x << std::endl;
 }
