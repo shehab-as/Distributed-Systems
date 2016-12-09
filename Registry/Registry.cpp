@@ -532,7 +532,7 @@ void Registry::update_viewable_by() {
 
     try {
         SQLite::Database db(pathLocation);
-        SQLite::Statement viewable_by_query(db, "SELECT * FROM viewable_by");
+        SQLite::Statement viewable_by_query(db, "SELECT * FROM viewable_by;");
         while (viewable_by_query.executeStep()) {
 
             view.img_name = viewable_by_query.getColumn(0).getString();
