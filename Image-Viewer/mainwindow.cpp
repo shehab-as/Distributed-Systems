@@ -159,9 +159,10 @@ void MainWindow::on_DownloadImage_clicked() {
 void MainWindow::on_UpdateViews_clicked()
 {
     std::string Image_Name = ui->Input_Views_Name->text().toStdString();
+    std::string Update_Username_views = ui->Input_Username_ViewsUpdate->text().toStdString();
     int Views_Val = ui->Input_ViewsNo->text().toInt();
 
-    int n = peer.update_views(Image_Name, token, Views_Val);
+    int n = peer.update_views(Image_Name, token, Update_Username_views, Views_Val);
 
     switch (n)
     {
@@ -250,13 +251,14 @@ void MainWindow::on_Grant_Access_clicked()
 {
     std::string Image_Name = ui->Input_Imgname_Allow->text().toStdString();
     std::string Username = ui->Input_Username_Allow->text().toStdString();
+    int Username_Views = ui->Input_ViewsNo_GrantAccess->text().toInt();
 
-    int n = peer.set_image_viewable_by(Image_Name, token, Username);
+    int n = peer.set_image_viewable_by(Image_Name, token, Username, Username_Views);
 
     switch (n)
     {
         case SUCCESS:
-            QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully added access!"));
+            QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully added access to !"));
             break;
         case UNAUTHORIZED_ACCESS:
             QMessageBox::information(this, tr("Plumber GUI"), tr("Unauthorized access!"));
