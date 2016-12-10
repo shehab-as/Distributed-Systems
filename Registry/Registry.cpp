@@ -214,7 +214,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             int views = stoi(params[3]);
 
 
-            auto n = update_views_svc(image_name, user_token, allowed_user, views);
+            auto n = update_User_views_svc(image_name, user_token, allowed_user, views);
 
             Message reply(MessageType::Reply, 9, request.getRPCId(), std::to_string(n), reply_params.size(),
                           reply_params);
@@ -448,7 +448,7 @@ Registry::set_image_viewable_by_svc(std::string image_id, long int user_token, s
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-int Registry::update_views_svc(std::string image_name, long int user_token, std::string allowed_user, int views_val) {
+int Registry::update_User_views_svc(std::string image_name, long int user_token, std::string allowed_user, int views_val) {
 
 
     long int peer_token = fetch_token(allowed_user);

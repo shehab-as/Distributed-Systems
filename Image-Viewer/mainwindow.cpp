@@ -155,14 +155,14 @@ void MainWindow::on_DownloadImage_clicked() {
 }
 
 //Function Updating Views of an image from User.
-//~~~~~~~~~~~~~~~~~NOT WORKING YET.~~~~~~~~~~~~~~~~~//
+//~~~~~~~~~~~~~~~~~NOT Tested YET.~~~~~~~~~~~~~~~~~//
 void MainWindow::on_UpdateViews_clicked()
 {
     std::string Image_Name = ui->Input_Views_Name->text().toStdString();
     std::string Update_Username_views = ui->Input_Username_ViewsUpdate->text().toStdString();
     int Views_Val = ui->Input_ViewsNo->text().toInt();
 
-    int n = peer.update_views(Image_Name, token, Update_Username_views, Views_Val);
+    int n = peer.update_User_views(Image_Name, token, Update_Username_views, Views_Val);
 
     switch (n)
     {
@@ -184,15 +184,15 @@ void MainWindow::on_UpdateViews_clicked()
 
 }
 
-
+//~~~~~~~~~~~~~~~~~~~Commented the Extraction of Views file from the image.~~~~~~~~~~~~~~~~~~~//
 //Clicking button to display image after entering the image name.
 void MainWindow::on_Display_Button_clicked() {
 
     //Image_Name --> Dummy Image. The Real Image is inside it. The Views File is inside Real Image.
     std::string Image_Name = ui->ImageName_to_Display->text().toStdString();
-    std::string Real_Image = "OG_" + Image_Name,
-                Views_File = Image_Name.substr(0, Image_Name.find('.')) + "_Views.txt";
-    std::ifstream Read_File;
+    std::string Real_Image = "OG_" + Image_Name;
+    //std::string Views_File = Image_Name.substr(0, Image_Name.find('.')) + "_Views.txt";
+    //std::ifstream Read_File;
     int views;
     // TODO: Implement stegnography decoding here, check num of views left, if num of views is 0 display encoded image
     std::string CMD;
@@ -200,20 +200,21 @@ void MainWindow::on_Display_Button_clicked() {
     //Decoding.
     CMD = "steghide extract -sf " + Image_Name + " -xf " + Real_Image + " -p '' --force";
     system(CMD.c_str());
-    CMD = "steghide extract -sf " + Real_Image + " -xf " + Views_File + " -p '' --force";
-    system(CMD.c_str());
-    //Getting Views Value from File.
-    std::string line;
-    Read_File.open(Views_File);
-    getline(Read_File, line);
-    views = std::stoi(line);
+    //CMD = "steghide extract -sf " + Real_Image + " -xf " + Views_File + " -p '' --force";
+    //system(CMD.c_str());
+    ////Getting Views Value from File.
+    //std::string line;
+    //Read_File.open(Views_File);
+    //getline(Read_File, line);
+    //peer.retrieve_updated_views(Image_Name, token, )
+    //views = std::stoi(line);
 
     // Uncomment when DB part is implemented.
     // Below Peer will call this function to check the recent value of Views everytime.
     //peer.retrieve_updated_views(Image_Name, token, views);
 
-    Read_File.close();
-    remove(Views_File.c_str());
+    //Read_File.close();
+    //remove(Views_File.c_str());
 
     if(views > 0)
         //If Views > 0, Display the real embedded image.
@@ -224,23 +225,23 @@ void MainWindow::on_Display_Button_clicked() {
         ui->Views_Value->setText(QString::number(views));
         std::cout << views << std::endl;
         std::ofstream Write_File;
-        Write_File.open(Views_File);
-        Write_File << views;
-        Write_File.close();
+        //Write_File.open(Views_File);
+        //Write_File << views;
+        //Write_File.close();
 
         //Encoding.
-        CMD = "steghide embed -cf " + Real_Image + " -ef " + Views_File + " -p '' --force";
+        //CMD = "steghide embed -cf " + Real_Image + " -ef " + Views_File + " -p '' --force";
         system(CMD.c_str());
         CMD = "steghide embed -cf " + Image_Name + " -ef " + Real_Image + " -p '' --force";
         system(CMD.c_str());
 
         remove(Real_Image.c_str());
-        remove(Views_File.c_str());
+        //remove(Views_File.c_str());
     } else
         //If Views reached to 0, Display the dummy image.
     {
-        if(Read_File.good())
-            remove(Views_File.c_str());
+        //if(Read_File.good())
+        //    remove(Views_File.c_str());
         QImage dummy_image_to_display(QString::fromStdString(Image_Name));
         ui->Image_Display->setPixmap(QPixmap::fromImage(dummy_image_to_display));
         ui->Views_Value->setText(QString::number(views));

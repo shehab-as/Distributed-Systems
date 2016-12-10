@@ -78,7 +78,7 @@ public:
     int set_image_viewable_by_svc(std::string image_id, long int user_token, std::string allowed_user, int views);
     //New functions.
     int revoke_access_svc (std::string image_id, long int user_token, std::string user_to_revoke);
-    int update_views_svc(std::string image_name, long int user_token, std::string allowed_user, int views);
+    int update_User_views_svc(std::string image_name, long int user_token, std::string allowed_user, int views);
     int retrieve_updated_views_svc(std::string image_name, long int user_token, std::string allowed_user, int& views);
 
 

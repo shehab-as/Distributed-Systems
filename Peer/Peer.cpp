@@ -293,7 +293,7 @@ int Peer::revoke_access(std::string image_id, long int user_token, std::string u
 
 }
 
-int Peer::update_views(std::string image_name, long int user_token, std::string allowed_user, int views)
+int Peer::update_User_views(std::string image_name, long int user_token, std::string allowed_user, int views)
 {
     std::vector<std::string> v{image_name, std::to_string(user_token), allowed_user, std::to_string(views)};
     Message request(MessageType::Request, 9, RPC_Count++, "NULL", v.size(), v);
