@@ -204,7 +204,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
 
         }
 
-        case UPDATE_User_VIEWS: {
+        case UPDATE_USER_VIEWS: {
             std::vector<std::string> params, reply_params;
 
             params = request.getParams();
