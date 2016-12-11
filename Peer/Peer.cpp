@@ -265,11 +265,12 @@ int Peer::set_image_viewable_by(std::string image_id, long int user_token, std::
 
     if (n == -1)
         return CONNECTION_ERROR;
-
     int request_reply_val = stoi(reply.getReturnVal());
 
     if (request_reply_val == -1)
         return GENERAL_ERROR;
+    if(request_reply_val == 404)
+        return 404;
 
     return SUCCESS;
 }
@@ -321,6 +322,8 @@ int Peer::retrieve_updated_views(std::string image_name, long int user_token,  i
     int request_reply_val = stoi(reply.getReturnVal());
     if(request_reply_val == -1)
         return GENERAL_ERROR;
+
+    views = std::stoi(reply.getParams()[0]);
 
     return SUCCESS;
 }

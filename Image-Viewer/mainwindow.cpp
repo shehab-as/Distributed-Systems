@@ -193,7 +193,7 @@ void MainWindow::on_Display_Button_clicked() {
     std::string Real_Image = "OG_" + Image_Name;
     //std::string Views_File = Image_Name.substr(0, Image_Name.find('.')) + "_Views.txt";
     //std::ifstream Read_File;
-    int views;
+    int views = 0;
     // TODO: Implement stegnography decoding here, check num of views left, if num of views is 0 display encoded image
     std::string CMD;
 
@@ -260,7 +260,7 @@ void MainWindow::on_Grant_Access_clicked()
     switch (n)
     {
         case SUCCESS:
-            QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully added access to !"));
+            QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully added access!"));
             break;
         case UNAUTHORIZED_ACCESS:
             QMessageBox::information(this, tr("Plumber GUI"), tr("Unauthorized access!"));
@@ -270,6 +270,9 @@ void MainWindow::on_Grant_Access_clicked()
             break;
         case GENERAL_ERROR:
             QMessageBox::information(this, tr("Plumber GUI"), tr("General Error: Failed to add access!"));
+            break;
+        case 404:
+            QMessageBox::information(this, tr("Plumber GUI"), tr("User already has access"));
             break;
 
         default:
