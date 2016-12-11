@@ -229,11 +229,10 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
 
             params = request.getParams();
             std::string image_name = params[0];
-            long int user_token = stoi(params[1]);
-            std::string allowed_user = params[2];
-            int views = stoi(params[3]);
+            long int peer_token = stoi(params[1]);
+            int views = stoi(params[2]);
 
-            auto n = retrieve_updated_views_svc(image_name, user_token, allowed_user, views);
+            auto n = retrieve_updated_views_svc(image_name, peer_token, views);
 
             Message reply(MessageType::Reply, 10, request.getRPCId(), std::to_string(n), reply_params.size(),
                           reply_params);
@@ -444,7 +443,7 @@ Registry::set_image_viewable_by_svc(std::string image_id, long int user_token, s
 
     for (int i = 0; i < viewable_by_DB.size(); i++)
         if (viewable_by_DB[i].img_name == image_id && viewable_by_DB[i].token == peer_token)
-            return 0;
+            return 404;
 
 
     for (int i = 0; i < img_DB.size(); i++)
@@ -495,25 +494,16 @@ Registry::update_User_views_svc(std::string image_name, long int user_token, std
 
 }
 
-int Registry::retrieve_updated_views_svc(std::string image_name, long int user_token, std::string allowed_user,
+int Registry::retrieve_updated_views_svc(std::string image_name, long int peer_token,
                                          int &views) {
-
-    long int peer_token = fetch_token(allowed_user);
-
-    if (peer_token == -1)
-        return -1;
 
     update_viewable_by();
 
-    for (int i = 0; i < img_DB.size(); i++)
-        if (img_DB[i].token == user_token && img_DB[i].img_name == image_name) {
-            for (int i = 0; i < viewable_by_DB.size(); i++)
-                if (viewable_by_DB[i].img_name == image_name && viewable_by_DB[i].token == peer_token) {
-                    views = viewable_by_DB[i].views;
-                    return 0;
-                }
+    for (int i = 0; i < viewable_by_DB.size(); i++)
+        if (viewable_by_DB[i].token == peer_token && viewable_by_DB[i].img_name == image_name) {
+            views = viewable_by_DB[i].views;
+            return 0;
         }
-
 
     return -1;
 }

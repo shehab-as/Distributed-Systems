@@ -81,7 +81,7 @@ public:
     //New functions.
     int revoke_access_svc (std::string image_id, long int user_token, std::string user_to_revoke);
     int update_User_views_svc(std::string image_name, long int user_token, std::string allowed_user, int views);
-    int retrieve_updated_views_svc(std::string image_name, long int user_token, std::string allowed_user, int& views);
+    int retrieve_updated_views_svc(std::string image_name, long int peer_token, int& views);
     int decrement_views_internal_svc(std::string image_name, long int viewer_token, int views);
 
 
