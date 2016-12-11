@@ -323,6 +323,8 @@ int Peer::retrieve_updated_views(std::string image_name, long int user_token,  i
     if(request_reply_val == -1)
         return GENERAL_ERROR;
 
+    views = std::stoi(reply.getParams()[0]);
+
     return SUCCESS;
 }
 
