@@ -49,7 +49,8 @@ public:
     //New Functions
     int revoke_access(std::string image_id, long int user_token, std::string user_to_revoke);
     int update_User_views(std::string image_name, long int user_token, std::string allowed_user, int views);
-    int retrieve_updated_views(std::string image_name, long int user_token, std::string allowed_user, int& views);
+    int retrieve_updated_views(std::string image_name, long int user_token, int& views);
+    int decrement_views_internal(std::string image_name, long int user_token, int views);
 };
 
 
