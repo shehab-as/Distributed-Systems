@@ -211,7 +211,7 @@ void MainWindow::on_Display_Button_clicked() {
 
     // Uncomment when DB part is implemented.
     // Below Peer will call this function to check the recent value of Views everytime.
-    //peer.retrieve_updated_views(Image_Name, token, views);
+    peer.retrieve_updated_views(Image_Name, token, views);
 
     //Read_File.close();
     //remove(Views_File.c_str());
@@ -224,14 +224,15 @@ void MainWindow::on_Display_Button_clicked() {
         views--;
         ui->Views_Value->setText(QString::number(views));
         std::cout << views << std::endl;
-        std::ofstream Write_File;
+        peer.decrement_views_internal(Image_Name, token, views);
+        //std::ofstream Write_File;
         //Write_File.open(Views_File);
         //Write_File << views;
         //Write_File.close();
 
         //Encoding.
         //CMD = "steghide embed -cf " + Real_Image + " -ef " + Views_File + " -p '' --force";
-        system(CMD.c_str());
+        //system(CMD.c_str());
         CMD = "steghide embed -cf " + Image_Name + " -ef " + Real_Image + " -p '' --force";
         system(CMD.c_str());
 
