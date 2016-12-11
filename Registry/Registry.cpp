@@ -233,6 +233,7 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             int views = stoi(params[2]);
 
             auto n = retrieve_updated_views_svc(image_name, peer_token, views);
+            reply_params.push_back(std::to_string(views));
 
             Message reply(MessageType::Reply, 10, request.getRPCId(), std::to_string(n), reply_params.size(),
                           reply_params);
