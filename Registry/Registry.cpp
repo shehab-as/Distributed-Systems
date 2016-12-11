@@ -241,6 +241,24 @@ void Registry::handleRequest(Message request, sockaddr_in sender_addr) {
             serverConnector.send_no_ack(reply, sender_addr);
             break;
         }
+
+        case DECREMENT_VIEWS_INTERNAL: {
+
+            std::vector<std::string> params, reply_params;
+            params = request.getParams();
+            std::string image_name = params[0];
+            long int viewer_token = stoi(params[1]);
+            int views = stoi(params[2]);
+
+            auto n = decrement_views_internal_svc(image_name, viewer_token, views);
+
+            Message reply(MessageType::Reply, 11, request.getRPCId(), std::to_string(n), reply_params.size(),
+                          reply_params);
+
+            serverConnector.send_no_ack(reply, sender_addr);
+            break;
+        }
+
         default: {
             break;
         }
@@ -448,7 +466,8 @@ Registry::set_image_viewable_by_svc(std::string image_id, long int user_token, s
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
-int Registry::update_User_views_svc(std::string image_name, long int user_token, std::string allowed_user, int views_val) {
+int
+Registry::update_User_views_svc(std::string image_name, long int user_token, std::string allowed_user, int views_val) {
 
 
     long int peer_token = fetch_token(allowed_user);
@@ -514,9 +533,9 @@ void Registry::load_DBs() {
                 pathLocation); //location of database should be in constructor of Registry and used as a string?
 
         // Compile a SQL query, containing one parameter (index 1)
-        SQLite::Statement usr_query(db, "SELECT * FROM user");
-        SQLite::Statement img_query(db, "SELECT * FROM image");
-        SQLite::Statement viewable_by_query(db, "SELECT * FROM viewable_by");
+        SQLite::Statement usr_query(db, "SELECT * FROM user;");
+        SQLite::Statement img_query(db, "SELECT * FROM image;");
+        SQLite::Statement viewable_by_query(db, "SELECT * FROM viewable_by;");
 
         //  Loop to execute the query step by step, to get rows of result
         while (usr_query.executeStep()) {
@@ -578,7 +597,7 @@ void Registry::update_users() {
     user usr;
     try {
         SQLite::Database db(pathLocation);
-        SQLite::Statement usr_query(db, "SELECT * FROM user");
+        SQLite::Statement usr_query(db, "SELECT * FROM user;");
         while (usr_query.executeStep()) {
             // Demonstrate how to get some typed column value
             usr.token = usr_query.getColumn(0);
@@ -603,7 +622,7 @@ void Registry::update_imageList() {
 
     try {
         SQLite::Database db(pathLocation);
-        SQLite::Statement img_query(db, "SELECT * FROM image");
+        SQLite::Statement img_query(db, "SELECT * FROM image;");
         while (img_query.executeStep()) {
             // Demonstrate how to get some typed column value
             img.img_name = img_query.getColumn(0).getString();
@@ -615,7 +634,7 @@ void Registry::update_imageList() {
         }
     }
     catch (std::exception &e) {
-        std::cout << "exception: " << e.what() << std::endl;
+        std::cout << "update_imageList exception: " << e.what() << std::endl;
     }
 }
 
@@ -638,7 +657,7 @@ void Registry::update_viewable_by() {
         }
     }
     catch (std::exception &e) {
-        std::cout << "exception: " << e.what() << std::endl;
+        std::cout << "update_viewable_by exception: " << e.what() << std::endl;
     }
 }
 
@@ -686,4 +705,32 @@ int Registry::revoke_access_svc(std::string image_id, long int user_token, std::
 
 
     //return 0;
+}
+
+int Registry::decrement_views_internal_svc(std::string image_name, long int viewer_token, int views) {
+
+    bool has_access = false;
+    for (int i = 0; i < viewable_by_DB.size(); i++)
+        if (viewable_by_DB[i].img_name == image_name && viewable_by_DB[i].token == viewer_token)
+            has_access = true;
+
+    if (has_access) {
+
+        try {
+            SQLite::Database db(pathLocation, SQLite::OPEN_READWRITE, 0, "");
+            SQLite::Statement update_views_query(db,
+                                                 "UPDATE viewable_by SET views = '" + std::to_string(views) +
+                                                 "' WHERE img_name = '" + image_name + "' AND token = '" +
+                                                 std::to_string(viewer_token) + "' ;");
+            int noRowsModified = update_views_query.exec();
+            update_viewable_by();
+            return 0;
+        }
+        catch (std::exception &e) {
+            std::cout << "decrement_views_internal_svc exception: " << e.what() << std::endl;
+        }
+    }
+
+
+    return 0;
 }
