@@ -105,6 +105,13 @@ void MainWindow::on_AddImage_clicked() {
     std::stringstream CMD;
     CMD << "steghide embed -cf " + Image_Name + " -ef ";
 
+    std::ifstream f(Image_Name);
+
+    if (!f.good()) {
+        QMessageBox::information(this, tr("Plumber GUI"), tr("Image does not exist."));
+        return;
+    }
+
     int n = peer.add_entry(Image_Name, token);
 
     if (n == SUCCESS)
