@@ -25,8 +25,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow() {
     delete ui;
-    for(auto image_name : downloaded_image_container)
-        remove((char*)image_name.c_str());
+    for (auto image_name : downloaded_image_container)
+        remove((char *) image_name.c_str());
 }
 
 //////////////// 1  ////////////////
@@ -91,7 +91,7 @@ void MainWindow::on_Click_Downloaded_List_clicked() {
 
     //int n = peer.view_imagelist(downloaded_image_container, token);
     //std::cout << n;
-    if(downloaded_image_container.empty())
+    if (downloaded_image_container.empty())
         ui->Image_Downloaded_List->addItem("No images available.");
     else
         for (auto image_name : downloaded_image_container)
@@ -137,15 +137,14 @@ void MainWindow::on_DownloadImage_clicked() {
     int n = peer.download_image(Image_Name, token, image_container);
 
     if (n == SUCCESS) {
-        std::ofstream downloaded_image (Image_Name, std::ios::binary);
+        std::ofstream downloaded_image(Image_Name, std::ios::binary);
         downloaded_image << image_container[0];
         QString qstring_image_name = QString::fromStdString(Image_Name);
         ui->Image_Downloaded_List->addItem(qstring_image_name);
         //Adding the Image to the Downloaded List (Public Attribute)
         downloaded_image_container.push_back(Image_Name);
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image downloaded successfully."));
-    }
-    else
+    } else
         QMessageBox::information(this, tr("Plumber GUI"), tr("Image failed to download."));
 
     // Use this whenever you feel like it.
@@ -156,16 +155,14 @@ void MainWindow::on_DownloadImage_clicked() {
 
 //Function Updating Views of an image from User.
 //~~~~~~~~~~~~~~~~~NOT Tested YET.~~~~~~~~~~~~~~~~~//
-void MainWindow::on_UpdateViews_clicked()
-{
+void MainWindow::on_UpdateViews_clicked() {
     std::string Image_Name = ui->Input_Views_Name->text().toStdString();
     std::string Update_Username_views = ui->Input_Username_ViewsUpdate->text().toStdString();
     int Views_Val = ui->Input_ViewsNo->text().toInt();
 
     int n = peer.update_User_views(Image_Name, token, Update_Username_views, Views_Val);
 
-    switch (n)
-    {
+    switch (n) {
         case SUCCESS:
             QMessageBox::information(this, tr("Plumber GUI"), tr("Views successfully updated!"));
             break;
@@ -216,7 +213,7 @@ void MainWindow::on_Display_Button_clicked() {
     //Read_File.close();
     //remove(Views_File.c_str());
 
-    if(views > 0)
+    if (views > 0)
         //If Views > 0, Display the real embedded image.
     {
         QImage real_image_to_display(QString::fromStdString(Real_Image));
@@ -243,22 +240,24 @@ void MainWindow::on_Display_Button_clicked() {
     {
         //if(Read_File.good())
         //    remove(Views_File.c_str());
+        try { remove(Real_Image.c_str()); }
+        catch (...) {
+        }
+
         QImage dummy_image_to_display(QString::fromStdString(Image_Name));
         ui->Image_Display->setPixmap(QPixmap::fromImage(dummy_image_to_display));
         ui->Views_Value->setText(QString::number(views));
     }
 }
 
-void MainWindow::on_Grant_Access_clicked()
-{
+void MainWindow::on_Grant_Access_clicked() {
     std::string Image_Name = ui->Input_Imgname_Allow->text().toStdString();
     std::string Username = ui->Input_Username_Allow->text().toStdString();
     int Username_Views = ui->Input_ViewsNo_GrantAccess->text().toInt();
 
     int n = peer.set_image_viewable_by(Image_Name, token, Username, Username_Views);
 
-    switch (n)
-    {
+    switch (n) {
         case SUCCESS:
             QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully added access!"));
             break;
@@ -281,14 +280,12 @@ void MainWindow::on_Grant_Access_clicked()
 }
 
 //Function Revoking Access from User.
-void MainWindow::on_Revoke_Access_clicked()
-{
+void MainWindow::on_Revoke_Access_clicked() {
     std::string Image_Name = ui->Input_Imgname_Allow->text().toStdString();
     std::string Username = ui->Input_Username_Revoke->text().toStdString();
 
     int n = peer.revoke_access(Image_Name, token, Username);
-    switch (n)
-    {
+    switch (n) {
         case SUCCESS:
             QMessageBox::information(this, tr("Plumber GUI"), tr("Successfully revoked access!"));
             break;
