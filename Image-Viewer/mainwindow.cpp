@@ -195,8 +195,14 @@ void MainWindow::on_Display_Button_clicked() {
     std::string CMD;
 
     //Decoding.
-    CMD = "steghide extract -sf " + Image_Name + " -xf " + Real_Image + " -p '' --force";
-    system(CMD.c_str());
+    try {
+        CMD = "steghide extract -sf " + Image_Name + " -xf " + Real_Image + " -p '' --force";
+        system(CMD.c_str());
+    }
+
+    catch(...){
+        return;
+    }
     //CMD = "steghide extract -sf " + Real_Image + " -xf " + Views_File + " -p '' --force";
     //system(CMD.c_str());
     ////Getting Views Value from File.
