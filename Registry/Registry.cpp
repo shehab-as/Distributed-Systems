@@ -276,7 +276,7 @@ int Registry::view_imagelist_svc(std::vector<std::string> &image_container, long
         update_viewable_by();
 
     auto n = check_token_svc(token);
-    update_imageList();
+//    update_imageList();
 
 
     if (n == 0) {
@@ -302,9 +302,6 @@ int Registry::add_entry_svc(std::string image_name, long int token, sockaddr_in 
     std::string owner_addr = std::to_string(owner.sin_addr.s_addr);
     int owner_port = owner.sin_port;
     auto n = check_token_svc(token);
-
-
-    //if token is correct, insert imagename, owner_addr, owner_port
 
     update_imageList();
 
