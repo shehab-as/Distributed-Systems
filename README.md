@@ -8,7 +8,7 @@ A peer-to-peer system where its core functionality is allowing users of differen
 * View Downloaded/Allowed-Access Images' list.
 
 #### Project Developers ####
-@ShadyF, @ShehabCE, @FaridaSolimann, and @zyad224
+[@ShadyF](https://github.com/ShadyF), [@ShehabCE](https://github.com/ShehabCE), [@FaridaSolimann](https://github.com/FaridaSolimann), and [@zyad224](https://github.com/zyad224)
 
 Run the following after cloning to download the SQLiteCpp module
 ```
