@@ -16,5 +16,4 @@ git submodule init
 git submodule update
 ```
 ### Screenshot of Project GUI
-![Screenshot]
-(https://github.com/ShehabCE/Distributed-Systems/blob/master/Distributed_Project_Screenshot.png)
+![Screenshot](https://github.com/ShehabMMohamed/Distributed-Systems/blob/master/Distributed_Project_Screenshot.png)
